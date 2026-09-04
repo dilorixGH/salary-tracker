@@ -1,0 +1,1041 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Salary Tracker</title>
+    <style>
+      :root {
+        --bg: #000000;
+        --panel: #111111;
+        --panel-2: #171717;
+        --border: #2a2a2a;
+        --text: #f3f3f3;
+        --muted: #a5a5a5;
+        --accent: #7c3aed;
+        --accent-2: #8b5cf6;
+        --danger: #ef4444;
+        --success: #22c55e;
+        --shadow: rgba(0, 0, 0, 0.35);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      body {
+        padding: 24px 16px 40px;
+      }
+
+      .app {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        gap: 18px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 10px 25px var(--shadow);
+      }
+
+      .topbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 2px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.8rem, 3vw, 2.7rem);
+      }
+
+      .topbarActions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .topbarActions .iconButton {
+        order: 1;
+      }
+
+      .topbarActions .settingsButton {
+        order: 2;
+      }
+
+      button {
+        border-radius: 10px;
+        font: inherit;
+        cursor: pointer;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+
+      button:hover { transform: translateY(-1px); }
+
+      button.primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: white;
+        border: none;
+        padding: 12px 18px;
+      }
+
+      button.secondary {
+        background: #1a1a1a;
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 12px 16px;
+      }
+
+      button.danger {
+        background: rgba(239, 68, 68, 0.14);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        color: #fca5a5;
+      }
+
+      .settingsButton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #1a1a1a;
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 10px;
+        width: 42px;
+        height: 42px;
+      }
+
+      .iconButton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        padding: 10px;
+        background: #1a1a1a;
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+
+      .iconButton svg {
+        width: 22px;
+        height: 22px;
+        display: block;
+      }
+
+      .settingsButton svg {
+        width: 20px;
+        height: 20px;
+        display: block;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: 1.4fr 0.9fr;
+        gap: 18px;
+        padding: 24px;
+      }
+
+      .summaryMain, .summaryMeta, .panelBlock {
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+      }
+
+      .summaryMain, .summaryMeta {
+        padding: 18px 20px;
+      }
+
+      .summaryLabel {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .totalAmount {
+        margin-top: 12px;
+        font-size: clamp(2.1rem, 5vw, 4rem);
+        font-weight: 700;
+        line-height: 1.1;
+      }
+
+      .summaryMeta {
+        display: grid;
+        gap: 18px;
+        align-content: center;
+      }
+
+      .metaRow {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 8px;
+      }
+
+      .metaRow:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .metaRow span:first-child {
+        color: var(--muted);
+      }
+
+      .metaRow strong {
+        font-size: 1.05rem;
+      }
+
+      .panelBlock {
+        padding: 22px 20px;
+      }
+
+      .panelHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .panelHeader h2 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+
+      .entryList, .statsList {
+        display: grid;
+        gap: 12px;
+      }
+
+      .entryCard, .statCard {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        background: #171717;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 16px;
+      }
+
+      .entryMain {
+        display: grid;
+        gap: 4px;
+      }
+
+      .entryTitle {
+        font-weight: 700;
+      }
+
+      .entryMeta {
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      .entryValue {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+      }
+
+      .amount {
+        font-weight: 700;
+        color: var(--success);
+      }
+
+      .entryActions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .tinyButton {
+        padding: 7px 10px;
+        font-size: 0.8rem;
+      }
+
+      .emptyState {
+        background: #151515;
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        color: var(--muted);
+        padding: 18px;
+        text-align: center;
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.72);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 1000;
+      }
+
+      .modal.open {
+        display: flex;
+      }
+
+      .modalCard {
+        width: min(560px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        padding: 22px 20px;
+      }
+
+      .modalHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      .modalHeader h3 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+
+      form {
+        display: grid;
+        gap: 16px;
+      }
+
+      .fieldGrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .field label {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      select, input {
+        width: 100%;
+        background: #0d0d0d;
+        color: var(--text);
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        font: inherit;
+      }
+
+      .autocompleteWrap {
+        position: relative;
+      }
+
+      .suggestionsList {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 8px);
+        background: #171717;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        max-height: 220px;
+        overflow-y: auto;
+        display: none;
+        z-index: 20;
+      }
+
+      .suggestionsList.open {
+        display: block;
+      }
+
+      .suggestionItem {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .suggestionItem:last-child {
+        border-bottom: none;
+      }
+
+      .suggestionSelect {
+        background: transparent;
+        border: none;
+        color: var(--text);
+        text-align: left;
+        flex: 1;
+        padding: 10px 12px;
+      }
+
+      .suggestionDelete {
+        background: transparent;
+        border: none;
+        color: #fca5a5;
+        padding: 10px 12px;
+        font-size: 1.1rem;
+      }
+
+      .suggestionEmpty {
+        color: var(--muted);
+        padding: 12px;
+      }
+
+      .formActions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 800px) {
+        body {
+          padding: 16px 12px 40px;
+        }
+
+        .summary, .fieldGrid {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          flex-wrap: nowrap;
+          gap: 8px;
+        }
+
+        h1 {
+          font-size: 1.55rem;
+          white-space: nowrap;
+        }
+
+        .panelHeader, .entryCard, .statCard {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .modalHeader {
+          flex-direction: row;
+          align-items: center;
+          width: 100%;
+        }
+
+        .entryCard, .statCard {
+          gap: 10px;
+        }
+
+        .entryValue {
+          align-items: flex-start;
+        }
+
+        .topbarActions {
+          width: auto;
+          flex-wrap: nowrap;
+          justify-content: flex-end;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <h1>Salary Tracker</h1>
+
+        <div class="topbarActions">
+          <button type="button" class="settingsButton" id="settingsBtn" aria-label="Настройки">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M12.0005 15C13.6573 15 15.0005 13.6569 15.0005 12C15.0005 10.3431 13.6573 9 12.0005 9C10.3436 9 9.00049 10.3431 9.00049 12C9.00049 13.6569 10.3436 15 12.0005 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9.28957 19.3711L9.87402 20.6856C10.0478 21.0768 10.3313 21.4093 10.6902 21.6426C11.0492 21.8759 11.4681 22.0001 11.8962 22C12.3244 22.0001 12.7433 21.8759 13.1022 21.6426C13.4612 21.4093 13.7447 21.0768 13.9185 20.6856L14.5029 19.3711C14.711 18.9047 15.0609 18.5159 15.5029 18.26C15.9477 18.0034 16.4622 17.8941 16.9729 17.9478L18.4029 18.1C18.8286 18.145 19.2582 18.0656 19.6396 17.8713C20.021 17.6771 20.3379 17.3763 20.5518 17.0056C20.766 16.635 20.868 16.2103 20.8455 15.7829C20.823 15.3555 20.677 14.9438 20.4251 14.5978L19.5785 13.4344C19.277 13.0171 19.1159 12.5148 19.1185 12C19.1184 11.4866 19.281 10.9864 19.5829 10.5711L20.4296 9.40778C20.6814 9.06175 20.8275 8.65007 20.85 8.22267C20.8725 7.79528 20.7704 7.37054 20.5562 7C20.3423 6.62923 20.0255 6.32849 19.644 6.13423C19.2626 5.93997 18.833 5.86053 18.4074 5.90556L16.9774 6.05778C16.4667 6.11141 15.9521 6.00212 15.5074 5.74556C15.0645 5.48825 14.7144 5.09736 14.5074 4.62889L13.9185 3.31444C13.7447 2.92317 13.4612 2.59072 13.1022 2.3574C12.7433 2.12408 12.3244 1.99993 11.8962 2C11.4681 1.99993 11.0492 2.12408 10.6902 2.3574C10.3313 2.59072 10.0478 2.92317 9.87402 3.31444L9.28957 4.62889C9.0825 5.09736 8.73245 5.48825 8.28957 5.74556C7.84479 6.00212 7.33024 6.11141 6.81957 6.05778L5.38513 5.90556C4.95946 5.86053 4.52987 5.93997 4.14844 6.13423C3.76702 6.32849 3.45014 6.62923 3.23624 7C3.02206 7.37054 2.92002 7.79528 2.94251 8.22267C2.96499 8.65007 3.11103 9.06175 3.36291 9.40778L4.20957 10.5711C4.51151 10.9864 4.67411 11.4866 4.67402 12C4.67411 12.5134 4.51151 13.0137 4.20957 13.4289L3.36291 14.5922C3.11103 14.9382 2.96499 15.3499 2.94251 15.7773C2.92002 16.2047 3.02206 16.6295 3.23624 17C3.45036 17.3706 3.76727 17.6712 4.14864 17.8654C4.53001 18.0596 4.95949 18.1392 5.38513 18.0944L6.81513 17.9422C7.3258 17.8886 7.84034 17.9979 8.28513 18.2544C8.72966 18.511 9.08134 18.902 9.28957 19.3711Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <button type="button" class="iconButton" id="openShiftModalBtn" aria-label="Добавить смену" title="Добавить смену">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="summary panel">
+        <div class="summaryMain">
+          <div class="summaryLabel">Общая сумма за текущую неделю</div>
+          <div id="totalAmount" class="totalAmount">0 €</div>
+        </div>
+
+        <div class="summaryMeta">
+          <div class="metaRow">
+            <span>Смен</span>
+            <strong id="entryCount">0</strong>
+          </div>
+          <div class="metaRow">
+            <span>Отработано часов</span>
+            <strong id="hoursCount">0</strong>
+          </div>
+          <div class="metaRow">
+            <span>Зарплатный день</span>
+            <strong id="paydayDisplay">-</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel panelBlock">
+        <div class="panelHeader">
+          <h2>Статистика за недели</h2>
+        </div>
+        <div id="statsList" class="statsList"></div>
+      </section>
+
+      <section class="panel panelBlock">
+        <div class="panelHeader">
+          <h2>Список смен</h2>
+        </div>
+        <div id="entryList" class="entryList"></div>
+      </section>
+    </div>
+
+    <div class="modal" id="settingsModal" aria-hidden="true">
+      <div class="modalCard">
+        <div class="modalHeader">
+          <h3>Настройки</h3>
+          <button type="button" class="iconButton" id="closeSettingsBtn" aria-label="Закрыть настройки" title="Закрыть">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <form id="settingsForm">
+          <div class="field">
+            <label for="paydaySelectModal">Зарплатный день</label>
+            <select id="paydaySelectModal" aria-label="Выбор зарплатного дня недели">
+              <option value="0">Воскресенье</option>
+              <option value="1">Понедельник</option>
+              <option value="2">Вторник</option>
+              <option value="3">Среда</option>
+              <option value="4">Четверг</option>
+              <option value="5">Пятница</option>
+              <option value="6">Суббота</option>
+            </select>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="shiftModal" aria-hidden="true">
+      <div class="modalCard">
+        <div class="modalHeader">
+          <h3 id="shiftModalTitle">Добавить смену</h3>
+          <button type="button" class="iconButton" id="closeShiftModalBtn" aria-label="Закрыть форму смены" title="Закрыть">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <form id="entryForm">
+          <div class="field">
+            <label for="workNameInput">Название работы</label>
+            <div class="autocompleteWrap">
+              <input id="workNameInput" placeholder="Например: Поддержка сайта" autocomplete="off" />
+              <div id="suggestionsList" class="suggestionsList" role="listbox"></div>
+            </div>
+          </div>
+
+          <div class="fieldGrid">
+            <div class="field">
+              <label for="weekdaySelect">День недели</label>
+              <select id="weekdaySelect">
+                <option value="0">Воскресенье</option>
+                <option value="1">Понедельник</option>
+                <option value="2">Вторник</option>
+                <option value="3">Среда</option>
+                <option value="4">Четверг</option>
+                <option value="5">Пятница</option>
+                <option value="6">Суббота</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="hoursInput">Отработано часов</label>
+              <input id="hoursInput" type="number" min="0" step="0.5" value="1" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="amountInput">Сумма</label>
+            <input id="amountInput" type="number" min="0" step="0.01" placeholder="2500" />
+          </div>
+
+          <div class="formActions">
+            <button type="button" class="secondary" id="cancelEditButton">Отмена</button>
+            <button type="submit" class="primary">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const DB_NAME = 'salary-tracker-db';
+      const DB_VERSION = 1;
+      const DAY_NAMES = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+
+      const form = document.getElementById('entryForm');
+      const workNameInput = document.getElementById('workNameInput');
+      const weekdaySelect = document.getElementById('weekdaySelect');
+      const hoursInput = document.getElementById('hoursInput');
+      const amountInput = document.getElementById('amountInput');
+      const totalAmountEl = document.getElementById('totalAmount');
+      const entryCountEl = document.getElementById('entryCount');
+      const hoursCountEl = document.getElementById('hoursCount');
+      const paydayDisplay = document.getElementById('paydayDisplay');
+      const entryListEl = document.getElementById('entryList');
+      const statsListEl = document.getElementById('statsList');
+      const suggestionsList = document.getElementById('suggestionsList');
+
+      let db = null;
+      let editingEntryId = null;
+
+      function uid() {
+        if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+        return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function formatCurrency(value) {
+        return new Intl.NumberFormat('ru-RU', {
+          style: 'currency',
+          currency: 'EUR',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2
+        }).format(Number(value || 0));
+      }
+
+      function formatHours(value) {
+        return Number(value || 0).toFixed(1).replace(/\.0$/, '');
+      }
+
+      function getCurrentWeekdayIndex() {
+        return new Date().getDay();
+      }
+
+      function getStartOfWeek(date) {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        const day = d.getDay();
+        const diff = day === 0 ? -6 : 1 - day;
+        d.setDate(d.getDate() + diff);
+        return d;
+      }
+
+      function openDatabase() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+          request.onupgradeneeded = (event) => {
+            const database = event.target.result;
+            if (!database.objectStoreNames.contains('entries')) database.createObjectStore('entries', { keyPath: 'id' });
+            if (!database.objectStoreNames.contains('workOptions')) database.createObjectStore('workOptions', { keyPath: 'id' });
+            if (!database.objectStoreNames.contains('stats')) database.createObjectStore('stats', { keyPath: 'id' });
+            if (!database.objectStoreNames.contains('settings')) database.createObjectStore('settings', { keyPath: 'key' });
+          };
+
+          request.onsuccess = () => {
+            db = request.result;
+            resolve(db);
+          };
+
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      function readAllFromStore(storeName) {
+        return new Promise((resolve, reject) => {
+          if (!db) return reject(new Error('Database is not initialized'));
+          const transaction = db.transaction(storeName, 'readonly');
+          const store = transaction.objectStore(storeName);
+          const request = store.getAll();
+          request.onsuccess = () => resolve(request.result || []);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      function readFromStore(storeName, key) {
+        return new Promise((resolve, reject) => {
+          if (!db) return reject(new Error('Database is not initialized'));
+          const transaction = db.transaction(storeName, 'readonly');
+          const store = transaction.objectStore(storeName);
+          const request = store.get(key);
+          request.onsuccess = () => resolve(request.result || null);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      function writeToStore(storeName, value) {
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction(storeName, 'readwrite');
+          const store = transaction.objectStore(storeName);
+          const request = store.put(value);
+          request.onsuccess = () => resolve(value);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      function deleteFromStore(storeName, key) {
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction(storeName, 'readwrite');
+          const store = transaction.objectStore(storeName);
+          const request = store.delete(key);
+          request.onsuccess = () => resolve(true);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      function deleteAllFromStore(storeName) {
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction(storeName, 'readwrite');
+          const store = transaction.objectStore(storeName);
+          const request = store.clear();
+          request.onsuccess = () => resolve(true);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      async function setSetting(key, value) {
+        await writeToStore('settings', { key, value });
+      }
+
+      async function getSetting(key, fallback = null) {
+        const item = await readFromStore('settings', key);
+        return item ? item.value : fallback;
+      }
+
+      async function saveWorkOption(name) {
+        const cleanName = name.trim();
+        if (!cleanName) return;
+        const existing = await readAllFromStore('workOptions');
+        const found = existing.find((item) => item.name.toLowerCase() === cleanName.toLowerCase());
+        if (found) return found;
+        const option = { id: uid(), name: cleanName };
+        await writeToStore('workOptions', option);
+        return option;
+      }
+
+      async function loadAllEntries() {
+        const entries = await readAllFromStore('entries');
+        return entries.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      }
+
+      async function renderEntries() {
+        const entries = await loadAllEntries();
+        const total = entries.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+        const totalHours = entries.reduce((sum, item) => sum + Number(item.hours || 0), 0);
+
+        totalAmountEl.textContent = formatCurrency(total);
+        entryCountEl.textContent = String(entries.length);
+        hoursCountEl.textContent = formatHours(totalHours);
+
+        if (!entries.length) {
+          entryListEl.innerHTML = '<div class="emptyState">Пока нет ни одной смены. Добавьте первую запись.</div>';
+          return;
+        }
+
+        entryListEl.innerHTML = entries.map((entry) => `
+          <div class="entryCard">
+            <div class="entryMain">
+              <div class="entryTitle">${escapeHtml(entry.workName)}</div>
+              <div class="entryMeta">${DAY_NAMES[Number(entry.weekday)] || '-'} • ${formatHours(entry.hours)} ч</div>
+            </div>
+            <div class="entryValue">
+              <div class="amount">${formatCurrency(entry.amount)}</div>
+              <div class="entryActions">
+                <button type="button" class="tinyButton secondary" data-action="edit" data-id="${entry.id}">Редактировать</button>
+                <button type="button" class="tinyButton danger" data-action="delete" data-id="${entry.id}">Удалить</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        entryListEl.querySelectorAll('[data-action="delete"]').forEach((button) => {
+          button.addEventListener('click', async (event) => {
+            await deleteFromStore('entries', event.currentTarget.dataset.id);
+            await renderEntries();
+          });
+        });
+
+        entryListEl.querySelectorAll('[data-action="edit"]').forEach((button) => {
+          button.addEventListener('click', async (event) => {
+            const entryId = event.currentTarget.dataset.id;
+            const entry = (await loadAllEntries()).find((item) => item.id === entryId);
+            if (!entry) return;
+            editingEntryId = entry.id;
+            workNameInput.value = entry.workName;
+            weekdaySelect.value = String(entry.weekday);
+            hoursInput.value = String(entry.hours);
+            amountInput.value = String(entry.amount);
+            openEditModal(entry);
+          });
+        });
+      }
+
+      async function renderWorkOptions(filtered = null) {
+        const options = await readAllFromStore('workOptions');
+        const items = filtered !== null ? filtered : options;
+        items.sort((a, b) => a.name.localeCompare(b.name));
+
+        if (!items.length) {
+          suggestionsList.innerHTML = '<div class="suggestionEmpty">Нет сохранённых вариантов</div>';
+          return;
+        }
+
+        suggestionsList.innerHTML = items.map((option) => `
+          <div class="suggestionItem">
+            <button type="button" class="suggestionSelect" data-name="${escapeHtml(option.name)}">${escapeHtml(option.name)}</button>
+            <button type="button" class="suggestionDelete" data-remove-id="${option.id}" aria-label="Удалить ${escapeHtml(option.name)}">×</button>
+          </div>
+        `).join('');
+
+        suggestionsList.querySelectorAll('.suggestionSelect').forEach((button) => {
+          button.addEventListener('click', () => {
+            workNameInput.value = button.dataset.name;
+            suggestionsList.classList.remove('open');
+            workNameInput.focus();
+          });
+        });
+
+        suggestionsList.querySelectorAll('.suggestionDelete').forEach((button) => {
+          button.addEventListener('click', async (event) => {
+            event.stopPropagation();
+            await deleteFromStore('workOptions', button.dataset.removeId);
+            const query = workNameInput.value.trim();
+            const all = await readAllFromStore('workOptions');
+            const next = !query ? all : all.filter((item) => item.name.toLowerCase().includes(query.toLowerCase()));
+            renderWorkOptions(next);
+          });
+        });
+      }
+
+      async function loadStats() {
+        const stats = await readAllFromStore('stats');
+        stats.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        if (!stats.length) {
+          statsListEl.innerHTML = '<div class="emptyState">Статистика будет появляться после каждого сброса в понедельник.</div>';
+          return;
+        }
+
+        statsListEl.innerHTML = stats.map((item) => {
+          const start = new Date(item.weekStart).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+          const end = new Date(item.weekEnd).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+          return `
+            <div class="statCard">
+              <div>
+                <div class="entryTitle">Неделя ${start} — ${end}</div>
+                <div class="entryMeta">${item.entriesCount} смен</div>
+              </div>
+              <div class="amount">${formatCurrency(item.total)}</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function resetForm() {
+        editingEntryId = null;
+        form.reset();
+        weekdaySelect.value = String(getCurrentWeekdayIndex());
+        hoursInput.value = '1';
+      }
+
+      function openSettingsModal() {
+        document.getElementById('settingsModal').classList.add('open');
+      }
+
+      function closeSettingsModal() {
+        document.getElementById('settingsModal').classList.remove('open');
+      }
+
+      function openShiftModal() {
+        document.getElementById('shiftModalTitle').textContent = 'Добавить смену';
+        document.getElementById('shiftModal').classList.add('open');
+      }
+
+      function openEditModal(entry) {
+        editingEntryId = entry.id;
+        workNameInput.value = entry.workName;
+        weekdaySelect.value = String(entry.weekday);
+        hoursInput.value = String(entry.hours);
+        amountInput.value = String(entry.amount);
+        document.getElementById('shiftModalTitle').textContent = 'Редактировать смену';
+        document.getElementById('shiftModal').classList.add('open');
+      }
+
+      function closeShiftModal() {
+        document.getElementById('shiftModal').classList.remove('open');
+      }
+
+      async function refreshSuggestions() {
+        const all = await readAllFromStore('workOptions');
+        const query = workNameInput.value.trim();
+        const filtered = !query ? all : all.filter((item) => item.name.toLowerCase().includes(query.toLowerCase()));
+        renderWorkOptions(filtered);
+      }
+
+      workNameInput.addEventListener('focus', async () => {
+        await refreshSuggestions();
+        suggestionsList.classList.add('open');
+      });
+
+      workNameInput.addEventListener('input', async () => {
+        await refreshSuggestions();
+        suggestionsList.classList.add('open');
+      });
+
+      document.addEventListener('click', (event) => {
+        const autocompleteWrap = document.querySelector('.autocompleteWrap');
+        if (autocompleteWrap && !autocompleteWrap.contains(event.target)) {
+          suggestionsList.classList.remove('open');
+        }
+      });
+
+      document.getElementById('settingsBtn').addEventListener('click', openSettingsModal);
+      document.getElementById('closeSettingsBtn').addEventListener('click', closeSettingsModal);
+      document.getElementById('openShiftModalBtn').addEventListener('click', openShiftModal);
+      document.getElementById('closeShiftModalBtn').addEventListener('click', () => {
+        closeShiftModal();
+        resetForm();
+      });
+
+      document.getElementById('paydaySelectModal').addEventListener('change', async () => {
+        const value = Number(document.getElementById('paydaySelectModal').value);
+        paydayDisplay.textContent = DAY_NAMES[value] || DAY_NAMES[0];
+        await setSetting('payday', String(value));
+      });
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const name = workNameInput.value.trim();
+        const weekday = Number(weekdaySelect.value);
+        const hours = Number(hoursInput.value);
+        const amount = Number(amountInput.value);
+
+        if (!name || !Number.isFinite(hours) || hours <= 0 || !Number.isFinite(amount) || amount <= 0) {
+          alert('Заполните название, часы и сумму корректно.');
+          return;
+        }
+
+        const entryPayload = {
+          id: editingEntryId || uid(),
+          workName: name,
+          weekday,
+          hours,
+          amount,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        if (editingEntryId) {
+          const existing = await readFromStore('entries', editingEntryId);
+          if (existing) entryPayload.createdAt = existing.createdAt;
+        }
+
+        await writeToStore('entries', entryPayload);
+        await saveWorkOption(name);
+        await renderEntries();
+        await refreshSuggestions();
+        closeShiftModal();
+        resetForm();
+      });
+
+      document.getElementById('cancelEditButton').addEventListener('click', () => {
+        closeShiftModal();
+        resetForm();
+      });
+
+      async function ensureWeeklyReset() {
+        const now = new Date();
+        const currentMonday = getStartOfWeek(now);
+        const lastReset = await getSetting('lastReset', null);
+
+        if (!lastReset) {
+          await setSetting('lastReset', currentMonday.toISOString());
+          return;
+        }
+
+        const lastResetDate = new Date(lastReset);
+        if (!(currentMonday.getTime() > lastResetDate.getTime())) return;
+
+        const entries = await loadAllEntries();
+        const total = entries.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+        if (entries.length > 0 || total > 0) {
+          await writeToStore('stats', {
+            id: uid(),
+            weekStart: lastResetDate.toISOString(),
+            weekEnd: currentMonday.toISOString(),
+            total,
+            entriesCount: entries.length,
+            createdAt: new Date().toISOString()
+          });
+        }
+
+        await deleteAllFromStore('entries');
+        await setSetting('lastReset', currentMonday.toISOString());
+        await renderEntries();
+        await loadStats();
+      }
+
+      async function init() {
+        await openDatabase();
+        await ensureWeeklyReset();
+
+        const savedPayday = Number(await getSetting('payday', String(getCurrentWeekdayIndex())));
+        document.getElementById('paydaySelectModal').value = String(savedPayday);
+        paydayDisplay.textContent = DAY_NAMES[savedPayday] || DAY_NAMES[0];
+
+        await renderEntries();
+        await refreshSuggestions();
+        await loadStats();
+        resetForm();
+
+        setInterval(async () => {
+          await ensureWeeklyReset();
+          await renderEntries();
+          await loadStats();
+        }, 60000);
+      }
+
+      init().catch((error) => {
+        console.error('Failed to initialize app', error);
+      });
+    </script>
+  </body>
+</html>
