@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Salary Tracker</title>
     <style>
       :root {
@@ -300,6 +300,25 @@
         padding: 22px 20px;
       }
 
+      .weekModalCard {
+        width: min(720px, 100%);
+        max-height: min(80vh, 720px);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .weekModalSummary {
+        color: var(--muted);
+        margin: -6px 0 16px;
+      }
+
+      .weekEntriesList {
+        display: grid;
+        gap: 10px;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
       .modalHeader {
         display: flex;
         justify-content: space-between;
@@ -453,12 +472,845 @@
           flex-shrink: 0;
         }
       }
+
+      /* Mobile card layout inspired by Mouthly Payments */
+      :root {
+        --bg: #000;
+        --panel: #111;
+        --panel-2: #111;
+        --border: #333;
+        --text: #fff;
+        --muted: #aaa;
+        --accent: #007bff;
+        --accent-2: #1687ff;
+        --success: #54d68c;
+        --shadow: transparent;
+      }
+
+      html, body {
+        background: #000;
+        touch-action: manipulation;
+      }
+
+      body { padding: 0; }
+
+      .app {
+        width: 100%;
+        max-width: 480px;
+        height: 100vh;
+        height: 100dvh;
+        margin: 0 auto;
+        padding: 15px;
+        gap: 20px;
+        grid-template-rows: auto auto auto minmax(150px, 1fr);
+        overflow: visible;
+      }
+
+      .app.is-hidden { display: none; }
+
+      .app.is-entering { animation: app-screen-in 0.26s ease-out both; }
+
+      @keyframes app-screen-in {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+
+      .topbar { position: relative; z-index: 10; }
+
+      .appSwitcher { position: relative; }
+
+      .appSwitcherButton {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        font-size: 26px;
+        font-weight: 700;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .appSwitcherButton:hover,
+      .appSwitcherButton:active { transform: none; }
+
+      .appSwitcherButton svg {
+        width: 20px;
+        height: 20px;
+        fill: none;
+        stroke: #8e8e93;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: transform 0.2s ease;
+      }
+
+      .appSwitcher.is-open .appSwitcherButton svg { transform: rotate(180deg); }
+
+      .appSwitcherMenu {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        z-index: 20;
+        display: grid;
+        min-width: 210px;
+        overflow: hidden;
+        padding: 7px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(52, 52, 55, 0.78), rgba(20, 20, 22, 0.66));
+        box-shadow: 0 18px 38px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(22px) saturate(150%);
+        -webkit-backdrop-filter: blur(22px) saturate(150%);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-6px) scale(0.97);
+        transform-origin: top left;
+        transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+        visibility: hidden;
+      }
+
+      .appSwitcherMenu::before {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        content: '';
+        background: linear-gradient(115deg, rgba(255, 255, 255, 0.14), transparent 42%);
+      }
+
+      .appSwitcher.is-open .appSwitcherMenu {
+        gap: 3px;
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+        visibility: visible;
+      }
+
+      .appSwitcherMenu button {
+        position: relative;
+        z-index: 1;
+        padding: 11px 12px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--text);
+        text-align: left;
+      }
+
+      .appSwitcherMenu button:hover,
+      .appSwitcherMenu button:active {
+        background: transparent;
+        transform: none;
+      }
+
+      .monthlyPlaceholder {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #111;
+      }
+
+      #monthlyApp,
+      #shoppingApp,
+      #priceBookApp { grid-template-rows: auto minmax(0, 1fr); }
+
+      .priceBookContent { min-height: 0; }
+
+      .priceBookList {
+        display: grid;
+        min-height: 0;
+        gap: 12px;
+        overflow-y: auto;
+        align-content: start;
+        padding-right: 4px;
+      }
+
+      .productCard {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 76px;
+        max-height: 160px;
+        padding: 12px;
+        border-radius: 12px;
+        background: #111;
+        overflow: hidden;
+        transition: max-height .24s ease, min-height .24s ease, padding .24s ease, opacity .2s ease, transform .24s ease;
+      }
+
+      .productCard.is-removing {
+        max-height: 0;
+        min-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        opacity: 0;
+        transform: translateX(24px) scale(.96);
+      }
+
+      .productPhoto,
+      .productPhotoPlaceholder {
+        width: 52px;
+        height: 52px;
+        flex: 0 0 52px;
+        border-radius: 10px;
+        object-fit: cover;
+      }
+
+      .productPhoto { background: #222; }
+
+      .productPhotoPlaceholder {
+        display: grid;
+        place-items: center;
+        background: #222;
+        color: var(--muted);
+        font-size: 20px;
+      }
+
+      .productMain { min-width: 0; flex: 1; }
+      .productMain .entryTitle,
+      .productMain .entryMeta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+      .productActions {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .productActions .amount {
+        display: block;
+        color: var(--success);
+        font-size: 16px;
+        white-space: nowrap;
+      }
+      .priceBookAddButton { background: #007bff; color: #fff; }
+
+      .priceBookModalCard { max-width: 520px; }
+
+      body.light-theme .productCard { background: #fff; }
+      body.light-theme .productPhoto,
+      body.light-theme .productPhotoPlaceholder { background: #e5e5ea; }
+
+      body { overflow: hidden; }
+
+      button, input, select { touch-action: manipulation; }
+
+      .topbar { gap: 12px; margin-bottom: 0; }
+
+      h1 { font-size: 26px; font-weight: 700; }
+
+      .topbarActions { gap: 8px; }
+
+      .settingsButton, .iconButton {
+        width: 38px;
+        height: 38px;
+        padding: 9px;
+        border: 0;
+        border-radius: 50%;
+        background: #222;
+      }
+
+      .settingsButton { order: 2; }
+
+      .topbarActions .iconButton { order: 1; background: var(--accent); }
+
+      .panel { border: 0; border-radius: 0; box-shadow: none; }
+
+      .summary {
+        display: block;
+        padding: 15px;
+        background: #111;
+        border-radius: 12px;
+      }
+
+      .summaryMain, .summaryMeta {
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        padding: 0;
+      }
+
+      .summaryLabel { font-size: 14px; color: var(--muted); }
+
+      .totalAmount { margin-top: 5px; font-size: 32px; font-weight: 400; }
+
+      .summaryMeta {
+        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #282828;
+      }
+
+      .metaRow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        text-align: center;
+        gap: 4px;
+        border: 0;
+        padding: 0;
+      }
+
+      .metaRow span,
+      .metaRow strong {
+        width: 100%;
+        text-align: center;
+      }
+      .metaRow span:first-child { font-size: 12px; }
+      .metaRow strong { font-size: 15px; }
+
+      .panelBlock {
+        min-height: 0;
+        padding: 0;
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+      }
+      .panelHeader {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin: 0 0 10px;
+      }
+
+      .panelHeader h2 { margin: 0; color: var(--muted); font-size: 14px; font-weight: 400; }
+
+      .sectionToggle {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        padding: 0;
+        border: 0;
+        border-radius: 8px;
+        background: #222;
+        color: var(--muted);
+      }
+
+      .sectionToggle svg {
+        width: 18px;
+        height: 18px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: transform 0.2s ease;
+      }
+
+      .panelBlock.is-collapsed { display: block; min-height: 0; }
+      .panelBlock.is-collapsed .panelHeader { margin-bottom: 0; }
+      .panelBlock.is-collapsed .sectionToggle svg { transform: rotate(-90deg); }
+
+      .panelBlock .entryList,
+      .panelBlock .statsList {
+        animation: section-content-in 0.22s ease-out both;
+      }
+
+      .panelBlock.is-collapsed .entryList,
+      .panelBlock.is-collapsed .statsList {
+        display: none;
+      }
+
+      @keyframes section-content-in {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .entryList, .statsList {
+        flex: 1;
+        min-height: 0;
+        gap: 12px;
+        overflow-y: auto;
+        padding-right: 4px;
+        align-content: start;
+        grid-auto-rows: min-content;
+      }
+
+      .statsList {
+        flex: 0 1 auto;
+        max-height: 26dvh;
+      }
+
+      .entryCard .entryValue {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .entryCard .amount { white-space: nowrap; }
+
+      .entryCard, .statCard {
+        min-height: 68px;
+        padding: 15px;
+        border: 0;
+        border-radius: 12px;
+        background: #111;
+      }
+
+      .entryTitle { font-size: 17px; }
+      .entryMeta { font-size: 14px; }
+      .amount { font-size: 18px; }
+      .entryValue { gap: 13px; }
+      .entryActions { gap: 6px; }
+
+      button.primary, .topbarActions .iconButton { background: var(--accent); }
+      button.primary { padding: 12px; }
+
+      button.secondary, .tinyButton.secondary {
+        border: 0;
+        background: #333;
+      }
+
+      .tinyButton { padding: 7px 9px; border-radius: 8px; }
+
+      .emptyState {
+        padding: 18px 15px;
+        border: 0;
+        background: #111;
+        border-radius: 12px;
+      }
+
+      .modal { padding: 15px; background: rgba(0, 0, 0, 0.82); }
+
+      #shiftModal {
+        align-items: flex-start;
+        padding: 0;
+        background: #000;
+      }
+
+      #priceBookModal {
+        align-items: flex-start;
+        padding: 0;
+        background: #000;
+      }
+
+      #shiftModal .modalCard,
+      #priceBookModal .modalCard {
+        position: relative;
+        width: 100%;
+        max-width: none;
+        min-height: 100vh;
+        min-height: 100dvh;
+        max-height: none;
+        overflow-y: auto;
+        border-radius: 0;
+        background: #000;
+      }
+
+      #priceBookModal .modalCard {
+        width: 100%;
+        max-width: none;
+        min-height: 100vh;
+        min-height: 100dvh;
+        max-height: none;
+        overflow-y: auto;
+        border-radius: 0;
+        background: #000;
+      }
+
+      #shiftModal.open .modalCard { animation: shift-form-in 0.26s ease-out both; }
+      #priceBookModal.open .modalCard { animation: shift-form-in 0.26s ease-out both; }
+
+      .saveSuccess {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        display: grid;
+        place-items: center;
+        background: #000;
+        color: #54d68c;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .saveSuccess::before,
+      .saveSuccess::after {
+        position: absolute;
+        border: 2px solid rgba(84, 214, 140, 0.7);
+        border-radius: 50%;
+        content: '';
+        opacity: 0;
+      }
+
+      .saveSuccess::before { width: 88px; height: 88px; }
+      .saveSuccess::after { width: 88px; height: 88px; }
+
+      .saveSuccess svg {
+        width: 88px;
+        height: 88px;
+        display: block;
+        stroke: currentColor;
+      }
+
+      #shiftModal .modalCard.is-completing .saveSuccess,
+      #priceBookModal .modalCard.is-completing .saveSuccess {
+        animation: save-success-in 0.9s ease-out both;
+      }
+
+      #shiftModal .modalCard.is-completing .saveSuccess::before,
+      #priceBookModal .modalCard.is-completing .saveSuccess::before {
+        animation: save-success-ring 0.85s ease-out both;
+      }
+
+      #shiftModal .modalCard.is-completing .saveSuccess::after,
+      #priceBookModal .modalCard.is-completing .saveSuccess::after {
+        animation: save-success-ring 0.85s 0.12s ease-out both;
+      }
+
+      #shiftModal .modalCard.is-completing .saveSuccess svg,
+      #priceBookModal .modalCard.is-completing .saveSuccess svg {
+        animation: save-success-icon 0.65s 0.08s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
+      }
+
+      @keyframes save-success-in {
+        0% { opacity: 0; transform: scale(0.72); }
+        35%, 100% { opacity: 1; transform: scale(1); }
+      }
+
+      @keyframes save-success-ring {
+        0% { opacity: 0.85; transform: scale(0.4); }
+        100% { opacity: 0; transform: scale(2.3); }
+      }
+
+      @keyframes save-success-icon {
+        0% { opacity: 0; transform: scale(0.45) rotate(-14deg); }
+        72% { opacity: 1; transform: scale(1.1) rotate(2deg); }
+        100% { opacity: 1; transform: scale(1) rotate(0); }
+      }
+
+      @keyframes shift-form-in {
+        from { opacity: 0; transform: translateX(14px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .settingsPage {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: none;
+        overflow-y: auto;
+        background: #000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .settingsPage.is-visible { opacity: 1; }
+      .settingsPage.is-hiding { opacity: 0; pointer-events: none; }
+
+      .settingsPageContent {
+        width: 100%;
+        max-width: 480px;
+        min-height: 100%;
+        margin: 0 auto;
+        padding: 20px 15px;
+      }
+
+      .settingsPageContent .modalHeader { margin-bottom: 24px; }
+
+      .settingsPageContent form {
+        max-width: 400px;
+        margin: 0 auto;
+        /* padding: 20px; */
+        border-radius: 12px;
+        background: none;
+      }
+
+      .storageUsage {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 13px 12px;
+        border-radius: 10px;
+        background: #000;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .storageUsage strong {
+        color: var(--text);
+        font-size: 15px;
+      }
+
+      .modalCard, .weekModalCard {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px;
+        border: 0;
+        border-radius: 14px;
+        background: #111;
+        box-shadow: none;
+      }
+
+      .weekModalCard { max-width: 480px; }
+      .modalHeader h3 { font-size: 22px; }
+      .modalHeader .iconButton { background: #222; }
+      .field label { font-size: 14px; }
+
+      select, input {
+        padding: 12px;
+        border-color: #333;
+        background: #000;
+        border-radius: 10px;
+        font-size: 16px;
+      }
+
+      select:focus, input:focus {
+        outline: none;
+        border-color: #555;
+        box-shadow: none;
+      }
+
+      .suggestionsList { background: #111; border: 1px solid #333; }
+      .formActions { gap: 10px; }
+      .formActions button { flex: 1; }
+
+      .stepProgress {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+
+      .stepProgress span {
+        height: 4px;
+        border-radius: 999px;
+        background: #333;
+        transition: background 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .stepProgress span.is-active {
+        background: #007bff;
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.7);
+      }
+
+      .formStep {
+        display: grid;
+        gap: 22px;
+        animation: wizard-step-in 0.2s ease-out both;
+      }
+
+      .formStep[hidden] { display: none; }
+
+      .wizardCancel {
+        padding: 8px;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .wizardCancel:hover { transform: none; color: var(--text); }
+
+      @keyframes wizard-step-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .statCard {
+        display: block;
+        height: auto;
+        min-height: 0;
+        padding: 10px 12px;
+      }
+
+      .statCardTop, .statCardControls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .statCardControls { flex-shrink: 0; }
+
+      .statCard .entryTitle {
+        overflow: hidden;
+        font-size: 14px;
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .statCard .entryMeta { display: none; }
+      .statCard .amount { font-size: 16px; }
+
+      .statMenuButton {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        flex: 0 0 30px;
+        place-items: center;
+        padding: 0;
+        border: 0;
+        border-radius: 8px;
+        background: #222;
+        color: var(--muted);
+      }
+
+      .statMenuButton svg {
+        width: 18px;
+        height: 18px;
+        display: block;
+        fill: currentColor;
+      }
+
+      .statCardMenu {
+        display: none;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #282828;
+      }
+
+      .statCard.is-menu-open .statCardMenu { display: block; }
+      .statCardMenu .tinyButton { width: 100%; }
+
+      .bottomSheetModal {
+        align-items: flex-end;
+        padding: 0;
+      }
+
+      .bottomSheetModal.is-closing {
+        display: flex;
+        pointer-events: none;
+      }
+
+      .bottomSheet {
+        width: min(480px, 100%);
+        padding: 10px 15px calc(15px + env(safe-area-inset-bottom));
+        border-radius: 20px 20px 0 0;
+        background: #111;
+        animation: bottom-sheet-in 0.2s ease-out;
+      }
+
+      .bottomSheetModal.is-closing .bottomSheet { animation: bottom-sheet-out 0.2s ease-in both; }
+
+      .bottomSheetHandle {
+        width: 36px;
+        height: 4px;
+        margin: 0 auto 16px;
+        border-radius: 999px;
+        background: #555;
+      }
+
+      .bottomSheet h3 {
+        margin: 0 0 14px;
+        font-size: 18px;
+      }
+
+      .bottomSheetAction,
+      .bottomSheetDanger,
+      .bottomSheetCancel {
+        width: 100%;
+        padding: 14px;
+        border: 0;
+        border-radius: 10px;
+        font-size: 16px;
+      }
+
+      .bottomSheetAction { background: #007bff; color: #fff; }
+      .bottomSheetDanger { margin-top: 10px; background: #3a1e22; color: #fca5a5; }
+      .bottomSheetCancel { margin-top: 10px; background: #222; color: var(--text); }
+
+      @keyframes bottom-sheet-in {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+      }
+
+      @keyframes bottom-sheet-out {
+        from { transform: translateY(0); }
+        to { transform: translateY(100%); }
+      }
+
+      body.light-theme {
+        --bg: #f2f2f7;
+        --panel: #fff;
+        --panel-2: #fff;
+        --border: #d1d1d6;
+        --text: #1c1c1e;
+        --muted: #6c6c70;
+        background: #f2f2f7;
+        color: #1c1c1e;
+      }
+
+      body.light-theme .summary,
+      body.light-theme .entryCard,
+      body.light-theme .statCard,
+      body.light-theme .emptyState,
+      body.light-theme .modalCard,
+      body.light-theme .weekModalCard,
+      body.light-theme .suggestionsList { background: #fff; }
+
+      body.light-theme .settingsButton,
+      body.light-theme .iconButton,
+      body.light-theme .modalHeader .iconButton,
+      body.light-theme .statMenuButton,
+      body.light-theme .sectionToggle,
+      body.light-theme button.secondary,
+      body.light-theme .tinyButton.secondary { background: #e5e5ea; color: #1c1c1e; }
+
+      body.light-theme .topbarActions .iconButton,
+      body.light-theme button.primary { background: #007bff; color: #fff; }
+
+      body.light-theme select,
+      body.light-theme input { border-color: #d1d1d6; background: #f2f2f7; color: #1c1c1e; }
+      body.light-theme select:focus,
+      body.light-theme input:focus { border-color: #a1a1aa; }
+
+      body.light-theme .summaryMeta,
+      body.light-theme .statCardMenu { border-color: #e5e5ea; }
+
+      body.light-theme .modal { background: rgba(242, 242, 247, 0.82); }
+      body.light-theme #shiftModal { background: #f2f2f7; }
+      body.light-theme #shiftModal .modalCard { background: #f2f2f7; }
+      body.light-theme #priceBookModal,
+      body.light-theme #priceBookModal .modalCard { background: #f2f2f7; }
+      body.light-theme .saveSuccess { background: #f2f2f7; }
+      body.light-theme .stepProgress span { background: #d1d1d6; }
+      body.light-theme .settingsPage { background: #f2f2f7; }
+      body.light-theme .settingsPageContent form { background: #fff; }
+      body.light-theme .storageUsage { background: #f2f2f7; }
+      body.light-theme .appSwitcherMenu {
+        border-color: rgba(255, 255, 255, 0.7);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(232, 232, 237, 0.68));
+        box-shadow: 0 18px 38px rgba(28, 28, 30, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      }
+
+      body.light-theme .monthlyPlaceholder { background: #fff; }
+      body.light-theme .appSwitcherMenu button:hover { background: transparent; }
+      body.light-theme .bottomSheet { background: #fff; }
+      body.light-theme .bottomSheetCancel { background: #e5e5ea; color: #1c1c1e; }
+      body.light-theme .bottomSheetDanger { background: #fee2e2; color: #b91c1c; }
+      body.light-theme .bottomSheetHandle { background: #c7c7cc; }
+
+      @media (max-width: 480px) {
+        .app { padding: 15px; }
+        .entryCard, .statCard { align-items: center; flex-direction: row; }
+        .entryValue { align-items: flex-end; }
+        .entryTitle { font-size: 16px; }
+        .entryMeta { font-size: 13px; }
+      }
     </style>
   </head>
   <body>
-    <div class="app">
+    <div class="app" id="salaryApp">
       <header class="topbar">
-        <h1>Salary Tracker</h1>
+        <div class="appSwitcher">
+          <button type="button" class="appSwitcherButton" id="appSwitcherBtn" aria-expanded="false" aria-haspopup="true">
+            <span>Salary Tracker</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9L12 15L18 9"/></svg>
+          </button>
+          <div class="appSwitcherMenu" id="appSwitcherMenu" role="menu">
+            <button type="button" data-app-target="salary" role="menuitem">Salary Tracker</button>
+            <button type="button" data-app-target="monthly" role="menuitem">Mouthly Payments</button>
+            <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
+            <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
+          </div>
+        </div>
 
         <div class="topbarActions">
           <button type="button" class="settingsButton" id="settingsBtn" aria-label="Настройки">
@@ -478,45 +1330,115 @@
 
       <section class="summary panel">
         <div class="summaryMain">
-          <div class="summaryLabel">Общая сумма за текущую неделю</div>
+          <div class="summaryLabel" data-i18n="weeklyTotal">Общая сумма за текущую неделю</div>
           <div id="totalAmount" class="totalAmount">0 €</div>
         </div>
 
         <div class="summaryMeta">
           <div class="metaRow">
-            <span>Смен</span>
+            <span data-i18n="shifts">Отработано смен</span>
             <strong id="entryCount">0</strong>
           </div>
           <div class="metaRow">
-            <span>Отработано часов</span>
+            <span data-i18n="hours">Отработано часов</span>
             <strong id="hoursCount">0</strong>
-          </div>
-          <div class="metaRow">
-            <span>Зарплатный день</span>
-            <strong id="paydayDisplay">-</strong>
           </div>
         </div>
       </section>
 
-      <section class="panel panelBlock">
+      <section class="panel panelBlock is-collapsed" id="statsSection">
         <div class="panelHeader">
-          <h2>Статистика за недели</h2>
+          <h2 data-i18n="weeklyStats">Статистика за недели</h2>
+          <button type="button" class="sectionToggle" data-section-toggle="statsSection" aria-expanded="false" aria-label="Развернуть статистику">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9L12 15L18 9"/></svg>
+          </button>
         </div>
         <div id="statsList" class="statsList"></div>
       </section>
 
-      <section class="panel panelBlock">
+      <section class="panel panelBlock is-collapsed" id="entriesSection">
         <div class="panelHeader">
-          <h2>Список смен</h2>
+          <h2 data-i18n="shiftList">Список смен</h2>
+          <button type="button" class="sectionToggle" data-section-toggle="entriesSection" aria-expanded="false" aria-label="Развернуть список смен">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9L12 15L18 9"/></svg>
+          </button>
         </div>
         <div id="entryList" class="entryList"></div>
       </section>
     </div>
 
-    <div class="modal" id="settingsModal" aria-hidden="true">
-      <div class="modalCard">
+    <div class="app is-hidden" id="monthlyApp">
+      <header class="topbar">
+        <div class="appSwitcher">
+          <button type="button" class="appSwitcherButton" data-switcher-button aria-expanded="false" aria-haspopup="true">
+            <span>Mouthly Payments</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9L12 15L18 9"/></svg>
+          </button>
+          <div class="appSwitcherMenu" role="menu">
+            <button type="button" data-app-target="salary" role="menuitem">Salary Tracker</button>
+            <button type="button" data-app-target="monthly" role="menuitem">Mouthly Payments</button>
+            <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
+            <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
+          </div>
+        </div>
+      </header>
+      <section class="monthlyPlaceholder">
+        <div class="summaryLabel">Выберите раздел</div>
+      </section>
+    </div>
+
+    <div class="app is-hidden" id="shoppingApp">
+      <header class="topbar">
+        <div class="appSwitcher">
+          <button type="button" class="appSwitcherButton" aria-expanded="false" aria-haspopup="true">
+            <span>Shopping</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9L12 15L18 9"/></svg>
+          </button>
+          <div class="appSwitcherMenu" role="menu">
+            <button type="button" data-app-target="salary" role="menuitem">Salary Tracker</button>
+            <button type="button" data-app-target="monthly" role="menuitem">Mouthly Payments</button>
+            <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
+            <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
+          </div>
+        </div>
+      </header>
+      <section class="monthlyPlaceholder">
+        <div class="summaryLabel">Выберите раздел</div>
+      </section>
+    </div>
+
+    <div class="app is-hidden" id="priceBookApp">
+      <header class="topbar">
+        <div class="appSwitcher">
+          <button type="button" class="appSwitcherButton" aria-expanded="false" aria-haspopup="true">
+            <span>Price Book</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9L12 15L18 9"/></svg>
+          </button>
+          <div class="appSwitcherMenu" role="menu">
+            <button type="button" data-app-target="salary" role="menuitem">Salary Tracker</button>
+            <button type="button" data-app-target="monthly" role="menuitem">Mouthly Payments</button>
+            <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
+            <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
+          </div>
+        </div>
+        <div class="topbarActions">
+          <button type="button" class="iconButton" id="openPriceBookModalBtn" aria-label="Добавить товар" title="Добавить товар">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </header>
+      <section class="panel panelBlock priceBookContent">
+        <div class="panelHeader">
+          <h2 data-i18n="priceBookProducts">Товары</h2>
+        </div>
+        <div id="priceBookList" class="priceBookList"></div>
+      </section>
+    </div>
+
+    <div class="settingsPage" id="settingsModal" aria-hidden="true">
+      <div class="settingsPageContent">
         <div class="modalHeader">
-          <h3>Настройки</h3>
+          <h3 data-i18n="settings">Настройки</h3>
           <button type="button" class="iconButton" id="closeSettingsBtn" aria-label="Закрыть настройки" title="Закрыть">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -526,16 +1448,24 @@
 
         <form id="settingsForm">
           <div class="field">
-            <label for="paydaySelectModal">Зарплатный день</label>
-            <select id="paydaySelectModal" aria-label="Выбор зарплатного дня недели">
-              <option value="0">Воскресенье</option>
-              <option value="1">Понедельник</option>
-              <option value="2">Вторник</option>
-              <option value="3">Среда</option>
-              <option value="4">Четверг</option>
-              <option value="5">Пятница</option>
-              <option value="6">Суббота</option>
+            <label for="languageSelect" data-i18n="language">Язык</label>
+            <select id="languageSelect">
+              <option value="ru">Русский</option>
+              <option value="en">English</option>
             </select>
+          </div>
+
+          <div class="field">
+            <label for="themeSelect" data-i18n="theme">Тема</label>
+            <select id="themeSelect">
+              <option value="dark" data-i18n="darkTheme">Тёмная</option>
+              <option value="light" data-i18n="lightTheme">Светлая</option>
+            </select>
+          </div>
+
+          <div class="storageUsage" aria-live="polite">
+            <span data-i18n="databaseUsage">Данные IndexedDB</span>
+            <strong id="databaseUsageValue">—</strong>
           </div>
 
         </form>
@@ -544,8 +1474,13 @@
 
     <div class="modal" id="shiftModal" aria-hidden="true">
       <div class="modalCard">
+        <div class="saveSuccess" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.5 12L10.5 15L16.5 9M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
         <div class="modalHeader">
-          <h3 id="shiftModalTitle">Добавить смену</h3>
+          <h3 id="shiftModalTitle" data-i18n="addShift">Добавить смену</h3>
           <button type="button" class="iconButton" id="closeShiftModalBtn" aria-label="Закрыть форму смены" title="Закрыть">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -554,51 +1489,183 @@
         </div>
 
         <form id="entryForm">
-          <div class="field">
-            <label for="workNameInput">Название работы</label>
-            <div class="autocompleteWrap">
-              <input id="workNameInput" placeholder="Например: Поддержка сайта" autocomplete="off" />
-              <div id="suggestionsList" class="suggestionsList" role="listbox"></div>
-            </div>
+          <div class="stepProgress" id="stepProgress" aria-label="Шаг 1 из 4">
+            <span class="is-active"></span><span></span><span></span><span></span>
           </div>
 
-          <div class="fieldGrid">
+          <section class="formStep" data-step="1">
             <div class="field">
-              <label for="weekdaySelect">День недели</label>
+              <label for="workNameInput" data-i18n="workName">Название работы</label>
+              <div class="autocompleteWrap">
+                <input id="workNameInput" placeholder="Например: Смена в кафе" data-i18n-placeholder="workPlaceholder" autocomplete="off" />
+                <div id="suggestionsList" class="suggestionsList" role="listbox"></div>
+              </div>
+            </div>
+            <div class="formActions">
+              <button type="button" class="primary" data-step-next="1" data-i18n="continue">Продолжить</button>
+            </div>
+          </section>
+
+          <section class="formStep" data-step="2" hidden>
+            <div class="field">
+              <label for="weekdaySelect" data-i18n="weekday">День недели</label>
               <select id="weekdaySelect">
-                <option value="0">Воскресенье</option>
-                <option value="1">Понедельник</option>
-                <option value="2">Вторник</option>
-                <option value="3">Среда</option>
-                <option value="4">Четверг</option>
-                <option value="5">Пятница</option>
-                <option value="6">Суббота</option>
+                <option value="0" data-weekday="0">Воскресенье</option>
+                <option value="1" data-weekday="1">Понедельник</option>
+                <option value="2" data-weekday="2">Вторник</option>
+                <option value="3" data-weekday="3">Среда</option>
+                <option value="4" data-weekday="4">Четверг</option>
+                <option value="5" data-weekday="5">Пятница</option>
+                <option value="6" data-weekday="6">Суббота</option>
               </select>
             </div>
-
-            <div class="field">
-              <label for="hoursInput">Отработано часов</label>
-              <input id="hoursInput" type="number" min="0" step="0.5" value="1" />
+            <div class="formActions">
+              <button type="button" class="secondary" data-step-back="1" data-i18n="back">Назад</button>
+              <button type="button" class="primary" data-step-next="2" data-i18n="continue">Продолжить</button>
             </div>
-          </div>
+          </section>
 
-          <div class="field">
-            <label for="amountInput">Сумма</label>
-            <input id="amountInput" type="number" min="0" step="0.01" placeholder="2500" />
-          </div>
+          <section class="formStep" data-step="3" hidden>
+            <div class="field">
+              <label for="hoursInput" data-i18n="hoursLabel">Отработано часов</label>
+              <input id="hoursInput" type="number" min="0" step="0.5" placeholder="Например: 8" />
+            </div>
+            <div class="formActions">
+              <button type="button" class="secondary" data-step-back="2" data-i18n="back">Назад</button>
+              <button type="button" class="primary" data-step-next="3" data-i18n="continue">Продолжить</button>
+            </div>
+          </section>
 
-          <div class="formActions">
-            <button type="button" class="secondary" id="cancelEditButton">Отмена</button>
-            <button type="submit" class="primary">Сохранить</button>
+          <section class="formStep" data-step="4" hidden>
+            <div class="field">
+              <label for="amountInput" data-i18n="amount">Сумма</label>
+              <input id="amountInput" type="number" min="0" step="0.01" placeholder="Например: 75" />
+            </div>
+            <div class="formActions">
+              <button type="button" class="secondary" data-step-back="3" data-i18n="back">Назад</button>
+              <button type="submit" class="primary" data-i18n="save">Сохранить</button>
+            </div>
+          </section>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="weekModal" aria-hidden="true">
+      <div class="modalCard weekModalCard" role="dialog" aria-modal="true" aria-labelledby="weekModalTitle">
+        <div class="modalHeader">
+          <h3 id="weekModalTitle">Смены за неделю</h3>
+          <button type="button" class="iconButton" id="closeWeekModalBtn" aria-label="Закрыть список смен" title="Закрыть">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div id="weekModalSummary" class="weekModalSummary"></div>
+        <div id="weekEntriesList" class="weekEntriesList"></div>
+      </div>
+    </div>
+
+    <div class="modal bottomSheetModal" id="weekActionsModal" aria-hidden="true">
+      <div class="bottomSheet" role="dialog" aria-modal="true" aria-labelledby="weekActionsTitle">
+        <div class="bottomSheetHandle" aria-hidden="true"></div>
+        <h3 id="weekActionsTitle" data-i18n="weekActions">Действия с неделей</h3>
+        <button type="button" class="bottomSheetAction" id="openWeekEditorBtn" data-i18n="editShifts">Редактировать смены</button>
+      </div>
+    </div>
+
+    <div class="modal bottomSheetModal" id="entryActionsModal" aria-hidden="true">
+      <div class="bottomSheet" role="dialog" aria-modal="true" aria-labelledby="entryActionsTitle">
+        <div class="bottomSheetHandle" aria-hidden="true"></div>
+        <h3 id="entryActionsTitle" data-i18n="shiftActions">Действия со сменой</h3>
+        <button type="button" class="bottomSheetAction" id="openEntryEditorBtn" data-i18n="edit">Редактировать</button>
+        <button type="button" class="bottomSheetDanger" id="deleteEntryBtn" data-i18n="remove">Удалить</button>
+      </div>
+    </div>
+
+    <div class="modal bottomSheetModal" id="priceBookActionsModal" aria-hidden="true">
+      <div class="bottomSheet" role="dialog" aria-modal="true" aria-labelledby="priceBookActionsTitle">
+        <div class="bottomSheetHandle" aria-hidden="true"></div>
+        <h3 id="priceBookActionsTitle" data-i18n="productActions">Действия с товаром</h3>
+        <button type="button" class="bottomSheetAction" id="openPriceBookEditorBtn" data-i18n="edit">Редактировать</button>
+        <button type="button" class="bottomSheetDanger" id="deletePriceBookBtn" data-i18n="remove">Удалить</button>
+      </div>
+    </div>
+
+    <div class="modal" id="priceBookModal" aria-hidden="true">
+      <div class="modalCard priceBookModalCard" role="dialog" aria-modal="true" aria-labelledby="priceBookModalTitle">
+        <div class="saveSuccess" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.5 12L10.5 15L16.5 9M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="modalHeader">
+          <h3 id="priceBookModalTitle" data-i18n="addProduct">Добавить товар</h3>
+          <button type="button" class="iconButton" id="closePriceBookModalBtn" aria-label="Закрыть форму товара" title="Закрыть">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </button>
+        </div>
+        <form id="priceBookForm">
+          <div class="stepProgress" id="priceBookStepProgress" aria-label="Шаг 1 из 4">
+            <span class="is-active"></span><span></span><span></span><span></span>
           </div>
+          <section class="formStep" data-price-step="1">
+            <div class="field">
+              <label for="priceBookNameInput" data-i18n="productName">Название товара</label>
+              <input id="priceBookNameInput" placeholder="Например: Молоко" />
+            </div>
+            <div class="formActions">
+              <button type="button" class="primary" data-price-step-next="1" data-i18n="continue">Продолжить</button>
+            </div>
+          </section>
+          <section class="formStep" data-price-step="2" hidden>
+            <div class="field">
+              <label for="priceBookPriceInput" data-i18n="productPrice">Стоимость</label>
+              <input id="priceBookPriceInput" type="number" min="0" step="0.01" placeholder="Например: 1.59" />
+            </div>
+            <div class="formActions">
+              <button type="button" class="secondary" data-price-step-back="1" data-i18n="back">Назад</button>
+              <button type="button" class="primary" data-price-step-next="2" data-i18n="continue">Продолжить</button>
+            </div>
+          </section>
+          <section class="formStep" data-price-step="3" hidden>
+            <div class="field">
+              <label for="priceBookStoreInput" data-i18n="purchasePlace">Где купили</label>
+              <input id="priceBookStoreInput" placeholder="Например: Lidl" />
+            </div>
+            <div class="formActions">
+              <button type="button" class="secondary" data-price-step-back="2" data-i18n="back">Назад</button>
+              <button type="button" class="primary" data-price-step-next="3" data-i18n="continue">Продолжить</button>
+            </div>
+          </section>
+          <section class="formStep" data-price-step="4" hidden>
+            <div class="field">
+              <label for="priceBookPhotoInput" data-i18n="productPhoto">Фото (необязательно)</label>
+              <input id="priceBookPhotoInput" type="file" accept="image/*" />
+            </div>
+            <div class="formActions">
+              <button type="button" class="secondary" data-price-step-back="3" data-i18n="back">Назад</button>
+              <button type="submit" class="primary" data-i18n="save">Сохранить</button>
+            </div>
+          </section>
         </form>
       </div>
     </div>
 
     <script>
       const DB_NAME = 'salary-tracker-db';
-      const DB_VERSION = 1;
-      const DAY_NAMES = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+      const DB_VERSION = 2;
+      const DAY_NAMES_BY_LANGUAGE = {
+        ru: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],
+        en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+      };
+      const TRANSLATIONS = {
+        ru: {
+          weeklyTotal: 'Общая сумма за текущую неделю', shifts: 'Отработано смен', hours: 'Отработано часов', weeklyStats: 'Статистика за недели', shiftList: 'Список смен', settings: 'Настройки', language: 'Язык', theme: 'Тема', darkTheme: 'Тёмная', lightTheme: 'Светлая', databaseUsage: 'Данные IndexedDB', priceBookProducts: 'Товары', addProduct: 'Добавить товар', editProduct: 'Редактировать товар', productActions: 'Действия с товаром', productName: 'Название товара', productPrice: 'Стоимость', purchasePlace: 'Где купили', productPhoto: 'Фото (необязательно)', noProducts: 'Пока нет товаров. Добавьте первый.', invalidProduct: 'Заполните название, стоимость и место покупки корректно.', addShift: 'Добавить смену', editShift: 'Редактировать смену', editShifts: 'Редактировать смены', weekActions: 'Действия с неделей', shiftActions: 'Действия со сменой', close: 'Закрыть', workName: 'Название работы', workPlaceholder: 'Например: Смена в кафе', weekday: 'День недели', hoursLabel: 'Отработано часов', amount: 'Сумма', cancel: 'Отмена', back: 'Назад', continue: 'Продолжить', save: 'Сохранить', noShifts: 'Пока нет ни одной смены. Добавьте первую запись.', noStats: 'Статистика будет появляться после каждого сброса в понедельник.', unavailable: 'Детали смен для этой сохранённой недели недоступны.', weekShifts: 'Смены за неделю', invalidForm: 'Заполните название, часы и сумму корректно.', shiftsCount: 'смен', week: 'Неделя', hoursShort: 'ч', edit: 'Редактировать', remove: 'Удалить'
+        },
+        en: {
+          weeklyTotal: 'Current week total', shifts: 'Shifts', hours: 'Hours worked', weeklyStats: 'Weekly statistics', shiftList: 'Shift list', settings: 'Settings', language: 'Language', theme: 'Theme', darkTheme: 'Dark', lightTheme: 'Light', databaseUsage: 'IndexedDB data', priceBookProducts: 'Products', addProduct: 'Add product', editProduct: 'Edit product', productActions: 'Product actions', productName: 'Product name', productPrice: 'Price', purchasePlace: 'Place of purchase', productPhoto: 'Photo (optional)', noProducts: 'No products yet. Add your first one.', invalidProduct: 'Enter a valid product name, price, and purchase place.', addShift: 'Add shift', editShift: 'Edit shift', editShifts: 'Edit shifts', weekActions: 'Week actions', shiftActions: 'Shift actions', close: 'Close', workName: 'Work name', workPlaceholder: 'For example: Café shift', weekday: 'Weekday', hoursLabel: 'Hours worked', amount: 'Amount', cancel: 'Cancel', back: 'Back', continue: 'Continue', save: 'Save', noShifts: 'No shifts yet. Add your first entry.', noStats: 'Statistics will appear after the next Monday reset.', unavailable: 'Shift details are unavailable for this saved week.', weekShifts: 'Shifts for week', invalidForm: 'Enter a valid work name, hours, and amount.', shiftsCount: 'shifts', week: 'Week', hoursShort: 'h', edit: 'Edit', remove: 'Delete'
+        }
+      };
 
       const form = document.getElementById('entryForm');
       const workNameInput = document.getElementById('workNameInput');
@@ -608,13 +1675,110 @@
       const totalAmountEl = document.getElementById('totalAmount');
       const entryCountEl = document.getElementById('entryCount');
       const hoursCountEl = document.getElementById('hoursCount');
-      const paydayDisplay = document.getElementById('paydayDisplay');
       const entryListEl = document.getElementById('entryList');
       const statsListEl = document.getElementById('statsList');
       const suggestionsList = document.getElementById('suggestionsList');
+      const weekModal = document.getElementById('weekModal');
+      const weekActionsModal = document.getElementById('weekActionsModal');
+      const entryActionsModal = document.getElementById('entryActionsModal');
+      const weekEntriesList = document.getElementById('weekEntriesList');
+      const weekModalTitle = document.getElementById('weekModalTitle');
+      const weekModalSummary = document.getElementById('weekModalSummary');
+      const databaseUsageValue = document.getElementById('databaseUsageValue');
+      const stepProgress = document.getElementById('stepProgress');
+      const salaryApp = document.getElementById('salaryApp');
+      const monthlyApp = document.getElementById('monthlyApp');
+      const shoppingApp = document.getElementById('shoppingApp');
+      const priceBookApp = document.getElementById('priceBookApp');
+      const priceBookList = document.getElementById('priceBookList');
+      const priceBookForm = document.getElementById('priceBookForm');
+      const priceBookNameInput = document.getElementById('priceBookNameInput');
+      const priceBookPriceInput = document.getElementById('priceBookPriceInput');
+      const priceBookStoreInput = document.getElementById('priceBookStoreInput');
+      const priceBookPhotoInput = document.getElementById('priceBookPhotoInput');
+      const priceBookModal = document.getElementById('priceBookModal');
+      const priceBookActionsModal = document.getElementById('priceBookActionsModal');
+      const priceBookStepProgress = document.getElementById('priceBookStepProgress');
 
       let db = null;
       let editingEntryId = null;
+      let editingArchivedEntryId = null;
+      let openedStatId = null;
+      let selectedStatId = null;
+      let selectedEntryId = null;
+      let currentLanguage = 'ru';
+      let DAY_NAMES = DAY_NAMES_BY_LANGUAGE[currentLanguage];
+      let currentFormStep = 1;
+      let isCompletingShift = false;
+      let editingPriceBookId = null;
+      let existingPriceBookPhoto = null;
+      let selectedPriceBookId = null;
+      let currentPriceBookStep = 1;
+      let isCompletingProduct = false;
+
+      function t(key) {
+        return TRANSLATIONS[currentLanguage][key] || key;
+      }
+
+      function applyLanguage(language) {
+        currentLanguage = TRANSLATIONS[language] ? language : 'ru';
+        DAY_NAMES = DAY_NAMES_BY_LANGUAGE[currentLanguage];
+        document.documentElement.lang = currentLanguage;
+        document.querySelectorAll('[data-i18n]').forEach((element) => {
+          element.textContent = t(element.dataset.i18n);
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
+          element.placeholder = t(element.dataset.i18nPlaceholder);
+        });
+        document.querySelectorAll('[data-weekday]').forEach((element) => {
+          element.textContent = DAY_NAMES[Number(element.dataset.weekday)];
+        });
+        if (db) renderPriceBook();
+      }
+
+      function applyTheme(theme) {
+        document.body.classList.toggle('light-theme', theme === 'light');
+      }
+
+      function showFormStep(step, shouldFocus = true) {
+        currentFormStep = step;
+        form.querySelectorAll('.formStep').forEach((section) => {
+          section.hidden = Number(section.dataset.step) !== step;
+        });
+        stepProgress.querySelectorAll('span').forEach((segment, index) => {
+          segment.classList.toggle('is-active', index < step);
+        });
+        stepProgress.setAttribute('aria-label', `${step} / 4`);
+        // Focus is left to the user so iOS does not open the keyboard automatically.
+      }
+
+      function canAdvanceFormStep(step) {
+        if (step === 1 && !workNameInput.value.trim()) return false;
+        if (step === 3 && (!Number.isFinite(Number(hoursInput.value)) || Number(hoursInput.value) <= 0)) return false;
+        return true;
+      }
+
+      function closeAppSwitchers() {
+        document.querySelectorAll('.appSwitcher.is-open').forEach((switcher) => switcher.classList.remove('is-open'));
+        document.querySelectorAll('.appSwitcherButton').forEach((button) => button.setAttribute('aria-expanded', 'false'));
+      }
+
+      function showApp(appName) {
+        const apps = { salary: salaryApp, monthly: monthlyApp, shopping: shoppingApp, priceBook: priceBookApp };
+        const nextApp = apps[appName] || salaryApp;
+        const currentApp = Object.values(apps).find((app) => !app.classList.contains('is-hidden'));
+        if (!nextApp.classList.contains('is-hidden')) {
+          closeAppSwitchers();
+          return;
+        }
+        if (currentApp) currentApp.classList.add('is-hidden');
+        nextApp.classList.remove('is-hidden');
+        nextApp.classList.remove('is-entering');
+        requestAnimationFrame(() => nextApp.classList.add('is-entering'));
+        window.setTimeout(() => nextApp.classList.remove('is-entering'), 280);
+        if (appName === 'priceBook') renderPriceBook();
+        closeAppSwitchers();
+      }
 
       function uid() {
         if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -631,7 +1795,7 @@
       }
 
       function formatCurrency(value) {
-        return new Intl.NumberFormat('ru-RU', {
+        return new Intl.NumberFormat(currentLanguage === 'en' ? 'en-IE' : 'ru-RU', {
           style: 'currency',
           currency: 'EUR',
           minimumFractionDigits: 0,
@@ -666,6 +1830,7 @@
             if (!database.objectStoreNames.contains('workOptions')) database.createObjectStore('workOptions', { keyPath: 'id' });
             if (!database.objectStoreNames.contains('stats')) database.createObjectStore('stats', { keyPath: 'id' });
             if (!database.objectStoreNames.contains('settings')) database.createObjectStore('settings', { keyPath: 'key' });
+            if (!database.objectStoreNames.contains('priceBook')) database.createObjectStore('priceBook', { keyPath: 'id' });
           };
 
           request.onsuccess = () => {
@@ -738,6 +1903,21 @@
         return item ? item.value : fallback;
       }
 
+      function formatDatabaseSize(bytes) {
+        const units = currentLanguage === 'en' ? ['B', 'KB', 'MB'] : ['Б', 'КБ', 'МБ'];
+        if (bytes < 1024) return `${bytes} ${units[0]}`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} ${units[1]}`;
+        return `${(bytes / (1024 * 1024)).toFixed(1)} ${units[2]}`;
+      }
+
+      async function refreshDatabaseUsage() {
+        if (!db || !databaseUsageValue) return;
+        const storeNames = ['entries', 'workOptions', 'stats', 'settings', 'priceBook'];
+        const data = await Promise.all(storeNames.map((storeName) => readAllFromStore(storeName)));
+        const bytes = new TextEncoder().encode(JSON.stringify(data)).length;
+        databaseUsageValue.textContent = `≈ ${formatDatabaseSize(bytes)}`;
+      }
+
       async function saveWorkOption(name) {
         const cleanName = name.trim();
         if (!cleanName) return;
@@ -754,6 +1934,99 @@
         return entries.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       }
 
+      function readFileAsDataUrl(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function renderPriceBook() {
+        const products = await readAllFromStore('priceBook');
+        products.sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+
+        if (!products.length) {
+          priceBookList.innerHTML = `<div class="emptyState">${t('noProducts')}</div>`;
+          return;
+        }
+
+        priceBookList.innerHTML = products.map((product) => `
+          <div class="productCard" data-product-id="${escapeHtml(product.id)}">
+            ${product.photo
+              ? `<img class="productPhoto" src="${escapeHtml(product.photo)}" alt="${escapeHtml(product.name)}">`
+              : '<div class="productPhotoPlaceholder" aria-hidden="true">⌑</div>'}
+            <div class="productMain">
+              <div class="entryTitle">${escapeHtml(product.name)}</div>
+              <div class="entryMeta">${escapeHtml(product.store)}</div>
+            </div>
+            <div class="productActions">
+              <div class="amount">${formatCurrency(product.price)}</div>
+              <button type="button" class="statMenuButton" data-price-action="menu" data-id="${product.id}" aria-label="${t('productActions')}" title="${t('productActions')}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></button>
+            </div>
+          </div>
+        `).join('');
+
+        priceBookList.querySelectorAll('[data-price-action="menu"]').forEach((button) => {
+          button.addEventListener('click', () => {
+            openPriceBookActionsModal(button.dataset.id);
+          });
+        });
+      }
+
+      function showPriceBookStep(step) {
+        currentPriceBookStep = step;
+        priceBookForm.querySelectorAll('[data-price-step]').forEach((section) => {
+          section.hidden = Number(section.dataset.priceStep) !== step;
+        });
+        priceBookStepProgress.querySelectorAll('span').forEach((segment, index) => {
+          segment.classList.toggle('is-active', index < step);
+        });
+        priceBookStepProgress.setAttribute('aria-label', `${step} / 4`);
+      }
+
+      function canAdvancePriceBookStep(step) {
+        if (step === 1) return Boolean(priceBookNameInput.value.trim());
+        if (step === 2) return Number.isFinite(Number(priceBookPriceInput.value)) && Number(priceBookPriceInput.value) >= 0;
+        if (step === 3) return Boolean(priceBookStoreInput.value.trim());
+        return true;
+      }
+
+      function openPriceBookModal(product = null) {
+        editingPriceBookId = product ? product.id : null;
+        existingPriceBookPhoto = product ? product.photo || null : null;
+        priceBookForm.reset();
+        if (product) {
+          priceBookNameInput.value = product.name;
+          priceBookPriceInput.value = String(product.price);
+          priceBookStoreInput.value = product.store;
+          document.getElementById('priceBookModalTitle').textContent = t('editProduct');
+        } else {
+          document.getElementById('priceBookModalTitle').textContent = t('addProduct');
+        }
+        priceBookModal.classList.add('open');
+        showPriceBookStep(1);
+      }
+
+      function closePriceBookModal() {
+        priceBookModal.classList.remove('open');
+        editingPriceBookId = null;
+        existingPriceBookPhoto = null;
+        priceBookForm.reset();
+        showPriceBookStep(1);
+      }
+
+      async function completePriceBookModal() {
+        const productCard = document.querySelector('#priceBookModal .modalCard');
+        isCompletingProduct = true;
+        productCard.classList.add('is-completing');
+        await new Promise((resolve) => window.setTimeout(resolve, 920));
+        closePriceBookModal();
+        productCard.classList.remove('is-completing');
+        isCompletingProduct = false;
+      }
+
       async function renderEntries() {
         const entries = await loadAllEntries();
         const total = entries.reduce((sum, item) => sum + Number(item.amount || 0), 0);
@@ -764,7 +2037,7 @@
         hoursCountEl.textContent = formatHours(totalHours);
 
         if (!entries.length) {
-          entryListEl.innerHTML = '<div class="emptyState">Пока нет ни одной смены. Добавьте первую запись.</div>';
+          entryListEl.innerHTML = `<div class="emptyState">${t('noShifts')}</div>`;
           return;
         }
 
@@ -772,36 +2045,18 @@
           <div class="entryCard">
             <div class="entryMain">
               <div class="entryTitle">${escapeHtml(entry.workName)}</div>
-              <div class="entryMeta">${DAY_NAMES[Number(entry.weekday)] || '-'} • ${formatHours(entry.hours)} ч</div>
+              <div class="entryMeta">${DAY_NAMES[Number(entry.weekday)] || '-'} • ${formatHours(entry.hours)} ${t('hoursShort')}</div>
             </div>
             <div class="entryValue">
               <div class="amount">${formatCurrency(entry.amount)}</div>
-              <div class="entryActions">
-                <button type="button" class="tinyButton secondary" data-action="edit" data-id="${entry.id}">Редактировать</button>
-                <button type="button" class="tinyButton danger" data-action="delete" data-id="${entry.id}">Удалить</button>
-              </div>
+                  <button type="button" class="statMenuButton" data-action="open-entry-menu" data-id="${entry.id}" aria-label="${t('shiftActions')}" title="${t('shiftActions')}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></button>
             </div>
           </div>
         `).join('');
 
-        entryListEl.querySelectorAll('[data-action="delete"]').forEach((button) => {
-          button.addEventListener('click', async (event) => {
-            await deleteFromStore('entries', event.currentTarget.dataset.id);
-            await renderEntries();
-          });
-        });
-
-        entryListEl.querySelectorAll('[data-action="edit"]').forEach((button) => {
-          button.addEventListener('click', async (event) => {
-            const entryId = event.currentTarget.dataset.id;
-            const entry = (await loadAllEntries()).find((item) => item.id === entryId);
-            if (!entry) return;
-            editingEntryId = entry.id;
-            workNameInput.value = entry.workName;
-            weekdaySelect.value = String(entry.weekday);
-            hoursInput.value = String(entry.hours);
-            amountInput.value = String(entry.amount);
-            openEditModal(entry);
+        entryListEl.querySelectorAll('[data-action="open-entry-menu"]').forEach((button) => {
+          button.addEventListener('click', (event) => {
+            openEntryActionsModal(event.currentTarget.dataset.id);
           });
         });
       }
@@ -848,43 +2103,69 @@
         stats.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         if (!stats.length) {
-          statsListEl.innerHTML = '<div class="emptyState">Статистика будет появляться после каждого сброса в понедельник.</div>';
+          statsListEl.innerHTML = `<div class="emptyState">${t('noStats')}</div>`;
           return;
         }
 
         statsListEl.innerHTML = stats.map((item) => {
-          const start = new Date(item.weekStart).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
-          const end = new Date(item.weekEnd).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+          const locale = currentLanguage === 'en' ? 'en-GB' : 'ru-RU';
+          const start = new Date(item.weekStart).toLocaleDateString(locale, { day: '2-digit', month: '2-digit' });
+          const end = new Date(item.weekEnd).toLocaleDateString(locale, { day: '2-digit', month: '2-digit' });
           return `
             <div class="statCard">
-              <div>
-                <div class="entryTitle">Неделя ${start} — ${end}</div>
-                <div class="entryMeta">${item.entriesCount} смен</div>
+              <div class="statCardTop">
+                <div>
+                  <div class="entryTitle">${t('week')} ${start} — ${end} · ${item.entriesCount} ${t('shiftsCount')}</div>
+                </div>
+                <div class="statCardControls">
+                  <div class="amount">${formatCurrency(item.total)}</div>
+                  <button type="button" class="statMenuButton" data-action="toggle-week-menu" data-id="${item.id}" aria-label="${t('editShifts')}" title="${t('editShifts')}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></button>
+                </div>
               </div>
-              <div class="amount">${formatCurrency(item.total)}</div>
             </div>
           `;
         }).join('');
+
+        statsListEl.querySelectorAll('[data-action="toggle-week-menu"]').forEach((button) => {
+          button.addEventListener('click', async (event) => {
+            const stat = await readFromStore('stats', event.currentTarget.dataset.id);
+            if (stat) openWeekActionsModal(stat);
+          });
+        });
       }
 
       function resetForm() {
         editingEntryId = null;
+        editingArchivedEntryId = null;
         form.reset();
         weekdaySelect.value = String(getCurrentWeekdayIndex());
-        hoursInput.value = '1';
+        hoursInput.value = '';
+        showFormStep(1, false);
       }
 
-      function openSettingsModal() {
-        document.getElementById('settingsModal').classList.add('open');
+      async function openSettingsModal() {
+        const settingsPage = document.getElementById('settingsModal');
+        settingsPage.style.display = 'block';
+        settingsPage.classList.remove('is-hiding');
+        requestAnimationFrame(() => settingsPage.classList.add('is-visible'));
+        await refreshDatabaseUsage();
       }
 
       function closeSettingsModal() {
-        document.getElementById('settingsModal').classList.remove('open');
+        const settingsPage = document.getElementById('settingsModal');
+        if (settingsPage.style.display !== 'block') return;
+        settingsPage.classList.remove('is-visible');
+        settingsPage.classList.add('is-hiding');
+        window.setTimeout(() => {
+          settingsPage.style.display = 'none';
+          settingsPage.classList.remove('is-hiding');
+        }, 300);
       }
 
       function openShiftModal() {
-        document.getElementById('shiftModalTitle').textContent = 'Добавить смену';
+        document.getElementById('shiftModalTitle').textContent = t('addShift');
         document.getElementById('shiftModal').classList.add('open');
+        showFormStep(1);
       }
 
       function openEditModal(entry) {
@@ -893,12 +2174,141 @@
         weekdaySelect.value = String(entry.weekday);
         hoursInput.value = String(entry.hours);
         amountInput.value = String(entry.amount);
-        document.getElementById('shiftModalTitle').textContent = 'Редактировать смену';
+        document.getElementById('shiftModalTitle').textContent = t('editShift');
         document.getElementById('shiftModal').classList.add('open');
+        showFormStep(1);
       }
 
       function closeShiftModal() {
         document.getElementById('shiftModal').classList.remove('open');
+      }
+
+      async function completeShiftModal() {
+        const shiftCard = document.querySelector('#shiftModal .modalCard');
+        isCompletingShift = true;
+        shiftCard.classList.add('is-completing');
+        await new Promise((resolve) => window.setTimeout(resolve, 920));
+        closeShiftModal();
+        shiftCard.classList.remove('is-completing');
+        isCompletingShift = false;
+        resetForm();
+      }
+
+      function formatWeekRange(stat) {
+        const locale = currentLanguage === 'en' ? 'en-GB' : 'ru-RU';
+        const start = new Date(stat.weekStart).toLocaleDateString(locale, { day: '2-digit', month: '2-digit' });
+        const end = new Date(stat.weekEnd).toLocaleDateString(locale, { day: '2-digit', month: '2-digit' });
+        return `${start} — ${end}`;
+      }
+
+      function renderWeekEntries(stat) {
+        const entries = stat.entries || [];
+        weekModalTitle.textContent = `${t('weekShifts')} ${formatWeekRange(stat)}`;
+        weekModalSummary.textContent = `${entries.length} ${t('shiftsCount')} • ${formatCurrency(stat.total)}`;
+
+        if (!entries.length) {
+          weekEntriesList.innerHTML = `<div class="emptyState">${t('unavailable')}</div>`;
+          return;
+        }
+
+        weekEntriesList.innerHTML = entries.map((entry) => `
+          <div class="entryCard">
+            <div class="entryMain">
+              <div class="entryTitle">${escapeHtml(entry.workName)}</div>
+              <div class="entryMeta">${DAY_NAMES[Number(entry.weekday)] || '-'} • ${formatHours(entry.hours)} ${t('hoursShort')}</div>
+            </div>
+            <div class="entryValue">
+              <div class="amount">${formatCurrency(entry.amount)}</div>
+              <button type="button" class="tinyButton secondary" data-action="edit-archived-entry" data-id="${entry.id}">${t('editShift')}</button>
+            </div>
+          </div>
+        `).join('');
+
+        weekEntriesList.querySelectorAll('[data-action="edit-archived-entry"]').forEach((button) => {
+          button.addEventListener('click', () => openArchivedEntryEdit(stat, button.dataset.id));
+        });
+      }
+
+      function openWeekModal(stat) {
+        openedStatId = stat.id;
+        renderWeekEntries(stat);
+        weekModal.classList.add('open');
+      }
+
+      function closeWeekModal() {
+        weekModal.classList.remove('open');
+        openedStatId = null;
+      }
+
+      function openBottomSheet(modal) {
+        modal.classList.remove('is-closing');
+        modal.classList.add('open');
+      }
+
+      function closeBottomSheet(modal) {
+        if (!modal.classList.contains('open')) return Promise.resolve();
+        modal.classList.remove('open');
+        modal.classList.add('is-closing');
+        return new Promise((resolve) => {
+          window.setTimeout(() => {
+            modal.classList.remove('is-closing');
+            resolve();
+          }, 210);
+        });
+      }
+
+      function openWeekActionsModal(stat) {
+        selectedStatId = stat.id;
+        openBottomSheet(weekActionsModal);
+      }
+
+      async function closeWeekActionsModal() {
+        await closeBottomSheet(weekActionsModal);
+        selectedStatId = null;
+      }
+
+      function openEntryActionsModal(entryId) {
+        selectedEntryId = entryId;
+        openBottomSheet(entryActionsModal);
+      }
+
+      async function closeEntryActionsModal() {
+        await closeBottomSheet(entryActionsModal);
+        selectedEntryId = null;
+      }
+
+      function openPriceBookActionsModal(productId) {
+        selectedPriceBookId = productId;
+        openBottomSheet(priceBookActionsModal);
+      }
+
+      async function closePriceBookActionsModal() {
+        await closeBottomSheet(priceBookActionsModal);
+        selectedPriceBookId = null;
+      }
+
+      [
+        [weekActionsModal, closeWeekActionsModal],
+        [entryActionsModal, closeEntryActionsModal],
+        [priceBookActionsModal, closePriceBookActionsModal]
+      ].forEach(([modal, close]) => {
+        modal.addEventListener('click', (event) => {
+          if (event.target === modal) close();
+        });
+      });
+
+      function openArchivedEntryEdit(stat, entryId) {
+        const entry = (stat.entries || []).find((item) => item.id === entryId);
+        if (!entry) return;
+        editingArchivedEntryId = entry.id;
+        editingEntryId = null;
+        workNameInput.value = entry.workName;
+        weekdaySelect.value = String(entry.weekday);
+        hoursInput.value = String(entry.hours);
+        amountInput.value = String(entry.amount);
+        document.getElementById('shiftModalTitle').textContent = t('editShift');
+        document.getElementById('shiftModal').classList.add('open');
+        showFormStep(1);
       }
 
       async function refreshSuggestions() {
@@ -908,39 +2318,181 @@
         renderWorkOptions(filtered);
       }
 
-      workNameInput.addEventListener('focus', async () => {
-        await refreshSuggestions();
-        suggestionsList.classList.add('open');
-      });
-
-      workNameInput.addEventListener('input', async () => {
-        await refreshSuggestions();
-        suggestionsList.classList.add('open');
-      });
-
       document.addEventListener('click', (event) => {
         const autocompleteWrap = document.querySelector('.autocompleteWrap');
         if (autocompleteWrap && !autocompleteWrap.contains(event.target)) {
           suggestionsList.classList.remove('open');
         }
+
+        if (!event.target.closest('.appSwitcher')) closeAppSwitchers();
+      });
+
+      document.addEventListener('gesturestart', (event) => event.preventDefault(), { passive: false });
+      document.addEventListener('gesturechange', (event) => event.preventDefault(), { passive: false });
+
+      document.querySelectorAll('.appSwitcherButton').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          const switcher = event.currentTarget.closest('.appSwitcher');
+          const isOpen = switcher.classList.contains('is-open');
+          closeAppSwitchers();
+          if (!isOpen) {
+            switcher.classList.add('is-open');
+            button.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+
+      document.querySelectorAll('[data-app-target]').forEach((button) => {
+        button.addEventListener('click', () => showApp(button.dataset.appTarget));
       });
 
       document.getElementById('settingsBtn').addEventListener('click', openSettingsModal);
       document.getElementById('closeSettingsBtn').addEventListener('click', closeSettingsModal);
+      document.querySelectorAll('[data-section-toggle]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const section = document.getElementById(button.dataset.sectionToggle);
+          if (!section) return;
+          const isCollapsed = section.classList.toggle('is-collapsed');
+          button.setAttribute('aria-expanded', String(!isCollapsed));
+        });
+      });
       document.getElementById('openShiftModalBtn').addEventListener('click', openShiftModal);
+      document.getElementById('closeWeekModalBtn').addEventListener('click', closeWeekModal);
+      document.getElementById('openWeekEditorBtn').addEventListener('click', async () => {
+        if (!selectedStatId) return;
+        const stat = await readFromStore('stats', selectedStatId);
+        await closeWeekActionsModal();
+        if (stat) openWeekModal(stat);
+      });
+      document.getElementById('openEntryEditorBtn').addEventListener('click', async () => {
+        if (!selectedEntryId) return;
+        const entry = (await loadAllEntries()).find((item) => item.id === selectedEntryId);
+        await closeEntryActionsModal();
+        if (entry) openEditModal(entry);
+      });
+      document.getElementById('deleteEntryBtn').addEventListener('click', async () => {
+        if (!selectedEntryId) return;
+        const entryId = selectedEntryId;
+        await closeEntryActionsModal();
+        await deleteFromStore('entries', entryId);
+        await renderEntries();
+      });
       document.getElementById('closeShiftModalBtn').addEventListener('click', () => {
         closeShiftModal();
         resetForm();
       });
 
-      document.getElementById('paydaySelectModal').addEventListener('change', async () => {
-        const value = Number(document.getElementById('paydaySelectModal').value);
-        paydayDisplay.textContent = DAY_NAMES[value] || DAY_NAMES[0];
-        await setSetting('payday', String(value));
+      document.getElementById('openPriceBookModalBtn').addEventListener('click', () => openPriceBookModal());
+      document.getElementById('closePriceBookModalBtn').addEventListener('click', closePriceBookModal);
+      priceBookForm.querySelectorAll('[data-price-step-next]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const step = Number(button.dataset.priceStepNext);
+          if (!canAdvancePriceBookStep(step)) {
+            alert(t('invalidProduct'));
+            return;
+          }
+          showPriceBookStep(step + 1);
+        });
+      });
+      priceBookForm.querySelectorAll('[data-price-step-back]').forEach((button) => {
+        button.addEventListener('click', () => showPriceBookStep(Number(button.dataset.priceStepBack)));
+      });
+      priceBookForm.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' || currentPriceBookStep === 4) return;
+        event.preventDefault();
+        const nextButton = priceBookForm.querySelector(`[data-price-step-next="${currentPriceBookStep}"]`);
+        if (nextButton) nextButton.click();
+      });
+      document.getElementById('openPriceBookEditorBtn').addEventListener('click', async () => {
+        if (!selectedPriceBookId) return;
+        const product = await readFromStore('priceBook', selectedPriceBookId);
+        await closePriceBookActionsModal();
+        if (product) openPriceBookModal(product);
+      });
+      document.getElementById('deletePriceBookBtn').addEventListener('click', async () => {
+        if (!selectedPriceBookId) return;
+        const productId = selectedPriceBookId;
+        await closePriceBookActionsModal();
+        const productCard = Array.from(priceBookList.querySelectorAll('.productCard')).find((card) => card.dataset.productId === productId);
+        if (productCard) {
+          productCard.classList.add('is-removing');
+          await new Promise((resolve) => window.setTimeout(resolve, 240));
+        }
+        await deleteFromStore('priceBook', productId);
+        await renderPriceBook();
+      });
+
+      priceBookForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (isCompletingProduct) return;
+        const name = priceBookNameInput.value.trim();
+        const price = Number(priceBookPriceInput.value);
+        const store = priceBookStoreInput.value.trim();
+        if (!name || !store || !Number.isFinite(price) || price < 0) {
+          alert(t('invalidProduct'));
+          return;
+        }
+
+        const photoFile = priceBookPhotoInput.files[0];
+        const photo = photoFile ? await readFileAsDataUrl(photoFile) : existingPriceBookPhoto;
+        const existing = editingPriceBookId ? await readFromStore('priceBook', editingPriceBookId) : null;
+        await writeToStore('priceBook', {
+          id: editingPriceBookId || uid(),
+          name,
+          price,
+          store,
+          photo,
+          createdAt: existing ? existing.createdAt : new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+        await completePriceBookModal();
+        await renderPriceBook();
+      });
+
+      form.querySelectorAll('[data-step-next]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const step = Number(button.dataset.stepNext);
+          if (!canAdvanceFormStep(step)) {
+            alert(t('invalidForm'));
+            showFormStep(step);
+            return;
+          }
+          showFormStep(step + 1);
+        });
+      });
+
+      form.querySelectorAll('[data-step-back]').forEach((button) => {
+        button.addEventListener('click', () => showFormStep(Number(button.dataset.stepBack)));
+      });
+
+      form.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' || currentFormStep === 4) return;
+        event.preventDefault();
+        const nextButton = form.querySelector(`[data-step-next="${currentFormStep}"]`);
+        if (nextButton) nextButton.click();
+      });
+
+      document.getElementById('languageSelect').addEventListener('change', async (event) => {
+        applyLanguage(event.currentTarget.value);
+        await setSetting('language', currentLanguage);
+        await refreshDatabaseUsage();
+        await renderEntries();
+        await loadStats();
+        if (openedStatId) {
+          const stat = await readFromStore('stats', openedStatId);
+          if (stat) renderWeekEntries(stat);
+        }
+      });
+
+      document.getElementById('themeSelect').addEventListener('change', async (event) => {
+        const theme = event.currentTarget.value === 'light' ? 'light' : 'dark';
+        applyTheme(theme);
+        await setSetting('theme', theme);
       });
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
+        if (isCompletingShift) return;
 
         const name = workNameInput.value.trim();
         const weekday = Number(weekdaySelect.value);
@@ -948,12 +2500,12 @@
         const amount = Number(amountInput.value);
 
         if (!name || !Number.isFinite(hours) || hours <= 0 || !Number.isFinite(amount) || amount <= 0) {
-          alert('Заполните название, часы и сумму корректно.');
+          alert(t('invalidForm'));
           return;
         }
 
         const entryPayload = {
-          id: editingEntryId || uid(),
+          id: editingEntryId || editingArchivedEntryId || uid(),
           workName: name,
           weekday,
           hours,
@@ -962,22 +2514,28 @@
           updatedAt: new Date().toISOString()
         };
 
-        if (editingEntryId) {
+        if (editingArchivedEntryId && openedStatId) {
+          const stat = await readFromStore('stats', openedStatId);
+          if (!stat) return;
+          const previousEntry = (stat.entries || []).find((item) => item.id === editingArchivedEntryId);
+          if (previousEntry) entryPayload.createdAt = previousEntry.createdAt;
+          stat.entries = (stat.entries || []).map((item) => item.id === editingArchivedEntryId ? entryPayload : item);
+          stat.entriesCount = stat.entries.length;
+          stat.total = stat.entries.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+          await writeToStore('stats', stat);
+          renderWeekEntries(stat);
+          await loadStats();
+        } else if (editingEntryId) {
           const existing = await readFromStore('entries', editingEntryId);
           if (existing) entryPayload.createdAt = existing.createdAt;
+          await writeToStore('entries', entryPayload);
+          await renderEntries();
+        } else {
+          await writeToStore('entries', entryPayload);
+          await renderEntries();
         }
 
-        await writeToStore('entries', entryPayload);
-        await saveWorkOption(name);
-        await renderEntries();
-        await refreshSuggestions();
-        closeShiftModal();
-        resetForm();
-      });
-
-      document.getElementById('cancelEditButton').addEventListener('click', () => {
-        closeShiftModal();
-        resetForm();
+        await completeShiftModal();
       });
 
       async function ensureWeeklyReset() {
@@ -1003,6 +2561,7 @@
             weekEnd: currentMonday.toISOString(),
             total,
             entriesCount: entries.length,
+            entries: entries.map((entry) => ({ ...entry })),
             createdAt: new Date().toISOString()
           });
         }
@@ -1017,13 +2576,17 @@
         await openDatabase();
         await ensureWeeklyReset();
 
-        const savedPayday = Number(await getSetting('payday', String(getCurrentWeekdayIndex())));
-        document.getElementById('paydaySelectModal').value = String(savedPayday);
-        paydayDisplay.textContent = DAY_NAMES[savedPayday] || DAY_NAMES[0];
+        const savedLanguage = await getSetting('language', 'ru');
+        const savedTheme = await getSetting('theme', 'dark');
+        document.getElementById('languageSelect').value = TRANSLATIONS[savedLanguage] ? savedLanguage : 'ru';
+        document.getElementById('themeSelect').value = savedTheme === 'light' ? 'light' : 'dark';
+        applyLanguage(document.getElementById('languageSelect').value);
+        applyTheme(document.getElementById('themeSelect').value);
 
         await renderEntries();
         await refreshSuggestions();
         await loadStats();
+        await renderPriceBook();
         resetForm();
 
         setInterval(async () => {
