@@ -640,7 +640,7 @@
 
       .monthlyPaymentList { flex: 1; }
 
-      .shoppingContent { min-height: 0; overflow-y: auto; }
+      .shoppingContent { min-height: 0; overflow-y: auto; overflow-x: hidden; }
 
       .shoppingDashboard { display: grid; width: 100%; gap: 22px; align-content: start; padding-right: 4px; }
 
@@ -735,6 +735,102 @@
       .shoppingHero .shoppingEditSpentButton { position: absolute; top: 13px; right: 13px; }
       .shoppingEditSpentButton svg { width: 18px; height: 18px; }
       .visuallyHidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+      .shoppingHistorySection { padding-top: 18px; border-top: 1px solid #282828; }
+      .shoppingHistoryToggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 400;
+        text-align: left;
+      }
+      .shoppingHistoryToggle svg { width: 18px; height: 18px; transition: transform .32s cubic-bezier(.2, .8, .2, 1); }
+      .shoppingHistoryToggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+      .shoppingHistoryBody {
+        display: grid;
+        grid-template-rows: 0fr;
+        margin-top: 0;
+        transition: grid-template-rows .38s cubic-bezier(.2, .8, .2, 1), margin-top .38s cubic-bezier(.2, .8, .2, 1);
+      }
+      .shoppingHistoryToggle[aria-expanded="true"] + .shoppingHistoryBody { grid-template-rows: 1fr; margin-top: 12px; }
+      .shoppingHistoryList { display: grid; min-height: 0; overflow: hidden; }
+      .shoppingHistoryItem {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 11px 0;
+        border-top: 1px solid #282828;
+      }
+      .shoppingHistoryItem:first-child { border-top: 0; padding-top: 0; }
+      .shoppingHistoryDate { color: var(--text); font-size: 15px; }
+      .shoppingHistoryMeta { margin-top: 3px; color: var(--muted); font-size: 12px; }
+      .shoppingHistoryAmount { color: var(--success); font-size: 16px; font-weight: 700; white-space: nowrap; }
+      .shoppingHistoryAmount.is-exceeded { color: var(--danger); }
+      .shoppingHistoryEmpty { padding: 4px 0; color: var(--muted); font-size: 13px; }
+
+      .shoppingDeveloperSection {
+        display: none;
+        gap: 12px;
+        min-width: 0;
+        max-width: 100%;
+        padding-top: 18px;
+        border-top: 1px solid #282828;
+      }
+      body.developer-mode .shoppingDeveloperSection { display: grid; }
+      .shoppingDeveloperHeader { margin-bottom: 0; }
+      .shoppingDeveloperHeader h2 { color: #fbbf24; }
+      .shoppingDeveloperSection .field {
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+      }
+      .shoppingDeveloperSection input {
+        display: block;
+        width: 100% !important;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .shoppingDeveloperDateField {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+      }
+      .shoppingDeveloperDateControl {
+        position: relative;
+        width: 100%;
+        height: 44px;
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+      }
+      .shoppingDeveloperDateControl .shoppingDeveloperDateDisplay {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 44px;
+        pointer-events: none;
+      }
+      #shoppingDeveloperDateInput {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        width: 100% !important;
+        min-width: 0;
+        height: 44px !important;
+        margin: 0;
+        opacity: 0;
+      }
+      .shoppingDeveloperActions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .shoppingDeveloperActions button { min-height: 44px; padding: 8px 10px; font-size: 13px; }
+      .shoppingDeveloperActions .secondary { color: #fca5a5; }
 
       #shoppingSpentModal {
         padding: 14px;
@@ -902,7 +998,10 @@
       body.light-theme .shoppingProgressTrack { background: #d1d1d6; }
       body.light-theme .shoppingHero,
       body.light-theme .shoppingSetupCard { background: #fff; }
-      body.light-theme .shoppingExpenseSection { border-color: #e5e5ea; }
+      body.light-theme .shoppingExpenseSection,
+      body.light-theme .shoppingHistorySection,
+      body.light-theme .shoppingHistoryItem,
+      body.light-theme .shoppingDeveloperSection { border-color: #e5e5ea; }
       body.light-theme .shoppingProgressVisual.progress-circle .shoppingProgressTrack { background: conic-gradient(#007aff var(--shopping-progress), #d1d1d6 0); }
       body.light-theme .shoppingProgressVisual.progress-circle .shoppingProgressValue,
       body.light-theme .shoppingProgressVisual.progress-circle .shoppingProgressValue.is-exceeded { background: #fff; }
@@ -1980,6 +2079,33 @@
               <button type="button" data-shopping-adjust="-0.5">−0.5</button><button type="button" data-shopping-adjust="-1">−1</button><button type="button" data-shopping-adjust="-5">−5</button>
             </div>
           </section>
+          <section class="shoppingHistorySection">
+            <button type="button" class="shoppingHistoryToggle" id="shoppingHistoryToggle" aria-expanded="false" aria-controls="shoppingHistoryBody">
+              <span data-i18n="shoppingHistory">Расходы за прошлые дни</span>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="shoppingHistoryBody" id="shoppingHistoryBody" aria-hidden="true">
+              <div class="shoppingHistoryList" id="shoppingHistoryList"></div>
+            </div>
+          </section>
+          <section class="shoppingDeveloperSection" aria-label="Инструменты разработчика">
+            <div class="panelHeader shoppingDeveloperHeader"><h2 data-i18n="shoppingDeveloperTools">Инструменты разработчика</h2></div>
+            <div class="field shoppingDeveloperDateField">
+              <label for="shoppingDeveloperDateInput" data-i18n="shoppingDeveloperDate">Дата расхода</label>
+              <div class="shoppingDeveloperDateControl">
+                <input class="shoppingDeveloperDateDisplay" type="text" readonly tabindex="-1" aria-hidden="true" />
+                <input id="shoppingDeveloperDateInput" type="date" aria-label="Дата расхода" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="shoppingDeveloperAmountInput" data-i18n="shoppingDeveloperAmount">Сумма расхода</label>
+              <input id="shoppingDeveloperAmountInput" type="number" min="0.01" step="0.01" inputmode="decimal" />
+            </div>
+            <div class="shoppingDeveloperActions">
+              <button type="button" class="primary" id="addShoppingDeveloperExpenseBtn" data-i18n="shoppingDeveloperAdd">Добавить расход</button>
+              <button type="button" class="secondary" id="deleteShoppingDeveloperDayBtn" data-i18n="shoppingDeveloperDelete">Удалить запись дня</button>
+            </div>
+          </section>
         </div>
       </section>
     </div>
@@ -2040,10 +2166,6 @@
               <option value="light" data-i18n="lightTheme">Светлая</option>
             </select>
           </div>
-          <div class="settingsSwitchRow">
-            <span data-i18n="developerMode">Режим разработчика</span>
-            <label class="settingsSwitch" aria-label="Режим разработчика"><input type="checkbox" id="shoppingDeveloperModeToggle" data-developer-mode-toggle /><span aria-hidden="true"></span></label>
-          </div>
           <div class="settingsSectionTitle withIcon">
             <svg class="settingsSectionTitleIcon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 15L10 12L7 9M13 15H17M7.8 21H16.2C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span data-i18n="application">Приложение</span>
@@ -2051,6 +2173,10 @@
           <div class="storageUsage" aria-live="polite">
             <span data-i18n="databaseUsage">Данные IndexedDB</span>
             <strong id="shoppingDatabaseUsageValue" data-database-usage>—</strong>
+          </div>
+          <div class="settingsSwitchRow">
+            <span data-i18n="developerMode">Режим разработчика</span>
+            <label class="settingsSwitch" aria-label="Режим разработчика"><input type="checkbox" id="shoppingDeveloperModeToggle" data-developer-mode-toggle /><span aria-hidden="true"></span></label>
           </div>
         </div>
         <button type="button" class="shoppingSettingsSave" id="saveShoppingSettingsBtn" data-i18n="save">Сохранить</button>
@@ -2137,11 +2263,6 @@
             </select>
           </div>
 
-          <div class="settingsSwitchRow">
-            <span data-i18n="developerMode">Режим разработчика</span>
-            <label class="settingsSwitch" aria-label="Режим разработчика"><input type="checkbox" id="developerModeToggle" data-developer-mode-toggle /><span aria-hidden="true"></span></label>
-          </div>
-
           <div class="settingsSectionTitle withIcon">
             <svg class="settingsSectionTitleIcon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 15L10 12L7 9M13 15H17M7.8 21H16.2C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span data-i18n="application">Приложение</span>
@@ -2149,6 +2270,10 @@
           <div class="storageUsage" aria-live="polite">
             <span data-i18n="databaseUsage">Данные IndexedDB</span>
             <strong id="databaseUsageValue" data-database-usage>—</strong>
+          </div>
+          <div class="settingsSwitchRow">
+            <span data-i18n="developerMode">Режим разработчика</span>
+            <label class="settingsSwitch" aria-label="Режим разработчика"><input type="checkbox" id="developerModeToggle" data-developer-mode-toggle /><span aria-hidden="true"></span></label>
           </div>
 
         </form>
@@ -2183,10 +2308,6 @@
               <option value="light" data-i18n="lightTheme">Светлая</option>
             </select>
           </div>
-          <div class="settingsSwitchRow">
-            <span data-i18n="developerMode">Режим разработчика</span>
-            <label class="settingsSwitch" aria-label="Режим разработчика"><input type="checkbox" id="monthlyDeveloperModeToggle" data-developer-mode-toggle /><span aria-hidden="true"></span></label>
-          </div>
           <div class="settingsSectionTitle withIcon">
             <svg class="settingsSectionTitleIcon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 15L10 12L7 9M13 15H17M7.8 21H16.2C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span data-i18n="application">Приложение</span>
@@ -2194,6 +2315,10 @@
           <div class="storageUsage" aria-live="polite">
             <span data-i18n="databaseUsage">Данные IndexedDB</span>
             <strong data-database-usage>—</strong>
+          </div>
+          <div class="settingsSwitchRow">
+            <span data-i18n="developerMode">Режим разработчика</span>
+            <label class="settingsSwitch" aria-label="Режим разработчика"><input type="checkbox" id="monthlyDeveloperModeToggle" data-developer-mode-toggle /><span aria-hidden="true"></span></label>
           </div>
         </div>
         <button type="button" class="shoppingSettingsSave" id="saveMonthlySettingsBtn" data-i18n="save">Сохранить</button>
@@ -2227,10 +2352,6 @@
               <option value="light" data-i18n="lightTheme">Светлая</option>
             </select>
           </div>
-          <div class="settingsSwitchRow">
-            <span data-i18n="developerMode">Режим разработчика</span>
-            <label class="settingsSwitch" aria-label="Режим разработчика"><input type="checkbox" id="priceBookDeveloperModeToggle" data-developer-mode-toggle /><span aria-hidden="true"></span></label>
-          </div>
           <div class="settingsSectionTitle withIcon">
             <svg class="settingsSectionTitleIcon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 15L10 12L7 9M13 15H17M7.8 21H16.2C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span data-i18n="application">Приложение</span>
@@ -2238,6 +2359,10 @@
           <div class="storageUsage" aria-live="polite">
             <span data-i18n="databaseUsage">Данные IndexedDB</span>
             <strong data-database-usage>—</strong>
+          </div>
+          <div class="settingsSwitchRow">
+            <span data-i18n="developerMode">Режим разработчика</span>
+            <label class="settingsSwitch" aria-label="Режим разработчика"><input type="checkbox" id="priceBookDeveloperModeToggle" data-developer-mode-toggle /><span aria-hidden="true"></span></label>
           </div>
         </div>
         <button type="button" class="shoppingSettingsSave" id="savePriceBookSettingsBtn" data-i18n="save">Сохранить</button>
@@ -2502,6 +2627,36 @@
 
       Object.assign(TRANSLATIONS.ru, { priceBookLoading: 'Подготавливаем товары…' });
       Object.assign(TRANSLATIONS.en, { priceBookLoading: 'Preparing products…' });
+      Object.assign(TRANSLATIONS.ru, {
+        carryOverLabel: 'Остаток перерасхода: {amount}',
+        shoppingCreditLabel: 'Накоплено с прошлых дней: {amount}',
+        shoppingHistory: 'Расходы за прошлые дни',
+        shoppingHistoryAvailable: 'Доступно: {amount}',
+        shoppingHistoryEmpty: 'Пока нет прошлых дней.',
+        shoppingDeveloperTools: 'Инструменты разработчика',
+        shoppingDeveloperDate: 'Дата расхода',
+        shoppingDeveloperAmount: 'Сумма расхода',
+        shoppingDeveloperAdd: 'Добавить расход',
+        shoppingDeveloperDelete: 'Удалить запись дня',
+        shoppingDeveloperInvalid: 'Выберите корректную дату и сумму больше нуля.',
+        shoppingDeveloperDeleteMissing: 'На выбранную дату нет записи.',
+        shoppingDeveloperDisabled: 'Включите режим разработчика в настройках.'
+      });
+      Object.assign(TRANSLATIONS.en, {
+        carryOverLabel: 'Remaining overspend: {amount}',
+        shoppingCreditLabel: 'Saved from previous days: {amount}',
+        shoppingHistory: 'Previous days',
+        shoppingHistoryAvailable: 'Available: {amount}',
+        shoppingHistoryEmpty: 'No previous days yet.',
+        shoppingDeveloperTools: 'Developer tools',
+        shoppingDeveloperDate: 'Expense date',
+        shoppingDeveloperAmount: 'Expense amount',
+        shoppingDeveloperAdd: 'Add expense',
+        shoppingDeveloperDelete: 'Delete day entry',
+        shoppingDeveloperInvalid: 'Enter a valid date and an amount greater than zero.',
+        shoppingDeveloperDeleteMissing: 'There is no entry for the selected date.',
+        shoppingDeveloperDisabled: 'Enable Developer mode in Settings.'
+      });
 
       const form = document.getElementById('entryForm');
       const workNameInput = document.getElementById('workNameInput');
@@ -2559,6 +2714,12 @@
       const shoppingProgressValue = document.getElementById('shoppingProgressValue');
       const shoppingProgressPercent = document.getElementById('shoppingProgressPercent');
       const shoppingProgressStatus = document.getElementById('shoppingProgressStatus');
+      const shoppingHistoryToggle = document.getElementById('shoppingHistoryToggle');
+      const shoppingHistoryBody = document.getElementById('shoppingHistoryBody');
+      const shoppingHistoryList = document.getElementById('shoppingHistoryList');
+      const shoppingDeveloperDateInput = document.getElementById('shoppingDeveloperDateInput');
+      const shoppingDeveloperDateDisplay = document.querySelector('.shoppingDeveloperDateDisplay');
+      const shoppingDeveloperAmountInput = document.getElementById('shoppingDeveloperAmountInput');
       const shoppingSettingsPage = document.getElementById('shoppingSettingsPage');
       const shoppingSettingsLimitInput = document.getElementById('shoppingSettingsLimitInput');
       const shoppingProgressStyleSelect = document.getElementById('shoppingProgressStyleSelect');
@@ -2629,6 +2790,7 @@
         document.querySelectorAll('[data-weekday]').forEach((element) => {
           element.textContent = DAY_NAMES[Number(element.dataset.weekday)];
         });
+        updateShoppingDeveloperDateDisplay();
         if (db) {
           renderPriceBook();
           renderMonthlyPayments();
@@ -3094,6 +3256,13 @@
         return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
       }
 
+      function updateShoppingDeveloperDateDisplay() {
+        if (!shoppingDeveloperDateDisplay) return;
+        shoppingDeveloperDateDisplay.value = shoppingDeveloperDateInput.value
+          ? formatMonthlyPaymentDate(shoppingDeveloperDateInput.value)
+          : '';
+      }
+
       function getLocalDateKey(date = new Date()) {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -3174,23 +3343,135 @@
         shoppingProgressVisual.classList.toggle('progress-circle', style === 'circle');
       }
 
+      function getShoppingCarryBalance(day) {
+        const storedBalance = Number(day?.carryBalance);
+        if (Number.isFinite(storedBalance)) return storedBalance;
+        // Records created before balances were introduced only know about debt.
+        return -Math.max(0, Number(day?.debtAtStart ?? day?.carryOver ?? 0) || 0);
+      }
+
+      function getShoppingAvailableLimit(day) {
+        if (Number.isFinite(Number(day?.carryBalance))) {
+          return Math.max(0, Number(day?.dailyLimit || 0) + getShoppingCarryBalance(day));
+        }
+        const savedAvailable = Number(day?.availableLimit);
+        if (Number.isFinite(savedAvailable)) return Math.max(0, savedAvailable);
+        return Math.max(0, Number(day?.dailyLimit || 0) + getShoppingCarryBalance(day));
+      }
+
+      function getShoppingBalanceAfterDay(day) {
+        const storedBalance = Number(day?.balanceAfter);
+        if (Number.isFinite(storedBalance)) return storedBalance;
+        return getShoppingCarryBalance(day) + Number(day?.dailyLimit || 0) - Number(day?.total || 0);
+      }
+
+      function updateShoppingDayBalance(day, carryBalance = getShoppingCarryBalance(day)) {
+        const dailyLimit = Math.max(0, Number(day.dailyLimit || 0));
+        const normalizedBalance = Number.isFinite(Number(carryBalance)) ? Number(carryBalance) : 0;
+        day.carryBalance = normalizedBalance;
+        day.carryOver = Math.max(0, -normalizedBalance);
+        day.rolloverCredit = Math.max(0, normalizedBalance);
+        day.debtAtStart = Math.max(0, -normalizedBalance);
+        day.availableLimit = Math.max(0, dailyLimit + normalizedBalance);
+        day.balanceAfter = normalizedBalance + dailyLimit - Number(day.total || 0);
+        day.debtForNext = Math.max(0, -day.balanceAfter);
+        return day;
+      }
+
+      function getDateDistanceInDays(fromDateKey, toDateKey) {
+        const from = new Date(`${fromDateKey}T12:00:00`);
+        const to = new Date(`${toDateKey}T12:00:00`);
+        return Math.max(0, Math.round((to - from) / 86400000));
+      }
+
       async function getShoppingDay(dateKey, dailyLimit) {
         const existing = await readFromStore('shoppingDays', dateKey);
         if (existing) return existing;
-        const previousDay = await readFromStore('shoppingDays', getPreviousDateKey(dateKey));
-        const previousAvailable = previousDay ? Number(previousDay.availableLimit ?? dailyLimit) : dailyLimit;
-        const carryOver = previousDay ? Math.max(0, Number(previousDay.total || 0) - previousAvailable) : 0;
+
+        const savedDays = await readAllFromStore('shoppingDays');
+        const previousDay = savedDays
+          .filter((day) => day.id < dateKey)
+          .sort((first, second) => String(second.id).localeCompare(String(first.id)))[0];
+        const elapsedDays = previousDay ? getDateDistanceInDays(previousDay.id, dateKey) : 0;
+        const carryBalance = previousDay
+          ? getShoppingBalanceAfterDay(previousDay) + dailyLimit * Math.max(0, elapsedDays - 1)
+          : 0;
+        const availableLimit = Math.max(0, dailyLimit + carryBalance);
+        const balanceAfter = carryBalance + dailyLimit;
         const day = {
           id: dateKey,
           dailyLimit,
-          carryOver,
-          availableLimit: Math.max(0, dailyLimit - carryOver),
+          carryBalance,
+          carryOver: Math.max(0, -carryBalance),
+          rolloverCredit: Math.max(0, carryBalance),
+          debtAtStart: Math.max(0, -carryBalance),
+          debtForNext: Math.max(0, -balanceAfter),
+          availableLimit,
           total: 0,
+          balanceAfter,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
         await writeToStore('shoppingDays', day);
         return day;
+      }
+
+      function isValidShoppingDateKey(dateKey) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(dateKey || ''))) return false;
+        const date = new Date(`${dateKey}T12:00:00`);
+        return !Number.isNaN(date.getTime()) && getLocalDateKey(date) === dateKey;
+      }
+
+      async function rebuildShoppingDayBalances() {
+        const days = await readAllFromStore('shoppingDays');
+        days.sort((first, second) => String(first.id).localeCompare(String(second.id)));
+
+        let previousDay = null;
+        for (const day of days) {
+          const dailyLimit = Math.max(0, Number(day.dailyLimit || 0));
+          const elapsedDays = previousDay ? getDateDistanceInDays(previousDay.id, day.id) : 0;
+          const carryBalance = previousDay
+            ? getShoppingBalanceAfterDay(previousDay) + dailyLimit * Math.max(0, elapsedDays - 1)
+            : 0;
+          day.dailyLimit = dailyLimit;
+          updateShoppingDayBalance(day, carryBalance);
+          day.updatedAt = new Date().toISOString();
+          await writeToStore('shoppingDays', day);
+          previousDay = day;
+        }
+      }
+
+      function formatShoppingHistoryDate(dateKey) {
+        const date = new Date(`${dateKey}T12:00:00`);
+        const locale = currentLanguage === 'en' ? 'en-IE' : 'ru-RU';
+        return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+      }
+
+      async function renderShoppingHistory(currentDateKey) {
+        const days = await readAllFromStore('shoppingDays');
+        const history = days
+          .filter((day) => day.id < currentDateKey)
+          .sort((first, second) => String(second.id).localeCompare(String(first.id)));
+
+        if (!history.length) {
+          shoppingHistoryList.innerHTML = `<div class="shoppingHistoryEmpty">${t('shoppingHistoryEmpty')}</div>`;
+          return;
+        }
+
+        shoppingHistoryList.innerHTML = history.map((day) => {
+          const spent = Math.max(0, Number(day.total || 0));
+          const available = getShoppingAvailableLimit(day);
+          const exceeded = spent > available;
+          return `
+            <div class="shoppingHistoryItem">
+              <div>
+                <div class="shoppingHistoryDate">${formatShoppingHistoryDate(day.id)}</div>
+                <div class="shoppingHistoryMeta">${t('shoppingHistoryAvailable').replace('{amount}', formatMonthlyTotal(available))}</div>
+              </div>
+              <div class="shoppingHistoryAmount${exceeded ? ' is-exceeded' : ''}">${formatMonthlyTotal(spent)}</div>
+            </div>
+          `;
+        }).join('');
       }
 
       async function renderShopping() {
@@ -3225,11 +3506,15 @@
         if (exceededBy > 0) {
           shoppingProgressStatus.textContent = t('shoppingOverLimit').replace('{amount}', formatMonthlyTotal(exceededBy));
         }
-        shoppingCarryNote.classList.toggle('is-visible', Boolean(day.carryOver));
-        shoppingCarryNote.setAttribute('aria-hidden', String(!day.carryOver));
-        if (day.carryOver) {
-          shoppingCarryValue.textContent = t('carryOverLabel').replace('{amount}', formatMonthlyTotal(day.carryOver));
+        const carryBalance = getShoppingCarryBalance(day);
+        const hasCarryBalance = carryBalance !== 0;
+        shoppingCarryNote.classList.toggle('is-visible', hasCarryBalance);
+        shoppingCarryNote.setAttribute('aria-hidden', String(!hasCarryBalance));
+        if (hasCarryBalance) {
+          const label = carryBalance < 0 ? 'carryOverLabel' : 'shoppingCreditLabel';
+          shoppingCarryValue.textContent = t(label).replace('{amount}', formatMonthlyTotal(Math.abs(carryBalance)));
         }
+        await renderShoppingHistory(day.id);
       }
 
       async function setShoppingDailyLimit() {
@@ -3257,11 +3542,13 @@
         const dateKey = getLocalDateKey();
         const day = await readFromStore('shoppingDays', dateKey);
         if (day) {
+          const carryBalance = getShoppingCarryBalance(day);
           day.dailyLimit = dailyLimit;
-          day.availableLimit = Math.max(0, dailyLimit - Number(day.carryOver || 0));
+          updateShoppingDayBalance(day, carryBalance);
           day.updatedAt = new Date().toISOString();
           await writeToStore('shoppingDays', day);
         }
+        await rebuildShoppingDayBalances();
 
         await saveGeneralSettings(
           shoppingLanguageSelect,
@@ -3281,8 +3568,60 @@
         if (!dailyLimit) return;
         const day = await getShoppingDay(getLocalDateKey(), dailyLimit);
         day.total = total;
+        const carryBalance = getShoppingCarryBalance(day);
+        updateShoppingDayBalance(day, carryBalance);
         day.updatedAt = new Date().toISOString();
         await writeToStore('shoppingDays', day);
+        await rebuildShoppingDayBalances();
+        await renderShopping();
+      }
+
+      async function addShoppingDeveloperExpense() {
+        if (!document.body.classList.contains('developer-mode')) {
+          alert(t('shoppingDeveloperDisabled'));
+          return;
+        }
+        const dateKey = shoppingDeveloperDateInput.value;
+        const amount = parseShoppingAmount(shoppingDeveloperAmountInput.value);
+        if (!isValidShoppingDateKey(dateKey) || !Number.isFinite(amount) || amount <= 0) {
+          alert(t('shoppingDeveloperInvalid'));
+          return;
+        }
+
+        await ensureShoppingStores();
+        const dailyLimit = await getShoppingDailyLimit();
+        if (!Number.isFinite(dailyLimit) || dailyLimit <= 0) {
+          alert(t('shoppingInvalidLimit'));
+          return;
+        }
+
+        const day = await getShoppingDay(dateKey, dailyLimit);
+        day.total = Math.round((Number(day.total || 0) + amount) * 100) / 100;
+        day.updatedAt = new Date().toISOString();
+        await writeToStore('shoppingDays', day);
+        await rebuildShoppingDayBalances();
+        shoppingDeveloperAmountInput.value = '';
+        await renderShopping();
+      }
+
+      async function deleteShoppingDeveloperDay() {
+        if (!document.body.classList.contains('developer-mode')) {
+          alert(t('shoppingDeveloperDisabled'));
+          return;
+        }
+        const dateKey = shoppingDeveloperDateInput.value;
+        if (!isValidShoppingDateKey(dateKey)) {
+          alert(t('shoppingDeveloperInvalid'));
+          return;
+        }
+
+        const existing = await readFromStore('shoppingDays', dateKey);
+        if (!existing) {
+          alert(t('shoppingDeveloperDeleteMissing'));
+          return;
+        }
+        await deleteFromStore('shoppingDays', dateKey);
+        await rebuildShoppingDayBalances();
         await renderShopping();
       }
 
@@ -3994,6 +4333,25 @@
           await setShoppingSpent(Math.round(next * 100) / 100);
         });
       });
+      shoppingHistoryToggle.addEventListener('click', () => {
+        const isExpanded = shoppingHistoryToggle.getAttribute('aria-expanded') === 'true';
+        shoppingHistoryToggle.setAttribute('aria-expanded', String(!isExpanded));
+        shoppingHistoryBody.setAttribute('aria-hidden', String(isExpanded));
+      });
+      shoppingDeveloperDateInput.addEventListener('input', updateShoppingDeveloperDateDisplay);
+      shoppingDeveloperDateInput.addEventListener('change', updateShoppingDeveloperDateDisplay);
+      document.getElementById('addShoppingDeveloperExpenseBtn').addEventListener('click', () => {
+        addShoppingDeveloperExpense().catch((error) => {
+          console.error('Failed to add developer shopping expense', error);
+          alert(currentLanguage === 'en' ? 'Could not add the expense. Please try again.' : 'Не удалось добавить расход. Попробуйте ещё раз.');
+        });
+      });
+      document.getElementById('deleteShoppingDeveloperDayBtn').addEventListener('click', () => {
+        deleteShoppingDeveloperDay().catch((error) => {
+          console.error('Failed to delete developer shopping day', error);
+          alert(currentLanguage === 'en' ? 'Could not delete the day entry. Please try again.' : 'Не удалось удалить запись дня. Попробуйте ещё раз.');
+        });
+      });
 
       document.getElementById('openMonthlyPaymentModalBtn').addEventListener('click', () => openMonthlyPaymentModal());
       document.getElementById('openMonthlySettingsBtn').addEventListener('click', () => {
@@ -4255,6 +4613,8 @@
         applyLanguage(document.getElementById('languageSelect').value);
         applyTheme(document.getElementById('themeSelect').value);
         applyDeveloperMode(savedDeveloperMode);
+        shoppingDeveloperDateInput.value = getLocalDateKey();
+        updateShoppingDeveloperDateDisplay();
 
         await renderEntries();
         await refreshSuggestions();
