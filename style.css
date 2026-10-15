@@ -1,0 +1,1919 @@
+
+      :root {
+        --bg: #000000;
+        --panel: #111111;
+        --panel-2: #171717;
+        --border: #2a2a2a;
+        --text: #f3f3f3;
+        --muted: #a5a5a5;
+        --accent: #7c3aed;
+        --accent-2: #8b5cf6;
+        --danger: #ef4444;
+        --success: #22c55e;
+        --shadow: rgba(0, 0, 0, 0.35);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      body {
+        padding: 24px 16px 40px;
+      }
+
+      .app {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        gap: 18px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 10px 25px var(--shadow);
+      }
+
+      .topbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 2px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.8rem, 3vw, 2.7rem);
+      }
+
+      .topbarActions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .topbarActions .iconButton {
+        order: 1;
+      }
+
+      .topbarActions .settingsButton {
+        order: 2;
+      }
+
+      button {
+        border-radius: 10px;
+        font: inherit;
+        cursor: pointer;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+
+      button:hover { transform: translateY(-1px); }
+
+      button.primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: white;
+        border: none;
+        padding: 12px 18px;
+      }
+
+      button.secondary {
+        background: #1a1a1a;
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 12px 16px;
+      }
+
+      button.danger {
+        background: rgba(239, 68, 68, 0.14);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        color: #fca5a5;
+      }
+
+      .settingsButton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #1a1a1a;
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 10px;
+        width: 42px;
+        height: 42px;
+      }
+
+      .iconButton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        padding: 10px;
+        background: #1a1a1a;
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+
+      .iconButton svg {
+        width: 22px;
+        height: 22px;
+        display: block;
+      }
+
+      .settingsButton svg {
+        width: 20px;
+        height: 20px;
+        display: block;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: 1.4fr 0.9fr;
+        gap: 18px;
+        padding: 24px;
+      }
+
+      .summaryMain, .summaryMeta, .panelBlock {
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+      }
+
+      .summaryMain, .summaryMeta {
+        padding: 18px 20px;
+      }
+
+      .summaryLabel {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .totalAmount {
+        margin-top: 12px;
+        font-size: clamp(2.1rem, 5vw, 4rem);
+        font-weight: 700;
+        line-height: 1.1;
+      }
+
+      .summaryMeta {
+        display: grid;
+        gap: 18px;
+        align-content: center;
+      }
+
+      .metaRow {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 8px;
+      }
+
+      .metaRow:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .metaRow span:first-child {
+        color: var(--muted);
+      }
+
+      .metaRow strong {
+        font-size: 1.05rem;
+      }
+
+      .panelBlock {
+        padding: 22px 20px;
+      }
+
+      .panelHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .panelHeader h2 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+
+      .entryList, .statsList {
+        display: grid;
+        gap: 12px;
+      }
+
+      .entryCard, .statCard {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        background: #171717;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 16px;
+      }
+
+      .entryMain {
+        display: grid;
+        gap: 4px;
+      }
+
+      .entryTitle {
+        font-weight: 700;
+      }
+
+      .entryMeta {
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      .entryValue {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+      }
+
+      .amount {
+        font-weight: 700;
+        color: var(--success);
+      }
+
+      .entryActions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .tinyButton {
+        padding: 7px 10px;
+        font-size: 0.8rem;
+      }
+
+      .emptyState {
+        background: #151515;
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        color: var(--muted);
+        padding: 18px;
+        text-align: center;
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.72);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 1000;
+      }
+
+      .modal.open {
+        display: flex;
+      }
+
+      .modalCard {
+        width: min(560px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        padding: 22px 20px;
+      }
+
+      .weekModalCard {
+        width: min(720px, 100%);
+        max-height: min(80vh, 720px);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .weekModalSummary {
+        color: var(--muted);
+        margin: -6px 0 16px;
+      }
+
+      .weekEntriesList {
+        display: grid;
+        gap: 10px;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
+      .modalHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      .modalHeader h3 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+
+      form {
+        display: grid;
+        gap: 16px;
+      }
+
+      .fieldGrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .field label {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      select, input {
+        width: 100%;
+        background: #0d0d0d;
+        color: var(--text);
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        font: inherit;
+      }
+
+      .autocompleteWrap {
+        position: relative;
+      }
+
+      .suggestionsList {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 8px);
+        background: #171717;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        max-height: 220px;
+        overflow-y: auto;
+        display: none;
+        z-index: 20;
+      }
+
+      .suggestionsList.open {
+        display: block;
+      }
+
+      .suggestionItem {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .suggestionItem:last-child {
+        border-bottom: none;
+      }
+
+      .suggestionSelect {
+        background: transparent;
+        border: none;
+        color: var(--text);
+        text-align: left;
+        flex: 1;
+        padding: 10px 12px;
+      }
+
+      .suggestionDelete {
+        background: transparent;
+        border: none;
+        color: #fca5a5;
+        padding: 10px 12px;
+        font-size: 1.1rem;
+      }
+
+      .suggestionEmpty {
+        color: var(--muted);
+        padding: 12px;
+      }
+
+      .formActions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 800px) {
+        body {
+          padding: 16px 12px 40px;
+        }
+
+        .summary, .fieldGrid {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          flex-wrap: nowrap;
+          gap: 8px;
+        }
+
+        h1 {
+          font-size: 1.55rem;
+          white-space: nowrap;
+        }
+
+        .panelHeader, .entryCard, .statCard {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .modalHeader {
+          flex-direction: row;
+          align-items: center;
+          width: 100%;
+        }
+
+        .entryCard, .statCard {
+          gap: 10px;
+        }
+
+        .entryValue {
+          align-items: flex-start;
+        }
+
+        .topbarActions {
+          width: auto;
+          flex-wrap: nowrap;
+          justify-content: flex-end;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+      }
+
+      /* Mobile card layout inspired by Mouthly Payments */
+      :root {
+        --bg: #000;
+        --panel: #111;
+        --panel-2: #111;
+        --border: #333;
+        --text: #fff;
+        --muted: #aaa;
+        --accent: #007bff;
+        --accent-2: #1687ff;
+        --success: #54d68c;
+        --shadow: transparent;
+      }
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        background: #000;
+        touch-action: manipulation;
+        overflow: hidden !important;
+        overscroll-behavior: none;
+      }
+
+      body { height: 100dvh; padding: 0; }
+
+      .app {
+        width: 100%;
+        max-width: 480px;
+        height: 100vh;
+        height: 100dvh;
+        margin: 0 auto;
+        padding: 15px;
+        gap: 20px;
+        grid-template-rows: auto auto auto minmax(150px, 1fr);
+        overflow: hidden;
+      }
+
+      .app.is-hidden { display: none; }
+
+      .app.is-entering { animation: app-screen-in 0.26s ease-out both; }
+
+      @keyframes app-screen-in {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+
+      .topbar { position: relative; z-index: 10; }
+
+      .appSwitcher { position: relative; }
+
+      .appSwitcherButton {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        font-size: 26px;
+        font-weight: 700;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .appSwitcherButton:hover,
+      .appSwitcherButton:active { transform: none; }
+
+      .appSwitcherButton svg {
+        width: 20px;
+        height: 20px;
+        fill: none;
+        stroke: #8e8e93;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: transform 0.2s ease;
+      }
+
+      .appSwitcher.is-open .appSwitcherButton svg { transform: rotate(180deg); }
+
+      .appSwitcherMenu {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        z-index: 20;
+        display: grid;
+        min-width: 210px;
+        overflow: hidden;
+        padding: 7px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(52, 52, 55, 0.78), rgba(20, 20, 22, 0.66));
+        box-shadow: 0 18px 38px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(22px) saturate(150%);
+        -webkit-backdrop-filter: blur(22px) saturate(150%);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-6px) scale(0.97);
+        transform-origin: top left;
+        transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+        visibility: hidden;
+      }
+
+      .appSwitcherMenu::before {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        content: '';
+        background: linear-gradient(115deg, rgba(255, 255, 255, 0.14), transparent 42%);
+      }
+
+      .appSwitcher.is-open .appSwitcherMenu {
+        gap: 3px;
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+        visibility: visible;
+      }
+
+      .appSwitcherMenu button {
+        position: relative;
+        z-index: 1;
+        padding: 11px 12px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--text);
+        text-align: left;
+      }
+
+      .appSwitcherMenu button:hover,
+      .appSwitcherMenu button:active {
+        background: transparent;
+        transform: none;
+      }
+
+      .monthlyPlaceholder {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #111;
+      }
+
+      #monthlyApp,
+      #shoppingApp,
+      #priceBookApp { grid-template-rows: auto minmax(0, 1fr); }
+
+      .monthlyContent { min-height: 0; }
+
+      .monthlyTotal {
+        margin-bottom: 18px;
+        padding: 15px;
+        border: 0;
+        border-radius: 12px;
+        background: #111;
+      }
+
+      .monthlyTotal .totalAmount {
+        margin-top: 8px;
+        font-size: clamp(2rem, 7vw, 3.1rem);
+        font-weight: 400;
+      }
+
+      .monthlyPaymentList { flex: 1; }
+
+      .shoppingContent { min-height: 0; overflow-y: auto; overflow-x: hidden; }
+
+      .shoppingDashboard { display: grid; width: 100%; gap: 22px; align-content: start; padding-right: 4px; }
+
+      .shoppingSetupPage .settingsPageContent { padding-top: 20px; }
+      .shoppingSetupCard { width: min(400px, 100%); margin: 28px auto 0; padding: 15px; border-radius: 12px; background: #111; }
+
+      .shoppingHero {
+        position: relative;
+        padding: 15px;
+        border-radius: 12px;
+        background: #111;
+      }
+
+      .shoppingHeroHeader { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .shoppingHero .totalAmount { margin-top: 6px; font-size: clamp(1.45rem, 5.5vw, 2.25rem); font-weight: 400; letter-spacing: -0.03em; }
+
+      .shoppingProgressVisual { margin-top: 16px; }
+      .shoppingProgressMeta { display: flex; justify-content: space-between; gap: 12px; margin: 0 0 8px; color: var(--muted); font-size: 13px; }
+      .shoppingProgressMeta strong { color: var(--text); font-weight: 400; }
+
+      .shoppingProgressTrack {
+        position: relative;
+        height: 12px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #292929;
+      }
+
+      .shoppingProgressValue {
+        position: relative;
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #007bff, #49a6ff);
+        transition: width .3s cubic-bezier(.2, .8, .2, 1), background .22s ease;
+      }
+
+      .shoppingProgressValue.is-exceeded { background: var(--danger); }
+      .shoppingCarryRow {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        max-height: 0;
+        margin-top: 0;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-4px);
+        color: #fbbf24;
+        font-size: 13px;
+        transition: max-height .32s ease, margin-top .32s ease, opacity .2s ease, transform .32s ease;
+      }
+      .shoppingCarryRow.is-visible { max-height: 48px; margin-top: 14px; opacity: 1; transform: translateY(0); }
+      .shoppingProgressStatus {
+        max-height: 0;
+        margin-top: 0;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-4px);
+        color: #fca5a5;
+        font-size: 13px;
+        transition: max-height .32s ease, margin-top .32s ease, opacity .2s ease, transform .32s ease;
+      }
+      .shoppingProgressStatus.is-visible { max-height: 48px; margin-top: 12px; opacity: 1; transform: translateY(0); }
+
+      .shoppingProgressVisual.progress-circle { display: grid; justify-items: center; gap: 10px; padding: 2px 0 0; }
+      .shoppingProgressVisual.progress-circle .shoppingProgressTrack {
+        --shopping-progress: 0%;
+        width: 128px;
+        height: 128px;
+        box-sizing: border-box;
+        padding: 7px;
+        background: conic-gradient(#49a6ff var(--shopping-progress), #292929 0);
+      }
+
+      .shoppingProgressVisual.progress-circle .shoppingProgressValue { width: 100% !important; height: 100%; background: #111; }
+      .shoppingProgressVisual.progress-circle .shoppingProgressValue::after {
+        display: grid;
+        place-items: center;
+        content: attr(data-label);
+        color: var(--text);
+        font-size: 24px;
+      }
+
+      .shoppingProgressVisual.progress-circle .shoppingProgressMeta { order: 2; width: 128px; margin: 0; }
+      .shoppingProgressVisual.progress-circle .shoppingProgressMeta strong { display: none; }
+      .shoppingProgressVisual.progress-circle.is-exceeded .shoppingProgressTrack { background: conic-gradient(var(--danger) var(--shopping-progress), #292929 0); }
+      .shoppingProgressVisual.progress-circle .shoppingProgressValue.is-exceeded { background: #111; }
+
+      .shoppingExpenseSection { padding-top: 20px; border-top: 1px solid #282828; }
+      .shoppingExpenseHeader { margin-bottom: 14px; }
+      .shoppingEditSpentButton { display: grid; width: 36px; height: 36px; padding: 0; place-items: center; border: 0; border-radius: 9px; background: #222; color: var(--text); }
+      .shoppingHero .shoppingEditSpentButton { position: absolute; top: 13px; right: 13px; }
+      .shoppingEditSpentButton svg { width: 18px; height: 18px; }
+      .visuallyHidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+      .shoppingHistorySection { padding-top: 18px; border-top: 1px solid #282828; }
+      .shoppingHistoryToggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 400;
+        text-align: left;
+      }
+      .shoppingHistoryToggle svg { width: 18px; height: 18px; transition: transform .32s cubic-bezier(.2, .8, .2, 1); }
+      .shoppingHistoryToggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+      .shoppingHistoryBody {
+        display: grid;
+        grid-template-rows: 0fr;
+        margin-top: 0;
+        transition: grid-template-rows .38s cubic-bezier(.2, .8, .2, 1), margin-top .38s cubic-bezier(.2, .8, .2, 1);
+      }
+      .shoppingHistoryToggle[aria-expanded="true"] + .shoppingHistoryBody { grid-template-rows: 1fr; margin-top: 12px; }
+      .shoppingHistoryList { display: grid; min-height: 0; overflow: hidden; }
+      .shoppingHistoryItem {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 11px 0;
+        border-top: 1px solid #282828;
+      }
+      .shoppingHistoryItem:first-child { border-top: 0; padding-top: 0; }
+      .shoppingHistoryDate { color: var(--text); font-size: 15px; }
+      .shoppingHistoryMeta { margin-top: 3px; color: var(--muted); font-size: 12px; }
+      .shoppingHistoryAmount { color: var(--success); font-size: 16px; font-weight: 700; white-space: nowrap; }
+      .shoppingHistoryAmount.is-exceeded { color: var(--danger); }
+      .shoppingHistoryEmpty { padding: 4px 0; color: var(--muted); font-size: 13px; }
+
+      .shoppingDeveloperSection {
+        display: none;
+        gap: 12px;
+        min-width: 0;
+        max-width: 100%;
+        padding-top: 18px;
+        border-top: 1px solid #282828;
+      }
+      body.developer-mode .shoppingDeveloperSection { display: grid; }
+      .shoppingDeveloperHeader { margin-bottom: 0; }
+      .shoppingDeveloperHeader h2 { color: #fbbf24; }
+      .shoppingDeveloperSection .field {
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+      }
+      .shoppingDeveloperSection input {
+        display: block;
+        width: 100% !important;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .shoppingDeveloperDateField {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+      }
+      .shoppingDeveloperDateControl {
+        position: relative;
+        width: 100%;
+        height: 44px;
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+      }
+      .shoppingDeveloperDateControl .shoppingDeveloperDateDisplay {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 44px;
+        pointer-events: none;
+      }
+      #shoppingDeveloperDateInput {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        width: 100% !important;
+        min-width: 0;
+        height: 44px !important;
+        margin: 0;
+        opacity: 0;
+      }
+      .shoppingDeveloperActions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .shoppingDeveloperActions button { min-height: 44px; padding: 8px 10px; font-size: 13px; }
+      .shoppingDeveloperActions .secondary { color: #fca5a5; }
+
+      #shoppingSpentModal {
+        padding: 14px;
+        background: rgba(0, 0, 0, 0.56);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      #shoppingSpentModal .shoppingSpentModalCard {
+        width: min(360px, 100%);
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 22px;
+        background: rgba(29, 34, 40, 0.98);
+        box-shadow: 0 28px 70px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+      }
+
+      #shoppingSpentModal.open { animation: shopping-spent-overlay-in .36s cubic-bezier(.22, .75, .25, 1) both; }
+      #shoppingSpentModal.open .shoppingSpentModalCard { animation: shopping-spent-dialog-in .34s .03s cubic-bezier(.22, .75, .25, 1) both; }
+      #shoppingSpentModal.is-closing { pointer-events: none; animation: shopping-spent-overlay-out .3s cubic-bezier(.4, 0, .25, 1) both; }
+      #shoppingSpentModal.is-closing .shoppingSpentModalCard { animation: shopping-spent-dialog-out .26s cubic-bezier(.4, 0, .25, 1) both; }
+      @keyframes shopping-spent-overlay-in {
+        from { background: rgba(0, 0, 0, 0); backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
+        to { background: rgba(0, 0, 0, 0.56); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+      }
+      @keyframes shopping-spent-overlay-out {
+        from { background: rgba(0, 0, 0, 0.56); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        to { background: rgba(0, 0, 0, 0); backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
+      }
+      @keyframes shopping-spent-dialog-in { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes shopping-spent-dialog-out { from { opacity: 1; } to { opacity: 0; } }
+
+      #shoppingSpentModal .modalHeader { display: block; margin: 0; }
+      #shoppingSpentModal .modalHeader h3 { margin: 0; color: #fff; font-size: 24px; line-height: 1.1; font-weight: 650; }
+      .shoppingSpentDialogDescription { margin: 9px 0 0; color: rgba(255, 255, 255, 0.86); font-size: 15px; line-height: 1.35; }
+      #shoppingSpentModal .field { margin-top: 14px; }
+      #shoppingSpentModal .field input {
+        height: 48px;
+        padding: 0 12px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 12px;
+        outline: 0;
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        font-size: 21px;
+        font-variant-numeric: tabular-nums;
+        text-align: center;
+      }
+      #shoppingSpentModal .field input::-webkit-inner-spin-button,
+      #shoppingSpentModal .field input::-webkit-outer-spin-button { margin: 0; -webkit-appearance: none; }
+      .shoppingSpentDialogActions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+      .shoppingSpentDialogButton { min-height: 48px; padding: 8px 12px; border: 0; border-radius: 999px; font-size: 15px; font-weight: 600; }
+      .shoppingSpentDialogButton:hover,
+      .shoppingSpentDialogButton:active { transform: none; }
+      .shoppingSpentDialogButton.is-secondary { background: rgba(255, 255, 255, 0.12); color: #fff; }
+      .shoppingSpentDialogButton.is-primary { background: #2f9bf3; color: #fff; }
+      body.light-theme #shoppingSpentModal { background: rgba(28, 28, 30, 0.34); }
+      body.light-theme #shoppingSpentModal .shoppingSpentModalCard { border-color: rgba(0, 0, 0, 0.08); background: rgba(249, 249, 251, 0.98); box-shadow: 0 28px 70px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9); }
+      body.light-theme #shoppingSpentModal .modalHeader h3 { color: #1c1c1e; }
+      body.light-theme .shoppingSpentDialogDescription { color: #3a3a3c; }
+      body.light-theme #shoppingSpentModal .field input { border-color: rgba(0, 0, 0, 0.1); background: #fff; color: #1c1c1e; }
+      body.light-theme .shoppingSpentDialogButton.is-secondary { background: #e5e5ea; color: #1c1c1e; }
+
+      .shoppingAdjustments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .shoppingAdjustments button { min-height: 44px; padding: 9px 6px; border: 0; border-radius: 10px; background: #222; color: var(--text); }
+      .shoppingAdjustments button[data-shopping-adjust^="+"] { background: rgba(0, 123, 255, 0.2); color: #8cc8ff; }
+
+      #shoppingSettingsPage,
+      #settingsModal,
+      #monthlySettingsPage,
+      #priceBookSettingsPage {
+        overflow: hidden;
+      }
+
+      #shoppingSettingsPage .settingsPageContent,
+      #settingsModal .settingsPageContent,
+      #monthlySettingsPage .settingsPageContent,
+      #priceBookSettingsPage .settingsPageContent {
+        display: flex;
+        flex-direction: column;
+        height: 100dvh;
+        min-height: 100dvh;
+        box-sizing: border-box;
+        overflow: hidden;
+        padding: 20px 20px calc(70px + env(safe-area-inset-bottom));
+      }
+      .shoppingSettingsFields {
+        display: grid;
+        flex: 1 1 auto;
+        width: 100%;
+        max-width: 400px;
+        min-height: 0;
+        box-sizing: border-box;
+        margin: 0 auto;
+        padding: 0 4px 12px;
+        gap: 18px;
+        align-content: start;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .shoppingSettingsFields::-webkit-scrollbar { display: none; }
+      .shoppingSettingsFields .field { gap: 8px; }
+      .shoppingSettingsFields label { color: var(--muted); font-size: 14px; }
+      .shoppingSettingsFields input,
+      .shoppingSettingsFields select { width: 100%; box-sizing: border-box; }
+      .settingsHint { margin: -2px 0 0; color: var(--muted); font-size: 12px; line-height: 1.35; }
+      .settingsGroup {
+        display: grid;
+        gap: 14px;
+        padding: 15px;
+        border-radius: 12px;
+        background: #111;
+      }
+      .settingsGroup .settingsSectionTitle { margin-bottom: 0; }
+      .settingsGroup .storageUsage { margin-top: 10px; padding: 0; border-radius: 0; background: transparent; }
+      .shoppingSettingsSave {
+        position: absolute;
+        z-index: 1;
+        left: 50%;
+        bottom: 20px;
+        width: min(440px, calc(100% - 40px));
+        height: 50px;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0 20px;
+        transform: translateX(-50%);
+        transition: none;
+        border: 0;
+        border-radius: 10px;
+        background: #007bff;
+        color: #fff;
+        font-size: 16px;
+      }
+
+      .shoppingSettingsSave:hover { transform: translateX(-50%); }
+
+      @media (display-mode: standalone) {
+        #shoppingSettingsPage .settingsPageContent,
+        #settingsModal .settingsPageContent,
+        #monthlySettingsPage .settingsPageContent,
+        #priceBookSettingsPage .settingsPageContent { padding-bottom: 120px; }
+        .shoppingSettingsSave {
+          position: fixed;
+          bottom: 0;
+          width: min(480px, 100%);
+          height: 80px;
+          border-radius: 0;
+        }
+      }
+
+      body.is-pwa #shoppingSettingsPage .settingsPageContent,
+      body.is-pwa #settingsModal .settingsPageContent,
+      body.is-pwa #monthlySettingsPage .settingsPageContent,
+      body.is-pwa #priceBookSettingsPage .settingsPageContent { padding-bottom: 120px; }
+      body.is-pwa .shoppingSettingsSave {
+        position: fixed;
+        bottom: 0;
+        width: min(480px, 100%);
+        height: 80px;
+        border-radius: 0;
+      }
+
+      body.light-theme .shoppingProgressTrack { background: #d1d1d6; }
+      body.light-theme .shoppingHero,
+      body.light-theme .shoppingSetupCard { background: #fff; }
+      body.light-theme .shoppingExpenseSection,
+      body.light-theme .shoppingHistorySection,
+      body.light-theme .shoppingHistoryItem,
+      body.light-theme .shoppingDeveloperSection { border-color: #e5e5ea; }
+      body.light-theme .shoppingProgressVisual.progress-circle .shoppingProgressTrack { background: conic-gradient(#007aff var(--shopping-progress), #d1d1d6 0); }
+      body.light-theme .shoppingProgressVisual.progress-circle .shoppingProgressValue,
+      body.light-theme .shoppingProgressVisual.progress-circle .shoppingProgressValue.is-exceeded { background: #fff; }
+      body.light-theme .shoppingProgressVisual.progress-circle.is-exceeded .shoppingProgressTrack { background: conic-gradient(var(--danger) var(--shopping-progress), #d1d1d6 0); }
+      body.light-theme .shoppingAdjustments button { background: #f2f2f7; color: #1c1c1e; }
+      body.light-theme .shoppingAdjustments button[data-shopping-adjust^="+"] { background: #dbeafe; color: #0067d8; }
+      body.light-theme .shoppingEditSpentButton { background: #f2f2f7; color: #1c1c1e; }
+
+      .paymentExpiredWarning {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        margin-top: 6px;
+        padding: 4px 7px;
+        border: 0;
+        border-radius: 7px;
+        background: rgba(239, 68, 68, 0.15);
+        color: #fca5a5;
+        font-size: 12px;
+      }
+
+      .paymentExpiredWarning:hover { transform: none; }
+
+      .priceBookContent { min-height: 0; }
+
+      .priceBookList {
+        display: grid;
+        min-height: 0;
+        gap: 12px;
+        overflow-y: auto;
+        align-content: start;
+        padding-right: 4px;
+      }
+
+      .priceBookLoading {
+        min-height: 190px;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 14px;
+        color: var(--muted);
+        font-size: 14px;
+        animation: price-book-loading-in .24s ease both;
+      }
+
+      .priceBookLoadingDots {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        height: 24px;
+      }
+
+      .priceBookLoadingDots span {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 45%, transparent);
+        animation: price-book-loading-dot .9s cubic-bezier(.42, 0, .25, 1) infinite;
+      }
+
+      .priceBookLoadingDots span:nth-child(2) { animation-delay: .12s; }
+      .priceBookLoadingDots span:nth-child(3) { animation-delay: .24s; }
+
+      @keyframes price-book-loading-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes price-book-loading-dot {
+        0%, 60%, 100% { opacity: .3; transform: translateY(0) scale(.76); }
+        30% { opacity: 1; transform: translateY(-5px) scale(1); }
+      }
+
+      .productCard {
+        position: relative;
+        display: grid;
+        grid-template-columns: 52px minmax(0, 1fr);
+        align-items: start;
+        gap: 12px;
+        min-height: 76px;
+        max-height: 76px;
+        padding: 12px;
+        border-radius: 12px;
+        background: #111;
+        overflow: hidden;
+        cursor: pointer;
+        will-change: grid-template-columns, max-height, min-height;
+        transition: grid-template-columns .56s cubic-bezier(.16, 1, .3, 1), max-height .56s cubic-bezier(.16, 1, .3, 1), min-height .56s cubic-bezier(.16, 1, .3, 1), padding .36s ease, opacity .2s ease, transform .24s ease;
+      }
+
+      .productCard.is-expanded { grid-template-columns: 142px minmax(0, 1fr); min-height: 166px; max-height: 166px; }
+
+      .productCard.is-removing {
+        max-height: 0;
+        min-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        opacity: 0;
+        transform: translateX(24px) scale(.96);
+      }
+
+      .productPhotoFrame,
+      .productPhotoPlaceholder {
+        width: 52px;
+        height: 52px;
+        border-radius: 10px;
+        will-change: width, height;
+        transition: width .56s cubic-bezier(.16, 1, .3, 1), height .56s cubic-bezier(.16, 1, .3, 1), border-radius .56s ease;
+      }
+
+      .productPhotoFrame {
+        overflow: hidden;
+        background: #222;
+        contain: layout paint;
+      }
+
+      .productPhoto {
+        display: block;
+        width: 142px;
+        height: 142px;
+        object-fit: cover;
+        transform: scale(.3661971831);
+        transform-origin: top left;
+        will-change: transform;
+        transition: transform .56s cubic-bezier(.16, 1, .3, 1);
+      }
+
+      .productCard.is-expanded .productPhotoFrame,
+      .productCard.is-expanded .productPhotoPlaceholder { width: 142px; height: 142px; border-radius: 12px; }
+      .productCard.is-expanded .productPhoto { transform: scale(1); }
+
+      .productPhotoPlaceholder {
+        display: grid;
+        place-items: center;
+        background: #222;
+        color: var(--muted);
+        font-size: 20px;
+      }
+
+      .productMain {
+        min-width: 0;
+        align-self: start;
+        padding: 10px 112px 0 0;
+        will-change: padding;
+        transition: padding .56s cubic-bezier(.16, 1, .3, 1);
+      }
+      .productMain .entryTitle,
+      .productMain .entryMeta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .productMain .entryTitle { line-height: 17px; }
+      .productMain .entryMeta { font-size: 12px; line-height: 15px; }
+      .productCard.is-expanded .productMain { padding: 3px 46px 0 0; }
+      .productCard.is-expanded .productMain .entryTitle,
+      .productCard.is-expanded .productMain .entryMeta { white-space: normal; }
+
+      .productActions {
+        position: absolute;
+        top: 23px;
+        right: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transform: none;
+        will-change: top, transform;
+        transition: top .56s cubic-bezier(.16, 1, .3, 1), transform .56s cubic-bezier(.16, 1, .3, 1);
+      }
+
+      .productCard.is-expanded .productActions { top: 12px; }
+
+      .productPrice {
+        display: block;
+        color: var(--success);
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+      .productMain .productPrice { margin-top: 2px; }
+
+      .priceBookAddButton { background: #007bff; color: #fff; }
+
+      .priceBookModalCard { max-width: 520px; }
+
+      body.light-theme .productCard,
+      body.light-theme .monthlyTotal { background: #fff; }
+      body.light-theme .paymentExpiredWarning { background: #fee2e2; color: #b91c1c; }
+      body.light-theme .productPhotoFrame,
+      body.light-theme .productPhotoPlaceholder { background: #e5e5ea; }
+
+      body { overflow: hidden; }
+
+      button, input, select { touch-action: manipulation; }
+
+      .topbar { gap: 12px; margin-bottom: 0; }
+
+      h1 { font-size: 26px; font-weight: 700; }
+
+      .topbarActions { gap: 8px; }
+
+      .settingsButton, .iconButton {
+        width: 38px;
+        height: 38px;
+        padding: 9px;
+        border: 0;
+        border-radius: 50%;
+        background: #222;
+      }
+
+      .settingsButton { order: 2; }
+
+      .topbarActions .iconButton { order: 1; background: var(--accent); }
+
+      .panel { border: 0; border-radius: 0; box-shadow: none; }
+
+      .summary {
+        display: block;
+        padding: 15px;
+        background: #111;
+        border-radius: 12px;
+      }
+
+      .summaryMain, .summaryMeta {
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        padding: 0;
+      }
+
+      .summaryLabel { font-size: 14px; color: var(--muted); }
+
+      .totalAmount { margin-top: 5px; font-size: 32px; font-weight: 400; }
+
+      .summaryMeta {
+        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #282828;
+      }
+
+      .metaRow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        text-align: center;
+        gap: 4px;
+        border: 0;
+        padding: 0;
+      }
+
+      .metaRow span,
+      .metaRow strong {
+        width: 100%;
+        text-align: center;
+      }
+      .metaRow span:first-child { font-size: 12px; }
+      .metaRow strong { font-size: 15px; }
+
+      .panelBlock {
+        min-height: 0;
+        padding: 0;
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+      }
+      .panelHeader {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin: 0 0 10px;
+      }
+
+      .panelHeader h2 { margin: 0; color: var(--muted); font-size: 14px; font-weight: 400; }
+
+      .sectionToggle {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        padding: 0;
+        border: 0;
+        border-radius: 8px;
+        background: #222;
+        color: var(--muted);
+      }
+
+      .sectionToggle svg {
+        width: 18px;
+        height: 18px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: transform 0.2s ease;
+      }
+
+      .panelBlock.is-collapsed { display: block; min-height: 0; }
+      .panelBlock.is-collapsed .panelHeader { margin-bottom: 0; }
+      .panelBlock.is-collapsed .sectionToggle svg { transform: rotate(-90deg); }
+
+      .panelBlock .entryList,
+      .panelBlock .statsList {
+        animation: section-content-in 0.22s ease-out both;
+      }
+
+      .panelBlock.is-collapsed .entryList,
+      .panelBlock.is-collapsed .statsList {
+        display: none;
+      }
+
+      @keyframes section-content-in {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .entryList, .statsList {
+        flex: 1;
+        min-height: 0;
+        gap: 12px;
+        overflow-y: auto;
+        padding-right: 4px;
+        align-content: start;
+        grid-auto-rows: min-content;
+      }
+
+      .statsList {
+        flex: 0 1 auto;
+        max-height: 26dvh;
+      }
+
+      .entryCard .entryValue {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .entryCard .amount { white-space: nowrap; }
+
+      .entryCard, .statCard {
+        min-height: 68px;
+        padding: 15px;
+        border: 0;
+        border-radius: 12px;
+        background: #111;
+      }
+
+      .entryTitle { font-size: 17px; }
+      .entryMeta { font-size: 14px; }
+      .amount { font-size: 18px; }
+      .entryValue { gap: 13px; }
+      .entryActions { gap: 6px; }
+
+      button.primary, .topbarActions .iconButton { background: var(--accent); }
+      button.primary { padding: 12px; }
+
+      button.secondary, .tinyButton.secondary {
+        border: 0;
+        background: #333;
+      }
+
+      .tinyButton { padding: 7px 9px; border-radius: 8px; }
+
+      .emptyState {
+        padding: 18px 15px;
+        border: 0;
+        background: #111;
+        border-radius: 12px;
+      }
+
+      .modal { padding: 15px; background: rgba(0, 0, 0, 0.82); }
+
+      #shiftModal {
+        align-items: flex-start;
+        padding: 0;
+        background: #000;
+      }
+
+      #priceBookModal {
+        align-items: flex-start;
+        padding: 0;
+        background: #000;
+      }
+
+      #monthlyPaymentModal {
+        align-items: flex-start;
+        padding: 0;
+        background: #000;
+      }
+
+      #shiftModal .modalCard,
+      #priceBookModal .modalCard,
+      #monthlyPaymentModal .modalCard {
+        position: relative;
+        width: 100%;
+        max-width: none;
+        min-height: 100vh;
+        min-height: 100dvh;
+        max-height: none;
+        overflow-y: auto;
+        border-radius: 0;
+        background: #000;
+      }
+
+      #priceBookModal .modalCard {
+        width: 100%;
+        max-width: none;
+        min-height: 100vh;
+        min-height: 100dvh;
+        max-height: none;
+        overflow-y: auto;
+        border-radius: 0;
+        background: #000;
+      }
+
+      #monthlyPaymentModal .modalCard {
+        width: 100%;
+        max-width: none;
+        min-height: 100vh;
+        min-height: 100dvh;
+        max-height: none;
+        overflow-y: auto;
+        border-radius: 0;
+        background: #000;
+      }
+
+      #shiftModal.open .modalCard { animation: shift-form-in 0.26s ease-out both; }
+      #priceBookModal.open .modalCard { animation: shift-form-in 0.26s ease-out both; }
+      #monthlyPaymentModal.open .modalCard { animation: shift-form-in 0.26s ease-out both; }
+
+      .saveSuccess {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        display: grid;
+        place-items: center;
+        background: #000;
+        color: #54d68c;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .saveSuccess::before,
+      .saveSuccess::after {
+        position: absolute;
+        border: 2px solid rgba(84, 214, 140, 0.7);
+        border-radius: 50%;
+        content: '';
+        opacity: 0;
+      }
+
+      .saveSuccess::before { width: 88px; height: 88px; }
+      .saveSuccess::after { width: 88px; height: 88px; }
+
+      .saveSuccess svg {
+        width: 88px;
+        height: 88px;
+        display: block;
+        stroke: currentColor;
+      }
+
+      #shiftModal .modalCard.is-completing .saveSuccess,
+      #priceBookModal .modalCard.is-completing .saveSuccess {
+        animation: save-success-in 0.9s ease-out both;
+      }
+
+      #shiftModal .modalCard.is-completing .saveSuccess::before,
+      #priceBookModal .modalCard.is-completing .saveSuccess::before {
+        animation: save-success-ring 0.85s ease-out both;
+      }
+
+      #shiftModal .modalCard.is-completing .saveSuccess::after,
+      #priceBookModal .modalCard.is-completing .saveSuccess::after {
+        animation: save-success-ring 0.85s 0.12s ease-out both;
+      }
+
+      #shiftModal .modalCard.is-completing .saveSuccess svg,
+      #priceBookModal .modalCard.is-completing .saveSuccess svg {
+        animation: save-success-icon 0.65s 0.08s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
+      }
+
+      @keyframes save-success-in {
+        0% { opacity: 0; transform: scale(0.72); }
+        35%, 100% { opacity: 1; transform: scale(1); }
+      }
+
+      @keyframes save-success-ring {
+        0% { opacity: 0.85; transform: scale(0.4); }
+        100% { opacity: 0; transform: scale(2.3); }
+      }
+
+      @keyframes save-success-icon {
+        0% { opacity: 0; transform: scale(0.45) rotate(-14deg); }
+        72% { opacity: 1; transform: scale(1.1) rotate(2deg); }
+        100% { opacity: 1; transform: scale(1) rotate(0); }
+      }
+
+      @keyframes shift-form-in {
+        from { opacity: 0; transform: translateX(14px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .settingsPage {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: none;
+        overflow-y: auto;
+        background: #000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .settingsPage.is-visible { opacity: 1; }
+      .settingsPage.is-hiding { opacity: 0; pointer-events: none; }
+
+      .settingsPageContent {
+        width: 100%;
+        max-width: 480px;
+        min-height: 100%;
+        margin: 0 auto;
+        padding: 20px 15px;
+      }
+
+      .settingsPageContent .modalHeader { margin-bottom: 24px; }
+
+      .settingsPageContent form {
+        max-width: 400px;
+        margin: 0 auto;
+        /* padding: 20px; */
+        border-radius: 12px;
+        background: none;
+      }
+
+      .settingsSectionTitle {
+        margin: 0 0 2px;
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 18px;
+      }
+
+      .settingsSectionTitle.withIcon {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .settingsSectionTitleIcon {
+        display: block;
+        width: 18px;
+        height: 18px;
+        flex: 0 0 18px;
+      }
+
+      .settingsSwitchRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 44px;
+        gap: 16px;
+        color: var(--text);
+        font-size: 16px;
+      }
+
+      .settingsSwitch {
+        position: relative;
+        display: inline-flex;
+        flex: 0 0 auto;
+        width: 46px;
+        height: 28px;
+      }
+
+      .settingsSwitch input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+      }
+
+      .settingsSwitch span {
+        width: 100%;
+        height: 100%;
+        border-radius: 999px;
+        background: #3a3a3c;
+        transition: background .2s ease;
+      }
+
+      .settingsSwitch span::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #fff;
+        transition: transform .2s ease;
+      }
+
+      .settingsSwitch input:checked + span { background: var(--accent); }
+      .settingsSwitch input:checked + span::after { transform: translateX(18px); }
+      .settingsSwitch input:focus-visible + span { outline: 2px solid var(--text); outline-offset: 3px; }
+
+      .storageUsage {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 13px 12px;
+        border-radius: 10px;
+        background: #000;
+        color: var(--text);
+        font-size: 16px;
+      }
+
+      .storageUsage strong {
+        color: var(--text);
+        font-size: 16px;
+      }
+
+      .modalCard, .weekModalCard {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px;
+        border: 0;
+        border-radius: 14px;
+        background: #111;
+        box-shadow: none;
+      }
+
+      .weekModalCard { max-width: 480px; }
+      .modalHeader h3 { font-size: 22px; }
+      .modalHeader .iconButton { background: #222; }
+      .field label { font-size: 14px; }
+
+      select, input {
+        padding: 12px;
+        border-color: #333;
+        background: #000;
+        border-radius: 10px;
+        font-size: 16px;
+      }
+
+      select:focus, input:focus {
+        outline: none;
+        border-color: #555;
+        box-shadow: none;
+      }
+
+      .suggestionsList { background: #111; border: 1px solid #333; }
+      .formActions { gap: 10px; }
+      .formActions button { flex: 1; }
+
+      .monthlyDateField {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .monthlyDateControl {
+        position: relative;
+        width: 100%;
+        height: 44px;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .monthlyDateControl .monthlyDateDisplay {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 44px;
+        pointer-events: none;
+      }
+
+      #monthlyPaymentDateInput {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        width: 100% !important;
+        min-width: 0;
+        height: 44px !important;
+        margin: 0;
+        opacity: 0;
+      }
+
+      .stepProgress {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+
+      #monthlyPaymentStepProgress { grid-template-columns: repeat(3, 1fr); }
+
+      .stepProgress span {
+        height: 4px;
+        border-radius: 999px;
+        background: #333;
+        transition: background 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .stepProgress span.is-active {
+        background: #007bff;
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.7);
+      }
+
+      .formStep {
+        display: grid;
+        gap: 22px;
+        animation: wizard-step-in 0.2s ease-out both;
+      }
+
+      .formStep[hidden] { display: none; }
+
+      .wizardCancel {
+        padding: 8px;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .wizardCancel:hover { transform: none; color: var(--text); }
+
+      @keyframes wizard-step-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .statCard {
+        display: block;
+        height: auto;
+        min-height: 0;
+        padding: 10px 12px;
+      }
+
+      .statCardTop, .statCardControls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .statCardControls { flex-shrink: 0; }
+
+      .statCard .entryTitle {
+        overflow: hidden;
+        font-size: 14px;
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .statCard .entryMeta { display: none; }
+      .statCard .amount { font-size: 16px; }
+
+      .statMenuButton {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        flex: 0 0 30px;
+        place-items: center;
+        padding: 0;
+        border: 0;
+        border-radius: 8px;
+        background: #222;
+        color: var(--muted);
+      }
+
+      .statMenuButton svg {
+        width: 18px;
+        height: 18px;
+        display: block;
+        fill: currentColor;
+      }
+
+      .statCardMenu {
+        display: none;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #282828;
+      }
+
+      .statCard.is-menu-open .statCardMenu { display: block; }
+      .statCardMenu .tinyButton { width: 100%; }
+
+      .bottomSheetModal {
+        align-items: flex-end;
+        padding: 0;
+      }
+
+      .bottomSheetModal.is-closing {
+        display: flex;
+        pointer-events: none;
+      }
+
+      .bottomSheet {
+        width: min(480px, 100%);
+        padding: 10px 15px calc(15px + env(safe-area-inset-bottom));
+        border-radius: 20px 20px 0 0;
+        background: #111;
+        animation: bottom-sheet-in 0.2s ease-out;
+      }
+
+      .bottomSheetModal.is-closing .bottomSheet { animation: bottom-sheet-out 0.2s ease-in both; }
+
+      .bottomSheetHandle {
+        width: 36px;
+        height: 4px;
+        margin: 0 auto 16px;
+        border-radius: 999px;
+        background: #555;
+      }
+
+      .bottomSheet h3 {
+        margin: 0 0 14px;
+        font-size: 18px;
+      }
+
+      .bottomSheetAction,
+      .bottomSheetDanger,
+      .bottomSheetCancel {
+        width: 100%;
+        padding: 14px;
+        border: 0;
+        border-radius: 10px;
+        font-size: 16px;
+      }
+
+      .bottomSheetAction { background: #007bff; color: #fff; }
+      .bottomSheetDanger { margin-top: 10px; background: #3a1e22; color: #fca5a5; }
+      .bottomSheetCancel { margin-top: 10px; background: #222; color: var(--text); }
+
+      @keyframes bottom-sheet-in {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+      }
+
+      @keyframes bottom-sheet-out {
+        from { transform: translateY(0); }
+        to { transform: translateY(100%); }
+      }
+
+      body.light-theme {
+        --bg: #f2f2f7;
+        --panel: #fff;
+        --panel-2: #fff;
+        --border: #d1d1d6;
+        --text: #1c1c1e;
+        --muted: #6c6c70;
+        background: #f2f2f7;
+        color: #1c1c1e;
+      }
+
+      body.light-theme .summary,
+      body.light-theme .entryCard,
+      body.light-theme .statCard,
+      body.light-theme .emptyState,
+      body.light-theme .modalCard,
+      body.light-theme .weekModalCard,
+      body.light-theme .suggestionsList { background: #fff; }
+
+      body.light-theme .settingsButton,
+      body.light-theme .iconButton,
+      body.light-theme .modalHeader .iconButton,
+      body.light-theme .statMenuButton,
+      body.light-theme .sectionToggle,
+      body.light-theme button.secondary,
+      body.light-theme .tinyButton.secondary { background: #e5e5ea; color: #1c1c1e; }
+
+      body.light-theme .topbarActions .iconButton,
+      body.light-theme button.primary { background: #007bff; color: #fff; }
+
+      body.light-theme select,
+      body.light-theme input { border-color: #d1d1d6; background: #f2f2f7; color: #1c1c1e; }
+      body.light-theme select:focus,
+      body.light-theme input:focus { border-color: #a1a1aa; }
+
+      body.light-theme .summaryMeta,
+      body.light-theme .statCardMenu { border-color: #e5e5ea; }
+
+      body.light-theme .modal { background: rgba(242, 242, 247, 0.82); }
+      body.light-theme #shiftModal { background: #f2f2f7; }
+      body.light-theme #shiftModal .modalCard { background: #f2f2f7; }
+      body.light-theme #priceBookModal,
+      body.light-theme #priceBookModal .modalCard { background: #f2f2f7; }
+      body.light-theme #monthlyPaymentModal,
+      body.light-theme #monthlyPaymentModal .modalCard { background: #f2f2f7; }
+      body.light-theme .saveSuccess { background: #f2f2f7; }
+      body.light-theme .stepProgress span { background: #d1d1d6; }
+      body.light-theme .settingsPage { background: #f2f2f7; }
+      body.light-theme .settingsPageContent form { background: #fff; }
+      body.light-theme .settingsGroup { background: #fff; }
+      body.light-theme .storageUsage { background: #f2f2f7; }
+      body.light-theme .settingsGroup .storageUsage { background: transparent; }
+      body.light-theme .settingsSwitch span { background: #d1d1d6; }
+      body.light-theme .appSwitcherMenu {
+        border-color: rgba(255, 255, 255, 0.7);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(232, 232, 237, 0.68));
+        box-shadow: 0 18px 38px rgba(28, 28, 30, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      }
+
+      body.light-theme .monthlyPlaceholder { background: #fff; }
+      body.light-theme .appSwitcherMenu button:hover { background: transparent; }
+      body.light-theme .bottomSheet { background: #fff; }
+      body.light-theme .bottomSheetCancel { background: #e5e5ea; color: #1c1c1e; }
+      body.light-theme .bottomSheetDanger { background: #fee2e2; color: #b91c1c; }
+      body.light-theme .bottomSheetHandle { background: #c7c7cc; }
+
+      @media (max-width: 480px) {
+        .app { padding: 15px; }
+        .entryCard, .statCard { align-items: center; flex-direction: row; }
+        .entryValue { align-items: flex-end; }
+        .entryTitle { font-size: 16px; }
+        .entryMeta { font-size: 13px; }
+      }
+    
