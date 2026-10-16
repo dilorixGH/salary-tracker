@@ -71,6 +71,9 @@
         editTodo: 'Редактировать задачу',
         todoTaskTitle: 'Задача',
         todoTaskPlaceholder: 'Например: Купить продукты',
+        todoDetails: 'Подробности',
+        todoDetailsPlaceholder: 'Добавьте детали, если нужно',
+        todoNoDetails: 'Подробностей пока нет.',
         todoEmpty: 'Пока нет задач. Добавьте первую.',
         todoInvalid: 'Введите название задачи.',
         todoCompletedCount: 'Готово: {done} из {total}'
@@ -81,6 +84,9 @@
         editTodo: 'Edit task',
         todoTaskTitle: 'Task',
         todoTaskPlaceholder: 'For example: Buy groceries',
+        todoDetails: 'Details',
+        todoDetailsPlaceholder: 'Add details if needed',
+        todoNoDetails: 'No details yet.',
         todoEmpty: 'No tasks yet. Add your first one.',
         todoInvalid: 'Enter a task name.',
         todoCompletedCount: 'Done: {done} of {total}'
@@ -114,7 +120,12 @@
       const todoModal = document.getElementById('todoModal');
       const todoForm = document.getElementById('todoForm');
       const todoTitleInput = document.getElementById('todoTitleInput');
+      const todoDetailsInput = document.getElementById('todoDetailsInput');
       const todoModalTitle = document.getElementById('todoModalTitle');
+      const todoStepProgress = document.getElementById('todoStepProgress');
+      const todoDetailModal = document.getElementById('todoDetailModal');
+      const todoDetailTitle = document.getElementById('todoDetailTitle');
+      const todoDetailText = document.getElementById('todoDetailText');
       const priceBookList = document.getElementById('priceBookList');
       const priceBookForm = document.getElementById('priceBookForm');
       const priceBookNameInput = document.getElementById('priceBookNameInput');
@@ -191,6 +202,8 @@
       let shoppingSpentModalCloseTimer = null;
       let editingTodoId = null;
       let isSavingTodo = false;
+      let currentTodoStep = 1;
+      let todoDetailCloseTimer = null;
 
       function groupSettingsSections() {
         document.querySelectorAll('.shoppingSettingsFields').forEach((container) => {
@@ -1608,7 +1621,7 @@
         renderWorkOptions(filtered);
       }
 
-      async function renderTodos() {
+      async function renderTodos(newTaskId = null) {
         await ensureTodoStore();
         const tasks = await readAllFromStore('todoTasks');
         tasks.sort((first, second) => String(second.createdAt || '').localeCompare(String(first.createdAt || '')));
@@ -1624,11 +1637,11 @@
           const taskId = escapeHtml(task.id);
           const isCompleted = Boolean(task.completed);
           return `
-            <article class="todoCard${isCompleted ? ' is-completed' : ''}" data-todo-id="${taskId}">
+            <article class="todoCard${isCompleted ? ' is-completed' : ''}${task.id === newTaskId ? ' is-new' : ''}" data-todo-id="${taskId}">
               <button type="button" class="todoCheck${isCompleted ? ' is-completed' : ''}" data-todo-action="toggle" data-todo-id="${taskId}" aria-pressed="${isCompleted}" aria-label="${isCompleted ? 'Отметить как невыполненную' : 'Отметить как выполненную'}">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.5 12.5L10.2 16L17.5 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
-              <div class="todoTaskName">${escapeHtml(task.title)}</div>
+              <button type="button" class="todoTaskName" data-todo-action="details" data-todo-id="${taskId}">${escapeHtml(task.title)}</button>
               <div class="todoActions">
                 <button type="button" class="todoAction" data-todo-action="edit" data-todo-id="${taskId}" aria-label="${t('edit')}"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20H21M16.5 3.5C16.8978 3.10218 17.4374 2.87868 18 2.87868C18.5626 2.87868 19.1022 3.10218 19.5 3.5C19.8978 3.89783 20.1213 4.43739 20.1213 5C20.1213 5.56261 19.8978 6.10218 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
                 <button type="button" class="todoAction is-delete" data-todo-action="delete" data-todo-id="${taskId}" aria-label="${t('remove')}"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7H20M10 11V17M14 11V17M6 7L7 20H17L18 7M9 7V4H15V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -1644,23 +1657,42 @@
           .replace('{total}', totalCount);
       }
 
+      function showTodoStep(step) {
+        currentTodoStep = step;
+        todoForm.querySelectorAll('[data-todo-step]').forEach((section) => {
+          section.hidden = Number(section.dataset.todoStep) !== step;
+        });
+        todoStepProgress.querySelectorAll('span').forEach((segment, index) => {
+          segment.classList.toggle('is-active', index < step);
+        });
+        todoStepProgress.setAttribute('aria-label', `${step} / 2`);
+      }
+
+      function canAdvanceTodoStep() {
+        if (todoTitleInput.value.trim()) return true;
+        alert(t('todoInvalid'));
+        return false;
+      }
+
       function openTodoModal(task = null) {
         editingTodoId = task ? task.id : null;
         todoForm.reset();
         todoTitleInput.value = task ? task.title : '';
+        todoDetailsInput.value = task ? task.details || '' : '';
         todoModalTitle.textContent = task ? t('editTodo') : t('addTodo');
         todoModal.classList.add('open');
         todoModal.setAttribute('aria-hidden', 'false');
+        showTodoStep(1);
       }
 
       function closeTodoModal(force = false) {
         if (isSavingTodo && !force) return;
         todoModal.classList.remove('open');
         todoModal.setAttribute('aria-hidden', 'true');
-        document.querySelector('#todoModal .todoModalCard').classList.remove('is-completing');
         todoForm.reset();
         editingTodoId = null;
         isSavingTodo = false;
+        showTodoStep(1);
       }
 
       async function saveTodo() {
@@ -1674,22 +1706,46 @@
         try {
           await ensureTodoStore();
           const existing = editingTodoId ? await readFromStore('todoTasks', editingTodoId) : null;
+          const savedTaskId = existing?.id || uid();
+          const updatedAt = new Date().toISOString();
           await writeToStore('todoTasks', {
-            id: existing?.id || uid(),
+            id: savedTaskId,
             title,
+            details: todoDetailsInput.value.trim(),
             completed: Boolean(existing?.completed),
-            createdAt: existing?.createdAt || new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            createdAt: existing?.createdAt || updatedAt,
+            updatedAt
           });
-          document.querySelector('#todoModal .todoModalCard').classList.add('is-completing');
-          await new Promise((resolve) => window.setTimeout(resolve, 920));
           closeTodoModal(true);
-          await renderTodos();
+          await renderTodos(existing ? null : savedTaskId);
         } catch (error) {
           isSavingTodo = false;
-          document.querySelector('#todoModal .todoModalCard').classList.remove('is-completing');
           throw error;
         }
+      }
+
+      function openTodoDetail(task, sourceCard) {
+        window.clearTimeout(todoDetailCloseTimer);
+        todoDetailModal.classList.remove('is-closing');
+        todoDetailTitle.textContent = task.title;
+        todoDetailText.textContent = task.details || t('todoNoDetails');
+        const detailCard = todoDetailModal.querySelector('.todoDetailCard');
+        const sourceBounds = sourceCard.getBoundingClientRect();
+        detailCard.style.setProperty('--todo-origin-x', `${sourceBounds.left + sourceBounds.width / 2}px`);
+        detailCard.style.setProperty('--todo-origin-y', `${sourceBounds.top + sourceBounds.height / 2}px`);
+        todoDetailModal.classList.add('open');
+        todoDetailModal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeTodoDetail() {
+        if (!todoDetailModal.classList.contains('open') || todoDetailModal.classList.contains('is-closing')) return;
+        todoDetailModal.classList.add('is-closing');
+        window.clearTimeout(todoDetailCloseTimer);
+        todoDetailCloseTimer = window.setTimeout(() => {
+          todoDetailModal.classList.remove('open', 'is-closing');
+          todoDetailModal.setAttribute('aria-hidden', 'true');
+          todoDetailCloseTimer = null;
+        }, 260);
       }
 
       async function toggleTodo(taskId) {
@@ -1704,6 +1760,7 @@
           return;
         }
         const checkButton = card.querySelector('.todoCheck');
+        card.classList.remove('is-new');
         card.classList.add('is-updating');
         requestAnimationFrame(() => {
           card.classList.toggle('is-completed', task.completed);
@@ -1755,11 +1812,27 @@
 
       document.getElementById('openTodoModalBtn').addEventListener('click', () => openTodoModal());
       document.getElementById('closeTodoModalBtn').addEventListener('click', closeTodoModal);
+      document.getElementById('closeTodoDetailModalBtn').addEventListener('click', closeTodoDetail);
       todoModal.addEventListener('click', (event) => {
         if (event.target === todoModal) closeTodoModal();
       });
+      todoDetailModal.addEventListener('click', (event) => {
+        if (event.target === todoDetailModal) closeTodoDetail();
+      });
+      todoForm.querySelectorAll('[data-todo-step-next]').forEach((button) => {
+        button.addEventListener('click', () => {
+          if (canAdvanceTodoStep()) showTodoStep(Number(button.dataset.todoStepNext) + 1);
+        });
+      });
+      todoForm.querySelectorAll('[data-todo-step-back]').forEach((button) => {
+        button.addEventListener('click', () => showTodoStep(Number(button.dataset.todoStepBack)));
+      });
       todoForm.addEventListener('submit', (event) => {
         event.preventDefault();
+        if (currentTodoStep === 1) {
+          if (canAdvanceTodoStep()) showTodoStep(2);
+          return;
+        }
         saveTodo().catch((error) => {
           console.error('Failed to save todo task', error);
           alert(currentLanguage === 'en' ? 'Could not save the task. Please try again.' : 'Не удалось сохранить задачу. Попробуйте ещё раз.');
@@ -1770,6 +1843,13 @@
         if (!actionButton) return;
         const { todoAction: action, todoId } = actionButton.dataset;
         if (!todoId) return;
+        if (action === 'details') {
+          readFromStore('todoTasks', todoId).then((task) => {
+            const sourceCard = actionButton.closest('.todoCard');
+            if (task && sourceCard) openTodoDetail(task, sourceCard);
+          }).catch((error) => console.error('Failed to load todo task details', error));
+          return;
+        }
         if (action === 'edit') {
           readFromStore('todoTasks', todoId).then((task) => {
             if (task) openTodoModal(task);
