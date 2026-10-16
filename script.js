@@ -2,7 +2,7 @@
       const isStandalonePwa = window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true;
       document.body.classList.toggle('is-pwa', isStandalonePwa);
       const DB_NAME = 'salary-tracker-db';
-      const DB_VERSION = 5;
+      const DB_VERSION = 6;
       const DAY_NAMES_BY_LANGUAGE = {
         ru: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],
         en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -65,6 +65,27 @@
         shoppingInvalidCarryBalance: 'Enter a valid balance from previous days.'
       });
 
+      Object.assign(TRANSLATIONS.ru, {
+        todoTasks: 'Задачи',
+        addTodo: 'Добавить задачу',
+        editTodo: 'Редактировать задачу',
+        todoTaskTitle: 'Задача',
+        todoTaskPlaceholder: 'Например: Купить продукты',
+        todoEmpty: 'Пока нет задач. Добавьте первую.',
+        todoInvalid: 'Введите название задачи.',
+        todoCompletedCount: 'Готово: {done} из {total}'
+      });
+      Object.assign(TRANSLATIONS.en, {
+        todoTasks: 'Tasks',
+        addTodo: 'Add task',
+        editTodo: 'Edit task',
+        todoTaskTitle: 'Task',
+        todoTaskPlaceholder: 'For example: Buy groceries',
+        todoEmpty: 'No tasks yet. Add your first one.',
+        todoInvalid: 'Enter a task name.',
+        todoCompletedCount: 'Done: {done} of {total}'
+      });
+
       const form = document.getElementById('entryForm');
       const workNameInput = document.getElementById('workNameInput');
       const weekdaySelect = document.getElementById('weekdaySelect');
@@ -87,6 +108,13 @@
       const monthlyApp = document.getElementById('monthlyApp');
       const shoppingApp = document.getElementById('shoppingApp');
       const priceBookApp = document.getElementById('priceBookApp');
+      const todoApp = document.getElementById('todoApp');
+      const todoList = document.getElementById('todoList');
+      const todoProgress = document.getElementById('todoProgress');
+      const todoModal = document.getElementById('todoModal');
+      const todoForm = document.getElementById('todoForm');
+      const todoTitleInput = document.getElementById('todoTitleInput');
+      const todoModalTitle = document.getElementById('todoModalTitle');
       const priceBookList = document.getElementById('priceBookList');
       const priceBookForm = document.getElementById('priceBookForm');
       const priceBookNameInput = document.getElementById('priceBookNameInput');
@@ -161,6 +189,8 @@
       let currentShoppingSpent = 0;
       let shoppingSpentModalMode = 'add';
       let shoppingSpentModalCloseTimer = null;
+      let editingTodoId = null;
+      let isSavingTodo = false;
 
       function groupSettingsSections() {
         document.querySelectorAll('.shoppingSettingsFields').forEach((container) => {
@@ -203,6 +233,7 @@
           renderPriceBook();
           renderMonthlyPayments();
           renderShopping();
+          renderTodos();
         }
       }
 
@@ -272,7 +303,7 @@
       }
 
       function showApp(appName) {
-        const apps = { salary: salaryApp, monthly: monthlyApp, shopping: shoppingApp, priceBook: priceBookApp };
+        const apps = { salary: salaryApp, monthly: monthlyApp, shopping: shoppingApp, priceBook: priceBookApp, todo: todoApp };
         const nextApp = apps[appName] || salaryApp;
         const currentApp = Object.values(apps).find((app) => !app.classList.contains('is-hidden'));
         if (!nextApp.classList.contains('is-hidden')) {
@@ -287,6 +318,7 @@
         if (appName === 'priceBook') renderPriceBook();
         if (appName === 'monthly') renderMonthlyPayments();
         if (appName === 'shopping') renderShopping();
+        if (appName === 'todo') renderTodos();
         closeAppSwitchers();
       }
 
@@ -344,6 +376,7 @@
             if (!database.objectStoreNames.contains('monthlyPayments')) database.createObjectStore('monthlyPayments', { keyPath: 'id' });
             if (!database.objectStoreNames.contains('shoppingSettings')) database.createObjectStore('shoppingSettings', { keyPath: 'key' });
             if (!database.objectStoreNames.contains('shoppingDays')) database.createObjectStore('shoppingDays', { keyPath: 'id' });
+            if (!database.objectStoreNames.contains('todoTasks')) database.createObjectStore('todoTasks', { keyPath: 'id' });
           };
 
           request.onsuccess = () => {
@@ -374,6 +407,16 @@
         await openDatabase();
         if (!db.objectStoreNames.contains('shoppingSettings') || !db.objectStoreNames.contains('shoppingDays')) {
           throw new Error('Shopping stores are unavailable');
+        }
+      }
+
+      async function ensureTodoStore() {
+        if (db && db.objectStoreNames.contains('todoTasks')) return;
+        if (db) db.close();
+        db = null;
+        await openDatabase();
+        if (!db.objectStoreNames.contains('todoTasks')) {
+          throw new Error('Todo tasks store is unavailable');
         }
       }
 
@@ -447,7 +490,7 @@
 
       async function refreshDatabaseUsage() {
         if (!db) return;
-        const storeNames = ['entries', 'workOptions', 'stats', 'settings', 'priceBook', 'monthlyPayments', 'shoppingSettings', 'shoppingDays'];
+        const storeNames = ['entries', 'workOptions', 'stats', 'settings', 'priceBook', 'monthlyPayments', 'shoppingSettings', 'shoppingDays', 'todoTasks'];
         const data = await Promise.all(storeNames.map((storeName) => readAllFromStore(storeName)));
         const bytes = new TextEncoder().encode(JSON.stringify(data)).length;
         const usage = `≈ ${formatDatabaseSize(bytes)}`;
@@ -1565,6 +1608,123 @@
         renderWorkOptions(filtered);
       }
 
+      async function renderTodos() {
+        await ensureTodoStore();
+        const tasks = await readAllFromStore('todoTasks');
+        tasks.sort((first, second) => String(second.createdAt || '').localeCompare(String(first.createdAt || '')));
+
+        updateTodoProgress(tasks.filter((task) => task.completed).length, tasks.length);
+
+        if (!tasks.length) {
+          todoList.innerHTML = `<div class="todoEmpty">${t('todoEmpty')}</div>`;
+          return;
+        }
+
+        todoList.innerHTML = tasks.map((task) => {
+          const taskId = escapeHtml(task.id);
+          const isCompleted = Boolean(task.completed);
+          return `
+            <article class="todoCard${isCompleted ? ' is-completed' : ''}" data-todo-id="${taskId}">
+              <button type="button" class="todoCheck${isCompleted ? ' is-completed' : ''}" data-todo-action="toggle" data-todo-id="${taskId}" aria-pressed="${isCompleted}" aria-label="${isCompleted ? 'Отметить как невыполненную' : 'Отметить как выполненную'}">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.5 12.5L10.2 16L17.5 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="todoTaskName">${escapeHtml(task.title)}</div>
+              <div class="todoActions">
+                <button type="button" class="todoAction" data-todo-action="edit" data-todo-id="${taskId}" aria-label="${t('edit')}"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20H21M16.5 3.5C16.8978 3.10218 17.4374 2.87868 18 2.87868C18.5626 2.87868 19.1022 3.10218 19.5 3.5C19.8978 3.89783 20.1213 4.43739 20.1213 5C20.1213 5.56261 19.8978 6.10218 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                <button type="button" class="todoAction is-delete" data-todo-action="delete" data-todo-id="${taskId}" aria-label="${t('remove')}"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7H20M10 11V17M14 11V17M6 7L7 20H17L18 7M9 7V4H15V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+
+      function updateTodoProgress(completedCount, totalCount) {
+        todoProgress.textContent = t('todoCompletedCount')
+          .replace('{done}', completedCount)
+          .replace('{total}', totalCount);
+      }
+
+      function openTodoModal(task = null) {
+        editingTodoId = task ? task.id : null;
+        todoForm.reset();
+        todoTitleInput.value = task ? task.title : '';
+        todoModalTitle.textContent = task ? t('editTodo') : t('addTodo');
+        todoModal.classList.add('open');
+        todoModal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeTodoModal(force = false) {
+        if (isSavingTodo && !force) return;
+        todoModal.classList.remove('open');
+        todoModal.setAttribute('aria-hidden', 'true');
+        document.querySelector('#todoModal .todoModalCard').classList.remove('is-completing');
+        todoForm.reset();
+        editingTodoId = null;
+        isSavingTodo = false;
+      }
+
+      async function saveTodo() {
+        if (isSavingTodo) return;
+        const title = todoTitleInput.value.trim();
+        if (!title) {
+          alert(t('todoInvalid'));
+          return;
+        }
+        isSavingTodo = true;
+        try {
+          await ensureTodoStore();
+          const existing = editingTodoId ? await readFromStore('todoTasks', editingTodoId) : null;
+          await writeToStore('todoTasks', {
+            id: existing?.id || uid(),
+            title,
+            completed: Boolean(existing?.completed),
+            createdAt: existing?.createdAt || new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          });
+          document.querySelector('#todoModal .todoModalCard').classList.add('is-completing');
+          await new Promise((resolve) => window.setTimeout(resolve, 920));
+          closeTodoModal(true);
+          await renderTodos();
+        } catch (error) {
+          isSavingTodo = false;
+          document.querySelector('#todoModal .todoModalCard').classList.remove('is-completing');
+          throw error;
+        }
+      }
+
+      async function toggleTodo(taskId) {
+        const task = await readFromStore('todoTasks', taskId);
+        if (!task) return;
+        const card = Array.from(todoList.querySelectorAll('.todoCard')).find((item) => item.dataset.todoId === taskId);
+        task.completed = !task.completed;
+        task.updatedAt = new Date().toISOString();
+        await writeToStore('todoTasks', task);
+        if (!card) {
+          await renderTodos();
+          return;
+        }
+        const checkButton = card.querySelector('.todoCheck');
+        card.classList.add('is-updating');
+        requestAnimationFrame(() => {
+          card.classList.toggle('is-completed', task.completed);
+          checkButton.classList.toggle('is-completed', task.completed);
+          checkButton.setAttribute('aria-pressed', String(task.completed));
+          checkButton.setAttribute('aria-label', task.completed ? 'Отметить как невыполненную' : 'Отметить как выполненную');
+          updateTodoProgress(todoList.querySelectorAll('.todoCard.is-completed').length, todoList.querySelectorAll('.todoCard').length);
+          window.setTimeout(() => card.classList.remove('is-updating'), 380);
+        });
+      }
+
+      async function deleteTodo(taskId) {
+        const card = Array.from(todoList.querySelectorAll('.todoCard')).find((item) => item.dataset.todoId === taskId);
+        if (card) {
+          card.classList.add('is-removing');
+          await new Promise((resolve) => window.setTimeout(resolve, 260));
+        }
+        await deleteFromStore('todoTasks', taskId);
+        await renderTodos();
+      }
+
       document.addEventListener('click', (event) => {
         const autocompleteWrap = document.querySelector('.autocompleteWrap');
         if (autocompleteWrap && !autocompleteWrap.contains(event.target)) {
@@ -1591,6 +1751,41 @@
 
       document.querySelectorAll('[data-app-target]').forEach((button) => {
         button.addEventListener('click', () => showApp(button.dataset.appTarget));
+      });
+
+      document.getElementById('openTodoModalBtn').addEventListener('click', () => openTodoModal());
+      document.getElementById('closeTodoModalBtn').addEventListener('click', closeTodoModal);
+      todoModal.addEventListener('click', (event) => {
+        if (event.target === todoModal) closeTodoModal();
+      });
+      todoForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        saveTodo().catch((error) => {
+          console.error('Failed to save todo task', error);
+          alert(currentLanguage === 'en' ? 'Could not save the task. Please try again.' : 'Не удалось сохранить задачу. Попробуйте ещё раз.');
+        });
+      });
+      todoList.addEventListener('click', (event) => {
+        const actionButton = event.target.closest('[data-todo-action]');
+        if (!actionButton) return;
+        const { todoAction: action, todoId } = actionButton.dataset;
+        if (!todoId) return;
+        if (action === 'edit') {
+          readFromStore('todoTasks', todoId).then((task) => {
+            if (task) openTodoModal(task);
+          }).catch((error) => console.error('Failed to load todo task', error));
+          return;
+        }
+        const operation = action === 'toggle'
+          ? toggleTodo(todoId)
+          : action === 'delete'
+            ? deleteTodo(todoId)
+            : null;
+        if (!operation) return;
+        operation.catch((error) => {
+          console.error('Failed to update todo task', error);
+          alert(currentLanguage === 'en' ? 'Could not update the task. Please try again.' : 'Не удалось обновить задачу. Попробуйте ещё раз.');
+        });
       });
 
       document.getElementById('settingsBtn').addEventListener('click', openSettingsModal);
@@ -2050,6 +2245,7 @@
         await renderPriceBook();
         await renderMonthlyPayments();
         await renderShopping();
+        await renderTodos();
         resetForm();
 
         setInterval(async () => {
