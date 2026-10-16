@@ -19,6 +19,7 @@
             <button type="button" data-app-target="monthly" role="menuitem">Mouthly Payments</button>
             <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
             <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
+            <button type="button" data-app-target="todo" role="menuitem">Todo List</button>
           </div>
         </div>
 
@@ -89,6 +90,7 @@
             <button type="button" data-app-target="monthly" role="menuitem">Mouthly Payments</button>
             <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
             <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
+            <button type="button" data-app-target="todo" role="menuitem">Todo List</button>
           </div>
         </div>
         <div class="topbarActions">
@@ -124,6 +126,7 @@
             <button type="button" data-app-target="monthly" role="menuitem">Mouthly Payments</button>
             <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
             <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
+            <button type="button" data-app-target="todo" role="menuitem">Todo List</button>
           </div>
         </div>
         <div class="topbarActions">
@@ -300,6 +303,7 @@
             <button type="button" data-app-target="monthly" role="menuitem">Mouthly Payments</button>
             <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
             <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
+            <button type="button" data-app-target="todo" role="menuitem">Todo List</button>
           </div>
         </div>
         <div class="topbarActions">
@@ -317,6 +321,60 @@
         </div>
         <div id="priceBookList" class="priceBookList"></div>
       </section>
+    </div>
+
+    <div class="app is-hidden" id="todoApp">
+      <header class="topbar">
+        <div class="appSwitcher">
+          <button type="button" class="appSwitcherButton" aria-expanded="false" aria-haspopup="true">
+            <span>Todo List</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9L12 15L18 9"/></svg>
+          </button>
+          <div class="appSwitcherMenu" role="menu">
+            <button type="button" data-app-target="salary" role="menuitem">Salary Tracker</button>
+            <button type="button" data-app-target="monthly" role="menuitem">Mouthly Payments</button>
+            <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
+            <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
+            <button type="button" data-app-target="todo" role="menuitem">Todo List</button>
+          </div>
+        </div>
+        <div class="topbarActions">
+          <button type="button" class="iconButton" id="openTodoModalBtn" aria-label="Добавить задачу" title="Добавить задачу">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </header>
+      <section class="panel panelBlock todoContent">
+        <div class="todoHeader">
+          <h2 data-i18n="todoTasks">Задачи</h2>
+          <span class="todoProgress" id="todoProgress" aria-live="polite">0 / 0</span>
+        </div>
+        <div class="todoList" id="todoList" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <div class="modal" id="todoModal" aria-hidden="true">
+      <div class="modalCard todoModalCard" role="dialog" aria-modal="true" aria-labelledby="todoModalTitle">
+        <div class="saveSuccess" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 12L10.5 15L16.5 9M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="modalHeader">
+          <h3 id="todoModalTitle" data-i18n="addTodo">Добавить задачу</h3>
+          <button type="button" class="iconButton" id="closeTodoModalBtn" aria-label="Закрыть" title="Закрыть">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <form id="todoForm">
+          <div class="stepProgress" id="todoStepProgress" aria-label="Шаг 1 из 1"><span class="is-active"></span></div>
+          <section class="formStep">
+            <div class="field">
+              <label for="todoTitleInput" data-i18n="todoTaskTitle">Задача</label>
+              <input id="todoTitleInput" maxlength="160" data-i18n-placeholder="todoTaskPlaceholder" placeholder="Например: Купить продукты" autocomplete="off" />
+            </div>
+            <div class="formActions"><button type="submit" class="primary" data-i18n="save">Сохранить</button></div>
+          </section>
+        </form>
+      </div>
     </div>
 
     <div class="settingsPage" id="settingsModal" aria-hidden="true">
