@@ -1462,26 +1462,22 @@
       }
 
       #shiftModal .modalCard.is-completing .saveSuccess,
-      #priceBookModal .modalCard.is-completing .saveSuccess,
-      #todoModal .todoModalCard.is-completing .saveSuccess {
+      #priceBookModal .modalCard.is-completing .saveSuccess {
         animation: save-success-in 0.9s ease-out both;
       }
 
       #shiftModal .modalCard.is-completing .saveSuccess::before,
-      #priceBookModal .modalCard.is-completing .saveSuccess::before,
-      #todoModal .todoModalCard.is-completing .saveSuccess::before {
+      #priceBookModal .modalCard.is-completing .saveSuccess::before {
         animation: save-success-ring 0.85s ease-out both;
       }
 
       #shiftModal .modalCard.is-completing .saveSuccess::after,
-      #priceBookModal .modalCard.is-completing .saveSuccess::after,
-      #todoModal .todoModalCard.is-completing .saveSuccess::after {
+      #priceBookModal .modalCard.is-completing .saveSuccess::after {
         animation: save-success-ring 0.85s 0.12s ease-out both;
       }
 
       #shiftModal .modalCard.is-completing .saveSuccess svg,
-      #priceBookModal .modalCard.is-completing .saveSuccess svg,
-      #todoModal .todoModalCard.is-completing .saveSuccess svg {
+      #priceBookModal .modalCard.is-completing .saveSuccess svg {
         animation: save-success-icon 0.65s 0.08s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
       }
 
@@ -1962,12 +1958,13 @@
         border: 1px solid var(--border);
         border-radius: 15px;
         background: #171717;
-        animation: todo-card-in 0.38s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+        animation: none;
         transition: opacity 0.28s ease, background 0.28s ease, border-color 0.28s ease, transform 0.28s ease;
       }
 
       .todoCard.is-completed { opacity: 0.64; background: #151515; }
       .todoCard.is-updating { pointer-events: none; }
+      .todoCard.is-new { animation: todo-card-add 0.52s cubic-bezier(0.18, 0.82, 0.26, 1.12) both; }
       .todoCard.is-removing { animation: todo-card-remove 0.28s ease-in both; pointer-events: none; }
 
       .todoCheck {
@@ -1990,8 +1987,14 @@
       .todoCheck.is-completed svg { animation: todo-check-draw 0.25s 0.08s ease-out forwards; }
 
       .todoTaskName {
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: transparent;
         overflow: hidden;
         color: var(--text);
+        text-align: left;
         font-size: 16px;
         font-weight: 600;
         line-height: 1.3;
@@ -1999,6 +2002,9 @@
         white-space: nowrap;
         transition: color 0.22s ease, text-decoration-color 0.22s ease;
       }
+
+      .todoTaskName:hover { transform: none; color: #8cc8ff; }
+      .todoTaskName:focus-visible { outline: 2px solid #007aff; outline-offset: 4px; border-radius: 4px; }
 
       .todoCard.is-completed .todoTaskName { color: var(--muted); text-decoration: line-through; text-decoration-color: currentColor; }
 
@@ -2048,12 +2054,112 @@
       }
 
       #todoModal .modalHeader { margin-bottom: 18px; }
-      #todoStepProgress { display: none; }
+      #todoStepProgress { grid-template-columns: repeat(2, 1fr); }
       #todoModal.open .todoModalCard { animation: shift-form-in 0.26s ease-out both; }
+
+      #todoDetailsInput {
+        width: 100%;
+        min-height: 132px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        outline: 0;
+        resize: vertical;
+        background: #111;
+        color: var(--text);
+        font: inherit;
+        line-height: 1.45;
+      }
+
+      #todoDetailsInput:focus { border-color: #555; }
+
+      #todoDetailModal {
+        align-items: flex-start;
+        padding: 0;
+        background: #000;
+      }
+
+      #todoDetailModal .todoDetailCard {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        width: 100%;
+        max-width: none;
+        height: 100vh;
+        height: 100dvh;
+        min-height: 100vh;
+        min-height: 100dvh;
+        max-height: none;
+        overflow: hidden;
+        padding: 20px;
+        border: 0;
+        border-radius: 0;
+        background: #000;
+        transform-origin: var(--todo-origin-x, 50%) var(--todo-origin-y, 50%);
+      }
+
+      #todoDetailModal.open .todoDetailCard { animation: todo-detail-expand 0.36s cubic-bezier(0.18, 0.82, 0.24, 1) both; }
+      #todoDetailModal .modalHeader {
+        justify-content: space-between;
+        align-items: center;
+        min-width: 0;
+        margin-bottom: 0;
+      }
+      #todoDetailModal .modalHeader h2 {
+        min-width: 0;
+        margin: 0;
+        overflow: hidden;
+        color: inherit;
+        font-size: clamp(1.65rem, 7vw, 2.35rem);
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      #todoDetailModal.is-closing {
+        display: flex;
+        pointer-events: none;
+        animation: todo-detail-fade-out 0.26s ease-in both;
+      }
+
+      .todoDetailBody {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        width: 100%;
+        max-width: 620px;
+        min-height: 0;
+        margin: 8px auto 0;
+      }
+      .todoDetailBody p {
+        min-height: 0;
+        margin: 22px 0 0;
+        padding: 0 4px 20px 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
 
       @keyframes todo-card-in {
         from { opacity: 0; transform: translateY(10px) scale(0.985); }
         to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      @keyframes todo-card-add {
+        from { opacity: 0; transform: translateY(18px) scale(0.96); }
+        70% { opacity: 1; transform: translateY(-2px) scale(1.01); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      @keyframes todo-detail-expand {
+        from { opacity: 0; transform: scale(0.12); }
+        to { opacity: 1; transform: scale(1); }
+      }
+
+      @keyframes todo-detail-fade-out {
+        from { opacity: 1; }
+        to { opacity: 0; }
       }
 
       @keyframes todo-card-remove {
@@ -2069,4 +2175,7 @@
       body.light-theme .todoProgress { background: #dbeafe; color: #0067d8; }
       body.light-theme #todoModal,
       body.light-theme #todoModal .todoModalCard { background: #f2f2f7; }
+      body.light-theme #todoDetailsInput { border-color: #d1d1d6; background: #fff; color: #1c1c1e; }
+      body.light-theme #todoDetailModal,
+      body.light-theme #todoDetailModal .todoDetailCard { background: #f2f2f7; }
     
