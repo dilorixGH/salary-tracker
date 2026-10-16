@@ -44,6 +44,7 @@
         shoppingDeveloperDisabled: 'Включите режим разработчика в настройках.',
         shoppingCarryBalance: 'Баланс с прошлых дней',
         shoppingCarryBalanceHint: 'Положительное число — накоплено, отрицательное — перерасход.',
+        shoppingCarryEnabled: 'Перенос средств',
         shoppingInvalidCarryBalance: 'Введите корректный баланс с прошлых дней.'
       });
       Object.assign(TRANSLATIONS.en, {
@@ -62,6 +63,7 @@
         shoppingDeveloperDisabled: 'Enable Developer mode in Settings.',
         shoppingCarryBalance: 'Balance from previous days',
         shoppingCarryBalanceHint: 'A positive value is saved money; a negative value is overspending.',
+        shoppingCarryEnabled: 'Carry funds over',
         shoppingInvalidCarryBalance: 'Enter a valid balance from previous days.'
       });
 
@@ -169,6 +171,7 @@
       const shoppingSettingsPage = document.getElementById('shoppingSettingsPage');
       const shoppingSettingsLimitInput = document.getElementById('shoppingSettingsLimitInput');
       const shoppingSettingsCarryInput = document.getElementById('shoppingSettingsCarryInput');
+      const shoppingCarryEnabledToggle = document.getElementById('shoppingCarryEnabledToggle');
       const shoppingProgressStyleSelect = document.getElementById('shoppingProgressStyleSelect');
       const shoppingLanguageSelect = document.getElementById('shoppingLanguageSelect');
       const shoppingThemeSelect = document.getElementById('shoppingThemeSelect');
@@ -803,6 +806,16 @@
         return ['bar', 'circle'].includes(setting?.value) ? setting.value : 'bar';
       }
 
+      async function getShoppingCarryEnabled() {
+        const setting = await readFromStore('shoppingSettings', 'carryEnabled');
+        return setting ? setting.value !== false : true;
+      }
+
+      function updateShoppingCarryInputState(enabled = shoppingCarryEnabledToggle.checked) {
+        shoppingSettingsCarryInput.disabled = !enabled;
+        shoppingSettingsCarryInput.closest('.field')?.classList.toggle('is-disabled', !enabled);
+      }
+
       function applyShoppingProgressStyle(style) {
         shoppingProgressVisual.classList.toggle('progress-circle', style === 'circle');
       }
@@ -918,7 +931,10 @@
       }
 
       async function renderShoppingHistory(currentDateKey) {
-        const days = await readAllFromStore('shoppingDays');
+        const [days, carryEnabled] = await Promise.all([
+          readAllFromStore('shoppingDays'),
+          getShoppingCarryEnabled()
+        ]);
         const history = days
           .filter((day) => day.id < currentDateKey)
           .sort((first, second) => String(second.id).localeCompare(String(first.id)));
@@ -930,7 +946,9 @@
 
         shoppingHistoryList.innerHTML = history.map((day) => {
           const spent = Math.max(0, Number(day.total || 0));
-          const available = getShoppingAvailableLimit(day);
+          const available = carryEnabled
+            ? getShoppingAvailableLimit(day)
+            : Math.max(0, Number(day.dailyLimit || 0));
           const exceeded = spent > available;
           return `
             <div class="shoppingHistoryItem">
@@ -956,8 +974,13 @@
         closeShoppingSetupModal();
 
         const day = await getShoppingDay(getLocalDateKey(), dailyLimit);
-        const progressStyle = await getShoppingProgressStyle();
-        const available = Number(day.availableLimit || 0);
+        const [progressStyle, carryEnabled] = await Promise.all([
+          getShoppingProgressStyle(),
+          getShoppingCarryEnabled()
+        ]);
+        const available = carryEnabled
+          ? Number(day.availableLimit || 0)
+          : Math.max(0, Number(day.dailyLimit || 0));
         const spent = Number(day.total || 0);
         currentShoppingSpent = spent;
         shoppingAvailableValue.textContent = `${formatMonthlyTotal(spent)} / ${formatMonthlyTotal(available)}`;
@@ -977,7 +1000,7 @@
           shoppingProgressStatus.textContent = t('shoppingOverLimit').replace('{amount}', formatMonthlyTotal(exceededBy));
         }
         const carryBalance = getShoppingCarryBalance(day);
-        const hasCarryBalance = carryBalance !== 0;
+        const hasCarryBalance = carryEnabled && carryBalance !== 0;
         shoppingCarryNote.classList.toggle('is-visible', hasCarryBalance);
         shoppingCarryNote.setAttribute('aria-hidden', String(!hasCarryBalance));
         if (hasCarryBalance) {
@@ -1004,8 +1027,9 @@
           alert(t('shoppingInvalidLimit'));
           return;
         }
+        const carryEnabled = shoppingCarryEnabledToggle.checked;
         const carryInput = shoppingSettingsCarryInput.value.trim();
-        const requestedCarryBalance = carryInput === '' ? null : parseShoppingAmount(carryInput);
+        const requestedCarryBalance = carryEnabled && carryInput !== '' ? parseShoppingAmount(carryInput) : null;
         if (requestedCarryBalance !== null && !Number.isFinite(requestedCarryBalance)) {
           alert(t('shoppingInvalidCarryBalance'));
           return;
@@ -1014,13 +1038,14 @@
         await ensureShoppingStores();
         await writeToStore('shoppingSettings', { key: 'dailyLimit', value: dailyLimit });
         await writeToStore('shoppingSettings', { key: 'progressStyle', value: shoppingProgressStyleSelect.value });
+        await writeToStore('shoppingSettings', { key: 'carryEnabled', value: carryEnabled });
 
         const dateKey = getLocalDateKey();
         const day = await getShoppingDay(dateKey, dailyLimit);
         day.dailyLimit = dailyLimit;
-        if (requestedCarryBalance === null) {
+        if (carryEnabled && requestedCarryBalance === null) {
           delete day.carryBalanceOverride;
-        } else {
+        } else if (carryEnabled) {
           const normalizedCarryBalance = Math.round(requestedCarryBalance * 100) / 100;
           const existingOverride = getShoppingCarryBalanceOverride(day);
           if (existingOverride !== null || Math.abs(normalizedCarryBalance - getShoppingCarryBalance(day)) > 0.0001) {
@@ -1413,6 +1438,8 @@
         shoppingSettingsLimitInput.value = String(dailyLimit || '');
         const today = dailyLimit > 0 ? await getShoppingDay(getLocalDateKey(), dailyLimit) : null;
         shoppingSettingsCarryInput.value = today ? String(Math.round(getShoppingCarryBalance(today) * 100) / 100) : '';
+        shoppingCarryEnabledToggle.checked = await getShoppingCarryEnabled();
+        updateShoppingCarryInputState();
         shoppingProgressStyleSelect.value = await getShoppingProgressStyle();
         await refreshDatabaseUsage();
         requestAnimationFrame(() => shoppingSettingsPage.classList.add('is-visible'));
@@ -1885,6 +1912,7 @@
       shoppingProgressStyleSelect.addEventListener('change', (event) => {
         applyShoppingProgressStyle(event.target.value);
       });
+      shoppingCarryEnabledToggle.addEventListener('change', () => updateShoppingCarryInputState());
       document.getElementById('saveShoppingSettingsBtn').addEventListener('click', () => {
         saveShoppingSettings().catch((error) => {
           console.error('Failed to save Shopping settings', error);
