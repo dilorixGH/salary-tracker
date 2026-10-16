@@ -355,9 +355,6 @@
 
     <div class="modal" id="todoModal" aria-hidden="true">
       <div class="modalCard todoModalCard" role="dialog" aria-modal="true" aria-labelledby="todoModalTitle">
-        <div class="saveSuccess" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 12L10.5 15L16.5 9M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
         <div class="modalHeader">
           <h3 id="todoModalTitle" data-i18n="addTodo">Добавить задачу</h3>
           <button type="button" class="iconButton" id="closeTodoModalBtn" aria-label="Закрыть" title="Закрыть">
@@ -365,16 +362,40 @@
           </button>
         </div>
         <form id="todoForm">
-          <div class="stepProgress" id="todoStepProgress" aria-label="Шаг 1 из 1"><span class="is-active"></span></div>
-          <section class="formStep">
+          <div class="stepProgress" id="todoStepProgress" aria-label="Шаг 1 из 2"><span class="is-active"></span><span></span></div>
+          <section class="formStep" data-todo-step="1">
             <div class="field">
               <label for="todoTitleInput" data-i18n="todoTaskTitle">Задача</label>
               <input id="todoTitleInput" maxlength="160" data-i18n-placeholder="todoTaskPlaceholder" placeholder="Например: Купить продукты" autocomplete="off" />
             </div>
-            <div class="formActions"><button type="submit" class="primary" data-i18n="save">Сохранить</button></div>
+            <div class="formActions"><button type="button" class="primary" data-todo-step-next="1" data-i18n="continue">Продолжить</button></div>
+          </section>
+          <section class="formStep" data-todo-step="2" hidden>
+            <div class="field">
+              <label for="todoDetailsInput" data-i18n="todoDetails">Подробности</label>
+              <textarea id="todoDetailsInput" maxlength="1200" data-i18n-placeholder="todoDetailsPlaceholder" placeholder="Добавьте детали, если нужно"></textarea>
+            </div>
+            <div class="formActions">
+              <button type="button" class="secondary" data-todo-step-back="1" data-i18n="back">Назад</button>
+              <button type="submit" class="primary" data-i18n="save">Сохранить</button>
+            </div>
           </section>
         </form>
       </div>
+    </div>
+
+    <div class="modal" id="todoDetailModal" aria-hidden="true">
+      <article class="modalCard todoDetailCard" role="dialog" aria-modal="true" aria-labelledby="todoDetailTitle">
+        <div class="modalHeader">
+          <h2 id="todoDetailTitle"></h2>
+          <button type="button" class="iconButton" id="closeTodoDetailModalBtn" aria-label="Закрыть" title="Закрыть">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="todoDetailBody">
+          <p id="todoDetailText"></p>
+        </div>
+      </article>
     </div>
 
     <div class="settingsPage" id="settingsModal" aria-hidden="true">
