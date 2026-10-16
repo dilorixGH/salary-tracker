@@ -916,12 +916,12 @@
         display: grid;
         flex: 1 1 auto;
         width: 100%;
-        max-width: 400px;
+        max-width: none;
         min-height: 0;
         box-sizing: border-box;
-        margin: 0 auto;
-        padding: 0 4px 12px;
-        gap: 18px;
+        margin: 0;
+        padding: 0 0 12px;
+        gap: 30px;
         align-content: start;
         overflow-y: auto;
         overscroll-behavior: contain;
@@ -938,9 +938,9 @@
       .settingsGroup {
         display: grid;
         gap: 14px;
-        padding: 15px;
-        border-radius: 12px;
-        background: #111;
+        width: 100%;
+        padding: 0;
+        background: transparent;
       }
       .settingsGroup .settingsSectionTitle { margin-bottom: 0; }
       .settingsGroup .storageUsage { margin-top: 10px; padding: 0; border-radius: 0; background: transparent; }
@@ -1892,8 +1892,8 @@
       body.light-theme .saveSuccess { background: #f2f2f7; }
       body.light-theme .stepProgress span { background: #d1d1d6; }
       body.light-theme .settingsPage { background: #f2f2f7; }
-      body.light-theme .settingsPageContent form { background: #fff; }
-      body.light-theme .settingsGroup { background: #fff; }
+      body.light-theme .settingsPageContent form { background: transparent; }
+      body.light-theme .settingsGroup { background: transparent; }
       body.light-theme .storageUsage { background: #f2f2f7; }
       body.light-theme .settingsGroup .storageUsage { background: transparent; }
       body.light-theme .settingsSwitch span { background: #d1d1d6; }
