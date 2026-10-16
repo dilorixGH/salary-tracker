@@ -226,6 +226,10 @@
             <label for="shoppingSettingsLimitInput" data-i18n="dailyLimit">Дневной лимит</label>
             <input id="shoppingSettingsLimitInput" type="number" min="0.01" step="0.01" inputmode="decimal" />
           </div>
+          <div class="settingsSwitchRow">
+            <span data-i18n="shoppingCarryEnabled">Перенос средств</span>
+            <label class="settingsSwitch" aria-label="Перенос средств"><input type="checkbox" id="shoppingCarryEnabledToggle" /><span aria-hidden="true"></span></label>
+          </div>
           <div class="field">
             <label for="shoppingSettingsCarryInput" data-i18n="shoppingCarryBalance">Баланс с прошлых дней</label>
             <input id="shoppingSettingsCarryInput" type="text" inputmode="decimal" lang="en" pattern="-?[0-9]*[.]?[0-9]*" autocomplete="off" />
