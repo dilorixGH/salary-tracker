@@ -1924,6 +1924,8 @@
         gap: 18px;
         align-content: start;
         overflow-y: auto;
+        overflow-x: hidden;
+        padding-bottom: 0;
       }
 
       .todoHeader {
@@ -1946,11 +1948,11 @@
         font-variant-numeric: tabular-nums;
       }
 
-      .todoList { display: grid; gap: 10px; align-content: start; }
+      .todoList { display: grid; gap: 10px; align-content: start; overflow-x: hidden; }
 
       .todoCard {
         display: grid;
-        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-columns: 34px minmax(0, 1fr);
         align-items: center;
         gap: 12px;
         min-width: 0;
@@ -1976,7 +1978,9 @@
         padding: 0;
         border: 1.5px solid #606068;
         border-radius: 50%;
-        background: transparent;
+        appearance: none;
+        box-shadow: none;
+        background: transparent !important;
         color: #fff;
         transition: border-color 0.34s ease, background 0.34s ease, transform 0.34s ease;
       }
@@ -1989,6 +1993,7 @@
       .todoTaskName {
         display: block;
         width: 100%;
+        min-width: 0;
         padding: 0;
         border: 0;
         background: transparent;
@@ -1998,6 +2003,7 @@
         font-size: 16px;
         font-weight: 600;
         line-height: 1.3;
+        border-radius: 0;
         text-overflow: ellipsis;
         white-space: nowrap;
         transition: color 0.22s ease, text-decoration-color 0.22s ease;
@@ -2104,6 +2110,14 @@
         min-width: 0;
         margin-bottom: 0;
       }
+      .todoDetailHeaderActions { display: flex; flex: 0 0 auto; gap: 8px; }
+      .todoDetailHeaderActions .iconButton { display: grid; place-items: center; font-size: 20px; }
+      .todoDetailMenuWrap { position: relative; }
+      #todoDetailMenuBtn svg { fill: #fff; }
+      .todoDetailMenu { position: absolute; z-index: 3; top: calc(100% + 8px); right: 0; display: grid; min-width: 154px; padding: 6px; border-radius: 12px; background: #252525; box-shadow: 0 14px 30px rgba(0,0,0,.28); opacity: 0; pointer-events: none; transform: translateY(-4px); transition: opacity .18s ease, transform .18s ease; }
+      .todoDetailMenu.is-open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+      .todoDetailMenu button { padding: 10px 11px; border: 0; border-radius: 8px; background: transparent; color: var(--text); text-align: left; font: inherit; }
+      .todoDetailMenu button.is-danger { color: #ff6b6b; }
       #todoDetailModal .modalHeader h2 {
         min-width: 0;
         margin: 0;
@@ -2178,4 +2192,66 @@
       body.light-theme #todoDetailsInput { border-color: #d1d1d6; background: #fff; color: #1c1c1e; }
       body.light-theme #todoDetailModal,
       body.light-theme #todoDetailModal .todoDetailCard { background: #f2f2f7; }
+
+      .recipesContent { display: grid; min-height: 0; gap: 18px; align-content: start; overflow-y: auto; }
+      .recipeCount { min-width: 30px; padding: 5px 9px; border-radius: 999px; background: rgba(0, 123, 255, .15); color: var(--accent); font-size: 13px; font-weight: 700; text-align: center; }
+      .recipeList { display: grid; gap: 10px; align-content: start; }
+      .recipeCard { display: grid; padding: 14px; border-radius: 14px; background: #171717; animation: recipe-card-in .32s ease both; }
+      .recipeCard.is-new { animation: recipe-card-new .46s cubic-bezier(.18,.82,.24,1) both; }
+      .recipeCard.is-removing { animation: recipe-card-out .18s ease-in both; pointer-events: none; }
+      .recipeCardMain { min-width: 0; padding: 0; border: 0; background: transparent; color: var(--text); text-align: left; }
+      .recipeCardMain strong { display: block; overflow: hidden; font-size: 17px; text-overflow: ellipsis; white-space: nowrap; }
+      .recipeCardMain span { display: block; margin-top: 5px; color: var(--muted); font-size: 13px; }
+      .recipeIngredientsHeader { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; color: var(--muted); font-size: 14px; }
+      .recipeIngredientsHeader .tinyButton { min-height: 34px; padding: 0 12px; border: 0; border-radius: 9px; background: #262626; color: var(--text); }
+      .recipeIngredientRows { display: grid; gap: 8px; margin-top: 8px; }
+      .recipeIngredientRow { display: grid; grid-template-columns: minmax(0, 1fr) 86px minmax(0, 1fr) 32px; gap: 7px; align-items: center; animation: recipe-card-in .2s ease both; }
+      .recipeIngredientRow input, .recipeIngredientRow select { min-width: 0; height: 42px; padding: 8px; font-size: 13px; }
+      .recipeIngredientRemove { width: 32px; height: 32px; border: 0; border-radius: 50%; background: rgba(255, 92, 92, .12); color: #ff6b6b; font-size: 21px; line-height: 1; }
+      .recipeIngredientRow.is-removing { animation: recipe-card-out .18s ease-in both; }
+      #recipeModal { align-items: flex-start; padding: 0; background: #000; }
+      .recipeModalCard { width: 100%; min-height: 100vh; min-height: 100dvh; max-height: none; overflow-y: auto; padding: 20px; border: 0; border-radius: 0; background: #000; }
+      .recipeModalCard form { display: grid; gap: 14px; }
+      #recipeStepProgress { grid-template-columns: repeat(3, 1fr); }
+      .recipeModalCard textarea { min-height: 150px; resize: vertical; }
+      #recipeInstructionsInput { border-color: #333; background: #171717; color: var(--text); }
+      .recipeSaveButton { margin-top: 8px; }
+      #recipeDetailModal { align-items: flex-start; padding: 0; background: #000; }
+      .recipeDetailCard { width: 100%; height: 100vh; height: 100dvh; max-height: none; display: grid; grid-template-rows: auto minmax(0, 1fr); overflow: hidden; padding: 20px; border: 0; border-radius: 0; background: #000; animation: recipe-detail-in .28s ease both; }
+      .recipeDetailCard .modalHeader { margin-bottom: 0; }
+      .recipeDetailCard .modalHeader h2 { min-width: 0; margin: 0; overflow: hidden; font-size: clamp(1.5rem, 6vw, 2.1rem); text-overflow: ellipsis; white-space: nowrap; }
+      .recipeDetailHeaderActions { display: flex; flex: 0 0 auto; gap: 8px; }
+      .recipeDetailHeaderActions .iconButton { display: grid; place-items: center; font-size: 20px; }
+      .recipeDetailMenuWrap { position: relative; }
+      #recipeDetailMenuBtn svg { fill: #fff; }
+      .recipeDetailMenu { position: absolute; z-index: 3; top: calc(100% + 8px); right: 0; display: grid; min-width: 154px; padding: 6px; border-radius: 12px; background: #252525; box-shadow: 0 14px 30px rgba(0,0,0,.28); opacity: 0; pointer-events: none; transform: translateY(-4px); transition: opacity .18s ease, transform .18s ease; }
+      .recipeDetailMenu.is-open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+      .recipeDetailMenu button { padding: 10px 11px; border: 0; border-radius: 8px; background: transparent; color: var(--text); text-align: left; font: inherit; }
+      .recipeDetailMenu button.is-danger { color: #ff6b6b; }
+      #recipeDetailModal.is-closing { display: flex; pointer-events: none; animation: recipe-detail-fade-out .26s ease-in both; }
+      .recipeDetailScroll { min-height: 0; padding-top: 20px; overflow-y: auto; }
+      .recipeDetailScroll h3 { margin: 0 0 9px; color: var(--muted); font-size: 14px; }
+      .recipeDetailScroll h3:not(:first-child) { margin-top: 26px; }
+      .recipeDetailIngredient { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; padding: 0 2px; border-bottom: 1px solid rgba(255,255,255,.08); }
+      .recipeDetailIngredient button { padding: 0; border: 0; background: transparent; color: var(--accent); font: inherit; text-align: left; }
+      .recipeDetailIngredient strong { color: var(--muted); font-size: 14px; white-space: nowrap; }
+      .recipeInstructions { color: var(--text); line-height: 1.65; white-space: normal; }
+      .recipeTime { padding: 2px 6px; border-radius: 5px; background: rgba(255, 205, 75, .28); color: inherit; }
+      @keyframes recipe-card-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes recipe-card-new { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+      @keyframes recipe-card-out { to { opacity: 0; transform: translateX(14px); } }
+      @keyframes recipe-detail-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+      @keyframes recipe-detail-fade-out { from { opacity: 1; } to { opacity: 0; } }
+      body.light-theme .recipeCard { background: #fff; border: 1px solid #e5e5ea; }
+      body.light-theme #recipeInstructionsInput { border-color: #d1d1d6; background: #fff; color: #1c1c1e; }
+      body.light-theme #recipeModal, body.light-theme .recipeModalCard { background: #f2f2f7; }
+      body.light-theme #recipeDetailModal, body.light-theme .recipeDetailCard { background: #f2f2f7; }
+      body.light-theme .recipeIngredientsHeader .tinyButton { background: #e5e5ea; color: #1c1c1e; }
+      body.light-theme .recipeDetailMenu { background: #fff; box-shadow: 0 14px 30px rgba(0,0,0,.12); }
+      body.light-theme #recipeDetailMenuBtn svg { fill: #1c1c1e; }
+      body.light-theme .todoDetailMenu { background: #fff; box-shadow: 0 14px 30px rgba(0,0,0,.12); }
+      body.light-theme #todoDetailMenuBtn svg { fill: #1c1c1e; }
+      body.light-theme .recipeDetailIngredient { border-color: rgba(0,0,0,.08); }
+      body.light-theme .recipeTime { background: rgba(255, 191, 0, .24); }
+      @media (max-width: 540px) { .recipeIngredientRow { grid-template-columns: minmax(0, 1fr) 76px 30px; } .recipeIngredientLink { grid-column: 1 / span 2; } }
     
