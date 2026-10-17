@@ -20,6 +20,7 @@
             <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
             <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
             <button type="button" data-app-target="todo" role="menuitem">Todo List</button>
+            <button type="button" data-app-target="recipes" role="menuitem">Recipes</button>
           </div>
         </div>
 
@@ -91,6 +92,7 @@
             <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
             <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
             <button type="button" data-app-target="todo" role="menuitem">Todo List</button>
+            <button type="button" data-app-target="recipes" role="menuitem">Recipes</button>
           </div>
         </div>
         <div class="topbarActions">
@@ -127,6 +129,7 @@
             <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
             <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
             <button type="button" data-app-target="todo" role="menuitem">Todo List</button>
+            <button type="button" data-app-target="recipes" role="menuitem">Recipes</button>
           </div>
         </div>
         <div class="topbarActions">
@@ -308,6 +311,7 @@
             <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
             <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
             <button type="button" data-app-target="todo" role="menuitem">Todo List</button>
+            <button type="button" data-app-target="recipes" role="menuitem">Recipes</button>
           </div>
         </div>
         <div class="topbarActions">
@@ -340,6 +344,7 @@
             <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
             <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
             <button type="button" data-app-target="todo" role="menuitem">Todo List</button>
+            <button type="button" data-app-target="recipes" role="menuitem">Recipes</button>
           </div>
         </div>
         <div class="topbarActions">
@@ -355,6 +360,30 @@
         </div>
         <div class="todoList" id="todoList" aria-live="polite"></div>
       </section>
+    </div>
+
+    <div class="app is-hidden" id="recipesApp">
+      <header class="topbar">
+        <div class="appSwitcher">
+          <button type="button" class="appSwitcherButton" aria-expanded="false" aria-haspopup="true"><span>Recipes</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9L12 15L18 9"/></svg></button>
+          <div class="appSwitcherMenu" role="menu">
+            <button type="button" data-app-target="salary" role="menuitem">Salary Tracker</button><button type="button" data-app-target="monthly" role="menuitem">Mouthly Payments</button><button type="button" data-app-target="shopping" role="menuitem">Shopping</button><button type="button" data-app-target="priceBook" role="menuitem">Price Book</button><button type="button" data-app-target="todo" role="menuitem">Todo List</button><button type="button" data-app-target="recipes" role="menuitem">Recipes</button>
+          </div>
+        </div>
+        <div class="topbarActions"><button type="button" class="iconButton" id="openRecipeModalBtn" aria-label="Добавить рецепт" title="Добавить рецепт"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+      </header>
+      <section class="panel panelBlock recipesContent"><div class="todoHeader"><h2 data-i18n="recipes">Рецепты</h2><span class="recipeCount" id="recipeCount">0</span></div><div class="recipeList" id="recipeList" aria-live="polite"></div></section>
+    </div>
+
+    <div class="modal" id="recipeModal" aria-hidden="true">
+      <div class="modalCard recipeModalCard" role="dialog" aria-modal="true" aria-labelledby="recipeModalTitle">
+        <div class="modalHeader"><h3 id="recipeModalTitle" data-i18n="addRecipe">Добавить рецепт</h3><button type="button" class="iconButton" id="closeRecipeModalBtn" aria-label="Закрыть" title="Закрыть"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+        <form id="recipeForm"><div class="stepProgress" id="recipeStepProgress" aria-label="1 / 3"><span class="is-active"></span><span></span><span></span></div><section class="formStep" data-recipe-step="1"><div class="field"><label for="recipeTitleInput" data-i18n="recipeTitle">Название рецепта</label><input id="recipeTitleInput" maxlength="160" data-i18n-placeholder="recipeTitlePlaceholder" placeholder="Например: Хот-дог" autocomplete="off" /></div><div class="formActions"><button type="button" class="primary" data-recipe-step-next="1" data-i18n="continue">Продолжить</button></div></section><section class="formStep" data-recipe-step="2" hidden><div class="recipeIngredientsHeader"><label data-i18n="ingredients">Ингредиенты</label><button type="button" class="tinyButton" id="addRecipeIngredientBtn" data-i18n="addIngredient">Добавить</button></div><div class="recipeIngredientRows" id="recipeIngredientRows"></div><div class="formActions"><button type="button" class="secondary" data-recipe-step-back="1" data-i18n="back">Назад</button><button type="button" class="primary" data-recipe-step-next="2" data-i18n="continue">Продолжить</button></div></section><section class="formStep" data-recipe-step="3" hidden><div class="field"><label for="recipeInstructionsInput" data-i18n="recipeInstructions">Описание приготовления</label><textarea id="recipeInstructionsInput" maxlength="5000" data-i18n-placeholder="recipeInstructionsPlaceholder" placeholder="Например: Обжарить 5 мин и собрать блюдо."></textarea></div><div class="formActions"><button type="button" class="secondary" data-recipe-step-back="2" data-i18n="back">Назад</button><button type="submit" class="primary recipeSaveButton" data-i18n="save">Сохранить</button></div></section></form>
+      </div>
+    </div>
+
+    <div class="modal" id="recipeDetailModal" aria-hidden="true">
+      <article class="modalCard recipeDetailCard" role="dialog" aria-modal="true" aria-labelledby="recipeDetailTitle"><div class="modalHeader"><h2 id="recipeDetailTitle"></h2><div class="recipeDetailHeaderActions"><div class="recipeDetailMenuWrap"><button type="button" class="iconButton" id="recipeDetailMenuBtn" aria-label="Действия" title="Действия"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></button><div class="recipeDetailMenu" id="recipeDetailMenu"><button type="button" id="editRecipeDetailBtn" data-i18n="edit">Редактировать</button><button type="button" id="deleteRecipeDetailBtn" class="is-danger" data-i18n="remove">Удалить</button></div></div><button type="button" class="iconButton" id="closeRecipeDetailModalBtn" aria-label="Закрыть" title="Закрыть"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div></div><div class="recipeDetailScroll"><h3 data-i18n="ingredients">Ингредиенты</h3><div id="recipeDetailIngredients"></div><h3 data-i18n="recipeInstructions">Описание приготовления</h3><div class="recipeInstructions" id="recipeDetailInstructions"></div></div></article>
     </div>
 
     <div class="modal" id="todoModal" aria-hidden="true">
@@ -392,9 +421,11 @@
       <article class="modalCard todoDetailCard" role="dialog" aria-modal="true" aria-labelledby="todoDetailTitle">
         <div class="modalHeader">
           <h2 id="todoDetailTitle"></h2>
+          <div class="todoDetailHeaderActions"><div class="todoDetailMenuWrap"><button type="button" class="iconButton" id="todoDetailMenuBtn" aria-label="Действия" title="Действия"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></button><div class="todoDetailMenu" id="todoDetailMenu"><button type="button" id="editTodoDetailBtn" data-i18n="edit">Редактировать</button><button type="button" id="deleteTodoDetailBtn" class="is-danger" data-i18n="remove">Удалить</button></div></div>
           <button type="button" class="iconButton" id="closeTodoDetailModalBtn" aria-label="Закрыть" title="Закрыть">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           </button>
+          </div>
         </div>
         <div class="todoDetailBody">
           <p id="todoDetailText"></p>
