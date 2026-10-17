@@ -615,7 +615,7 @@
       #monthlyApp,
       #shoppingApp,
       #priceBookApp,
-      #todoApp { grid-template-rows: auto minmax(0, 1fr); }
+      #todoApp { grid-template-rows: auto minmax(0, 1fr); padding-bottom: 0 !important;}
 
       .monthlyContent { min-height: 0; }
 
@@ -1948,7 +1948,12 @@
         font-variant-numeric: tabular-nums;
       }
 
-      .todoList { display: grid; gap: 10px; align-content: start; overflow-x: hidden; }
+      .todoList { 
+          display: grid; 
+          gap: 10px; 
+          align-content: start; 
+          overflow-x: hidden; 
+      }
 
       .todoCard {
         display: grid;
