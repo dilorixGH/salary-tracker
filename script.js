@@ -2,7 +2,7 @@
       const isStandalonePwa = window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true;
       document.body.classList.toggle('is-pwa', isStandalonePwa);
       const DB_NAME = 'salary-tracker-db';
-      const DB_VERSION = 6;
+      const DB_VERSION = 7;
       const DAY_NAMES_BY_LANGUAGE = {
         ru: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],
         en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -25,6 +25,9 @@
       Object.assign(TRANSLATIONS.en, {
         shoppingSetupTitle: 'How much can you spend per day?', saveShoppingLimit: 'Start', dailyLimit: 'Daily limit', availableToday: 'Available', spentToday: 'Spent today', shoppingInvalidLimit: 'Enter a daily limit greater than zero.', carryOverLabel: 'Yesterday’s overspend: {amount}', shoppingProgressStyle: 'Indicator style', shoppingProgressBar: 'Bar', shoppingProgressCircle: 'Circle', shoppingSettingsSection: 'Shopping', shoppingQuickActions: 'Quick add', shoppingEditTotal: 'Edit total', addShoppingExpense: 'Add expense', shoppingExpenseAmount: 'Expense amount', shoppingSpentDialogDescription: 'Enter today’s total spending.', shoppingInvalidSpent: 'Enter an amount greater than zero.', shoppingOverLimit: 'Limit exceeded by {amount}'
       });
+
+      Object.assign(TRANSLATIONS.ru, { recipes: 'Рецепты', addRecipe: 'Добавить рецепт', editRecipe: 'Редактировать рецепт', recipeTitle: 'Название рецепта', recipeTitlePlaceholder: 'Например: Хот-дог', ingredients: 'Ингредиенты', addIngredient: 'Добавить', ingredientName: 'Ингредиент', ingredientCost: 'Стоимость', linkedRecipe: 'Связанный рецепт', noLinkedRecipe: 'Обычный ингредиент', recipeInstructions: 'Описание приготовления', recipeInstructionsPlaceholder: 'Например: Обжарить 5 мин и собрать блюдо.', recipeEmpty: 'Пока нет рецептов. Добавьте первый.', recipeInvalid: 'Введите название рецепта и добавьте хотя бы один ингредиент.', recipeNoInstructions: 'Описание пока не добавлено.', recipeTotal: 'Стоимость: {amount}' });
+      Object.assign(TRANSLATIONS.en, { recipes: 'Recipes', addRecipe: 'Add recipe', editRecipe: 'Edit recipe', recipeTitle: 'Recipe name', recipeTitlePlaceholder: 'For example: Hot dog', ingredients: 'Ingredients', addIngredient: 'Add', ingredientName: 'Ingredient', ingredientCost: 'Cost', linkedRecipe: 'Linked recipe', noLinkedRecipe: 'Regular ingredient', recipeInstructions: 'Cooking instructions', recipeInstructionsPlaceholder: 'For example: Fry for 5 min and assemble.', recipeEmpty: 'No recipes yet. Add your first one.', recipeInvalid: 'Enter a recipe name and add at least one ingredient.', recipeNoInstructions: 'No instructions yet.', recipeTotal: 'Cost: {amount}' });
 
       Object.assign(TRANSLATIONS.ru, { priceBookLoading: 'Подготавливаем товары…' });
       Object.assign(TRANSLATIONS.en, { priceBookLoading: 'Preparing products…' });
@@ -117,6 +120,20 @@
       const shoppingApp = document.getElementById('shoppingApp');
       const priceBookApp = document.getElementById('priceBookApp');
       const todoApp = document.getElementById('todoApp');
+      const recipesApp = document.getElementById('recipesApp');
+      const recipeList = document.getElementById('recipeList');
+      const recipeCount = document.getElementById('recipeCount');
+      const recipeModal = document.getElementById('recipeModal');
+      const recipeForm = document.getElementById('recipeForm');
+      const recipeTitleInput = document.getElementById('recipeTitleInput');
+      const recipeIngredientRows = document.getElementById('recipeIngredientRows');
+      const recipeInstructionsInput = document.getElementById('recipeInstructionsInput');
+      const recipeModalTitle = document.getElementById('recipeModalTitle');
+      const recipeStepProgress = document.getElementById('recipeStepProgress');
+      const recipeDetailModal = document.getElementById('recipeDetailModal');
+      const recipeDetailTitle = document.getElementById('recipeDetailTitle');
+      const recipeDetailIngredients = document.getElementById('recipeDetailIngredients');
+      const recipeDetailInstructions = document.getElementById('recipeDetailInstructions');
       const todoList = document.getElementById('todoList');
       const todoProgress = document.getElementById('todoProgress');
       const todoModal = document.getElementById('todoModal');
@@ -207,6 +224,11 @@
       let isSavingTodo = false;
       let currentTodoStep = 1;
       let todoDetailCloseTimer = null;
+      let openedTodoId = null;
+      let editingRecipeId = null;
+      let openedRecipeId = null;
+      let currentRecipeStep = 1;
+      let recipeDetailCloseTimer = null;
 
       function groupSettingsSections() {
         document.querySelectorAll('.shoppingSettingsFields').forEach((container) => {
@@ -250,6 +272,7 @@
           renderMonthlyPayments();
           renderShopping();
           renderTodos();
+          renderRecipes();
         }
       }
 
@@ -319,7 +342,7 @@
       }
 
       function showApp(appName) {
-        const apps = { salary: salaryApp, monthly: monthlyApp, shopping: shoppingApp, priceBook: priceBookApp, todo: todoApp };
+        const apps = { salary: salaryApp, monthly: monthlyApp, shopping: shoppingApp, priceBook: priceBookApp, todo: todoApp, recipes: recipesApp };
         const nextApp = apps[appName] || salaryApp;
         const currentApp = Object.values(apps).find((app) => !app.classList.contains('is-hidden'));
         if (!nextApp.classList.contains('is-hidden')) {
@@ -335,6 +358,7 @@
         if (appName === 'monthly') renderMonthlyPayments();
         if (appName === 'shopping') renderShopping();
         if (appName === 'todo') renderTodos();
+        if (appName === 'recipes') renderRecipes();
         closeAppSwitchers();
       }
 
@@ -393,6 +417,7 @@
             if (!database.objectStoreNames.contains('shoppingSettings')) database.createObjectStore('shoppingSettings', { keyPath: 'key' });
             if (!database.objectStoreNames.contains('shoppingDays')) database.createObjectStore('shoppingDays', { keyPath: 'id' });
             if (!database.objectStoreNames.contains('todoTasks')) database.createObjectStore('todoTasks', { keyPath: 'id' });
+            if (!database.objectStoreNames.contains('recipes')) database.createObjectStore('recipes', { keyPath: 'id' });
           };
 
           request.onsuccess = () => {
@@ -434,6 +459,13 @@
         if (!db.objectStoreNames.contains('todoTasks')) {
           throw new Error('Todo tasks store is unavailable');
         }
+      }
+
+      async function ensureRecipeStore() {
+        if (db && db.objectStoreNames.contains('recipes')) return;
+        if (db) db.close();
+        db = null;
+        db = await openDatabase();
       }
 
       function readAllFromStore(storeName) {
@@ -1669,10 +1701,6 @@
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.5 12.5L10.2 16L17.5 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
               <button type="button" class="todoTaskName" data-todo-action="details" data-todo-id="${taskId}">${escapeHtml(task.title)}</button>
-              <div class="todoActions">
-                <button type="button" class="todoAction" data-todo-action="edit" data-todo-id="${taskId}" aria-label="${t('edit')}"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20H21M16.5 3.5C16.8978 3.10218 17.4374 2.87868 18 2.87868C18.5626 2.87868 19.1022 3.10218 19.5 3.5C19.8978 3.89783 20.1213 4.43739 20.1213 5C20.1213 5.56261 19.8978 6.10218 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-                <button type="button" class="todoAction is-delete" data-todo-action="delete" data-todo-id="${taskId}" aria-label="${t('remove')}"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7H20M10 11V17M14 11V17M6 7L7 20H17L18 7M9 7V4H15V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-              </div>
             </article>
           `;
         }).join('');
@@ -1754,7 +1782,9 @@
       function openTodoDetail(task, sourceCard) {
         window.clearTimeout(todoDetailCloseTimer);
         todoDetailModal.classList.remove('is-closing');
+        document.getElementById('todoDetailMenu').classList.remove('is-open');
         todoDetailTitle.textContent = task.title;
+        openedTodoId = task.id;
         todoDetailText.textContent = task.details || t('todoNoDetails');
         const detailCard = todoDetailModal.querySelector('.todoDetailCard');
         const sourceBounds = sourceCard.getBoundingClientRect();
@@ -1767,10 +1797,12 @@
       function closeTodoDetail() {
         if (!todoDetailModal.classList.contains('open') || todoDetailModal.classList.contains('is-closing')) return;
         todoDetailModal.classList.add('is-closing');
+        document.getElementById('todoDetailMenu').classList.remove('is-open');
         window.clearTimeout(todoDetailCloseTimer);
         todoDetailCloseTimer = window.setTimeout(() => {
           todoDetailModal.classList.remove('open', 'is-closing');
           todoDetailModal.setAttribute('aria-hidden', 'true');
+          openedTodoId = null;
           todoDetailCloseTimer = null;
         }, 260);
       }
@@ -1809,6 +1841,151 @@
         await renderTodos();
       }
 
+      function recipeCost(value) {
+        const number = Number(value);
+        return Number.isFinite(number) && number > 0 ? Math.round(number * 100) / 100 : null;
+      }
+
+      function formatRecipeInstructions(value) {
+        const escaped = escapeHtml(value || t('recipeNoInstructions'));
+        return escaped.replace(/\b(\d+(?:[.,]\d+)?\s*(?:мин(?:ут[аы]?)?|min(?:ute)?s?))\b/gi, '<mark class="recipeTime">$1</mark>').replace(/\n/g, '<br>');
+      }
+
+      async function getRecipes() {
+        await ensureRecipeStore();
+        const recipes = await readAllFromStore('recipes');
+        return recipes.sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
+      }
+
+      function recipeReferenceOptions(recipes, selectedId = '') {
+        return `<option value="">${t('noLinkedRecipe')}</option>${recipes.filter((recipe) => recipe.id !== editingRecipeId).map((recipe) => `<option value="${escapeHtml(recipe.id)}"${recipe.id === selectedId ? ' selected' : ''}>${escapeHtml(recipe.title)}</option>`).join('')}`;
+      }
+
+      async function addRecipeIngredientRow(ingredient = {}, append = false) {
+        const recipes = await getRecipes();
+        const row = document.createElement('div');
+        row.className = 'recipeIngredientRow';
+        row.innerHTML = `<input class="recipeIngredientName" maxlength="140" placeholder="${escapeHtml(t('ingredientName'))}" value="${escapeHtml(ingredient.name || '')}" /><input class="recipeIngredientCost" type="text" inputmode="decimal" lang="en-US" pattern="[0-9]*[.]?[0-9]*" placeholder="${escapeHtml(t('ingredientCost'))}" value="${ingredient.cost ?? ''}" /><select class="recipeIngredientLink">${recipeReferenceOptions(recipes, ingredient.recipeId || '')}</select><button type="button" class="recipeIngredientRemove" aria-label="${t('remove')}">×</button>`;
+        row.querySelector('.recipeIngredientRemove').addEventListener('click', () => {
+          row.classList.add('is-removing');
+          window.setTimeout(() => row.remove(), 180);
+        });
+        row.querySelector('.recipeIngredientCost').addEventListener('input', (event) => {
+          const input = event.currentTarget;
+          let value = input.value.replace(',', '.').replace(/[^\d.]/g, '');
+          const point = value.indexOf('.');
+          if (point >= 0) value = value.slice(0, point + 1) + value.slice(point + 1).replace(/\./g, '');
+          input.value = value;
+        });
+        if (append) recipeIngredientRows.appendChild(row);
+        else recipeIngredientRows.prepend(row);
+      }
+
+      async function renderRecipes(newRecipeId = null) {
+        const recipes = await getRecipes();
+        recipeCount.textContent = String(recipes.length);
+        if (!recipes.length) {
+          recipeList.innerHTML = `<div class="todoEmpty">${t('recipeEmpty')}</div>`;
+          return;
+        }
+        recipeList.innerHTML = recipes.map((recipe) => {
+          const ingredients = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
+          const total = ingredients.reduce((sum, ingredient) => sum + (recipeCost(ingredient.cost) || 0), 0);
+          return `<article class="recipeCard${recipe.id === newRecipeId ? ' is-new' : ''}" data-recipe-id="${escapeHtml(recipe.id)}"><button type="button" class="recipeCardMain" data-recipe-action="open" data-recipe-id="${escapeHtml(recipe.id)}"><strong>${escapeHtml(recipe.title)}</strong><span>${ingredients.length} ${t('ingredients').toLowerCase()}${total ? ` · ${formatMonthlyTotal(total)}` : ''}</span></button></article>`;
+        }).join('');
+      }
+
+      async function openRecipeModal(recipe = null) {
+        editingRecipeId = recipe?.id || null;
+        recipeForm.reset();
+        recipeIngredientRows.innerHTML = '';
+        recipeTitleInput.value = recipe?.title || '';
+        recipeInstructionsInput.value = recipe?.instructions || '';
+        recipeModalTitle.textContent = recipe ? t('editRecipe') : t('addRecipe');
+        const ingredients = recipe?.ingredients?.length ? recipe.ingredients : [{}];
+        for (const ingredient of ingredients) await addRecipeIngredientRow(ingredient, true);
+        recipeModal.classList.add('open');
+        recipeModal.setAttribute('aria-hidden', 'false');
+        showRecipeStep(1);
+      }
+
+      function showRecipeStep(step) {
+        currentRecipeStep = step;
+        recipeForm.querySelectorAll('[data-recipe-step]').forEach((section) => {
+          section.hidden = Number(section.dataset.recipeStep) !== step;
+        });
+        recipeStepProgress.querySelectorAll('span').forEach((segment, index) => segment.classList.toggle('is-active', index < step));
+        recipeStepProgress.setAttribute('aria-label', `${step} / 3`);
+      }
+
+      function canAdvanceRecipeStep(step) {
+        if (step === 1 && !recipeTitleInput.value.trim()) { alert(t('recipeInvalid')); return false; }
+        if (step === 2 && !Array.from(recipeIngredientRows.querySelectorAll('.recipeIngredientName')).some((input) => input.value.trim())) { alert(t('recipeInvalid')); return false; }
+        return true;
+      }
+
+      function closeRecipeModal() {
+        recipeModal.classList.remove('open');
+        recipeModal.setAttribute('aria-hidden', 'true');
+        editingRecipeId = null;
+      }
+
+      async function saveRecipe() {
+        const title = recipeTitleInput.value.trim();
+        const ingredients = Array.from(recipeIngredientRows.children).map((row) => ({
+          id: uid(), name: row.querySelector('.recipeIngredientName').value.trim(), cost: recipeCost(parseShoppingAmount(row.querySelector('.recipeIngredientCost').value)), recipeId: row.querySelector('.recipeIngredientLink').value || null
+        })).filter((ingredient) => ingredient.name || ingredient.recipeId);
+        if (!title || !ingredients.length) { alert(t('recipeInvalid')); return; }
+        await ensureRecipeStore();
+        const existing = editingRecipeId ? await readFromStore('recipes', editingRecipeId) : null;
+        const id = existing?.id || uid();
+        const now = new Date().toISOString();
+        await writeToStore('recipes', { id, title, ingredients, instructions: recipeInstructionsInput.value.trim(), createdAt: existing?.createdAt || now, updatedAt: now });
+        closeRecipeModal();
+        await renderRecipes(existing ? null : id);
+      }
+
+      async function openRecipeDetail(recipeId) {
+        const recipe = await readFromStore('recipes', recipeId);
+        if (!recipe) return;
+        window.clearTimeout(recipeDetailCloseTimer);
+        recipeDetailModal.classList.remove('is-closing');
+        openedRecipeId = recipe.id;
+        const allRecipes = await getRecipes();
+        const recipeMap = new Map(allRecipes.map((item) => [item.id, item]));
+        recipeDetailTitle.textContent = recipe.title;
+        document.getElementById('recipeDetailMenu').classList.remove('is-open');
+        recipeDetailIngredients.innerHTML = (recipe.ingredients || []).map((ingredient) => {
+          const linked = ingredient.recipeId ? recipeMap.get(ingredient.recipeId) : null;
+          const label = linked ? linked.title : ingredient.name;
+          return `<div class="recipeDetailIngredient">${linked ? `<button type="button" data-recipe-open="${escapeHtml(linked.id)}">${escapeHtml(label)} ↗</button>` : `<span>${escapeHtml(label)}</span>`}${ingredient.cost ? `<strong>${formatMonthlyTotal(ingredient.cost)}</strong>` : ''}</div>`;
+        }).join('');
+        recipeDetailInstructions.innerHTML = formatRecipeInstructions(recipe.instructions);
+        recipeDetailModal.classList.add('open');
+        recipeDetailModal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeRecipeDetail() {
+        if (!recipeDetailModal.classList.contains('open') || recipeDetailModal.classList.contains('is-closing')) return;
+        recipeDetailModal.classList.add('is-closing');
+        document.getElementById('recipeDetailMenu').classList.remove('is-open');
+        window.clearTimeout(recipeDetailCloseTimer);
+        recipeDetailCloseTimer = window.setTimeout(() => {
+          recipeDetailModal.classList.remove('open', 'is-closing');
+          recipeDetailModal.setAttribute('aria-hidden', 'true');
+          openedRecipeId = null;
+          recipeDetailCloseTimer = null;
+        }, 260);
+      }
+
+      async function deleteRecipe(recipeId) {
+        const card = Array.from(recipeList.querySelectorAll('[data-recipe-id]')).find((item) => item.dataset.recipeId === recipeId);
+        card?.classList.add('is-removing');
+        await new Promise((resolve) => window.setTimeout(resolve, 180));
+        await deleteFromStore('recipes', recipeId);
+        await renderRecipes();
+      }
+
       document.addEventListener('click', (event) => {
         const autocompleteWrap = document.querySelector('.autocompleteWrap');
         if (autocompleteWrap && !autocompleteWrap.contains(event.target)) {
@@ -1816,6 +1993,8 @@
         }
 
         if (!event.target.closest('.appSwitcher')) closeAppSwitchers();
+        if (!event.target.closest('.recipeDetailMenuWrap')) document.getElementById('recipeDetailMenu').classList.remove('is-open');
+        if (!event.target.closest('.todoDetailMenuWrap')) document.getElementById('todoDetailMenu').classList.remove('is-open');
       });
 
       document.addEventListener('gesturestart', (event) => event.preventDefault(), { passive: false });
@@ -1838,8 +2017,64 @@
       });
 
       document.getElementById('openTodoModalBtn').addEventListener('click', () => openTodoModal());
+      document.getElementById('openRecipeModalBtn').addEventListener('click', () => openRecipeModal());
+      document.getElementById('closeRecipeModalBtn').addEventListener('click', closeRecipeModal);
+      document.getElementById('closeRecipeDetailModalBtn').addEventListener('click', closeRecipeDetail);
+      document.getElementById('recipeDetailMenuBtn').addEventListener('click', () => document.getElementById('recipeDetailMenu').classList.toggle('is-open'));
+      document.getElementById('editRecipeDetailBtn').addEventListener('click', async () => {
+        if (!openedRecipeId) return;
+        const recipe = await readFromStore('recipes', openedRecipeId);
+        if (!recipe) return;
+        closeRecipeDetail();
+        await openRecipeModal(recipe);
+      });
+      document.getElementById('deleteRecipeDetailBtn').addEventListener('click', async () => {
+        if (!openedRecipeId) return;
+        const recipeId = openedRecipeId;
+        closeRecipeDetail();
+        await deleteRecipe(recipeId);
+      });
+      document.getElementById('addRecipeIngredientBtn').addEventListener('click', () => addRecipeIngredientRow());
+      recipeForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (currentRecipeStep < 3) {
+          if (canAdvanceRecipeStep(currentRecipeStep)) showRecipeStep(currentRecipeStep + 1);
+          return;
+        }
+        saveRecipe().catch((error) => { console.error('Failed to save recipe', error); alert('Не удалось сохранить рецепт.'); });
+      });
+      recipeForm.querySelectorAll('[data-recipe-step-next]').forEach((button) => button.addEventListener('click', () => {
+        if (canAdvanceRecipeStep(currentRecipeStep)) showRecipeStep(currentRecipeStep + 1);
+      }));
+      recipeForm.querySelectorAll('[data-recipe-step-back]').forEach((button) => button.addEventListener('click', () => showRecipeStep(Number(button.dataset.recipeStepBack))));
+      recipeModal.addEventListener('click', (event) => { if (event.target === recipeModal) closeRecipeModal(); });
+      recipeDetailModal.addEventListener('click', (event) => { if (event.target === recipeDetailModal) closeRecipeDetail(); });
+      recipeList.addEventListener('click', async (event) => {
+        const button = event.target.closest('[data-recipe-action]');
+        if (!button) return;
+        const id = button.dataset.recipeId;
+        if (button.dataset.recipeAction === 'open') await openRecipeDetail(id);
+      });
+      recipeDetailIngredients.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-recipe-open]');
+        if (button) openRecipeDetail(button.dataset.recipeOpen);
+      });
       document.getElementById('closeTodoModalBtn').addEventListener('click', closeTodoModal);
       document.getElementById('closeTodoDetailModalBtn').addEventListener('click', closeTodoDetail);
+      document.getElementById('todoDetailMenuBtn').addEventListener('click', () => document.getElementById('todoDetailMenu').classList.toggle('is-open'));
+      document.getElementById('editTodoDetailBtn').addEventListener('click', async () => {
+        if (!openedTodoId) return;
+        const task = await readFromStore('todoTasks', openedTodoId);
+        if (!task) return;
+        closeTodoDetail();
+        openTodoModal(task);
+      });
+      document.getElementById('deleteTodoDetailBtn').addEventListener('click', async () => {
+        if (!openedTodoId) return;
+        const taskId = openedTodoId;
+        closeTodoDetail();
+        await deleteTodo(taskId);
+      });
       todoModal.addEventListener('click', (event) => {
         if (event.target === todoModal) closeTodoModal();
       });
@@ -2354,6 +2589,7 @@
         await renderMonthlyPayments();
         await renderShopping();
         await renderTodos();
+        await renderRecipes();
         resetForm();
 
         setInterval(async () => {
