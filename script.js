@@ -1683,7 +1683,11 @@
       async function renderTodos(newTaskId = null) {
         await ensureTodoStore();
         const tasks = await readAllFromStore('todoTasks');
-        tasks.sort((first, second) => String(second.createdAt || '').localeCompare(String(first.createdAt || '')));
+        tasks.sort((first, second) => {
+          const completionOrder = Number(Boolean(first.completed)) - Number(Boolean(second.completed));
+          if (completionOrder !== 0) return completionOrder;
+          return String(second.updatedAt || second.createdAt || '').localeCompare(String(first.updatedAt || first.createdAt || ''));
+        });
 
         updateTodoProgress(tasks.filter((task) => task.completed).length, tasks.length);
 
@@ -1827,7 +1831,10 @@
           checkButton.setAttribute('aria-pressed', String(task.completed));
           checkButton.setAttribute('aria-label', task.completed ? 'Отметить как невыполненную' : 'Отметить как выполненную');
           updateTodoProgress(todoList.querySelectorAll('.todoCard.is-completed').length, todoList.querySelectorAll('.todoCard').length);
-          window.setTimeout(() => card.classList.remove('is-updating'), 380);
+          window.setTimeout(async () => {
+            card.classList.remove('is-updating');
+            await renderTodos();
+          }, 380);
         });
       }
 
