@@ -2,7 +2,7 @@
       const isStandalonePwa = window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true;
       document.body.classList.toggle('is-pwa', isStandalonePwa);
       const DB_NAME = 'salary-tracker-db';
-      const DB_VERSION = 7;
+      const DB_VERSION = 8;
       const DAY_NAMES_BY_LANGUAGE = {
         ru: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],
         en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -116,6 +116,41 @@
       const weekModalSummary = document.getElementById('weekModalSummary');
       const stepProgress = document.getElementById('stepProgress');
       const salaryApp = document.getElementById('salaryApp');
+      Object.assign(TRANSLATIONS.ru, {
+        wardrobeAdd: 'Добавить одежду', wardrobeEdit: 'Редактировать вещь', wardrobeName: 'Название', wardrobeNamePlaceholder: 'Например: Чёрная куртка', wardrobePhoto: 'Фото (необязательно)', wardrobeRemovePhoto: 'Убрать фото', wardrobeLink: 'Ссылка (необязательно)', wardrobeAll: 'Всё', wardrobeWanted: 'Хочу купить', wardrobePurchased: 'Куплено', wardrobeMarkPurchased: 'Отметить купленной', wardrobeMarkWanted: 'Вернуть в список желаний', wardrobeOpenLink: 'Открыть ссылку ↗', wardrobeActions: 'Действия с вещью', wardrobeEmpty: 'Добавьте первую вещь в свой гардероб.', wardrobeFilterEmpty: 'Здесь пока нет вещей.', wardrobeInvalidName: 'Введите название вещи.', wardrobeInvalidLink: 'Введите корректную ссылку на сайт.', wardrobeInvalidPhoto: 'Выберите изображение.', wardrobeError: 'Не удалось сохранить изменения. Попробуйте ещё раз.', wardrobePhotoError: 'Не удалось прочитать фото. Попробуйте другое изображение.'
+      });
+      Object.assign(TRANSLATIONS.en, {
+        wardrobeAdd: 'Add clothing', wardrobeEdit: 'Edit item', wardrobeName: 'Name', wardrobeNamePlaceholder: 'For example: Black jacket', wardrobePhoto: 'Photo (optional)', wardrobeRemovePhoto: 'Remove photo', wardrobeLink: 'Link (optional)', wardrobeAll: 'All', wardrobeWanted: 'Wishlist', wardrobePurchased: 'Purchased', wardrobeMarkPurchased: 'Mark as purchased', wardrobeMarkWanted: 'Move to wishlist', wardrobeOpenLink: 'Open link ↗', wardrobeActions: 'Item actions', wardrobeEmpty: 'Add the first item to your wardrobe.', wardrobeFilterEmpty: 'No items here yet.', wardrobeInvalidName: 'Enter an item name.', wardrobeInvalidLink: 'Enter a valid website link.', wardrobeInvalidPhoto: 'Choose an image.', wardrobeError: 'Could not save the changes. Please try again.', wardrobePhotoError: 'Could not read the photo. Try another image.'
+      });
+      Object.assign(TRANSLATIONS.ru, {
+        wardrobeAdd: 'Добавить предмет', wardrobeEdit: 'Редактировать предмет', wardrobeNamePlaceholder: 'Например: Настольная лампа', wardrobeEmpty: 'Добавьте первый предмет в Wishlist.', wardrobeFilterEmpty: 'Нет предметов с такими фильтрами.', wardrobeMarkPurchased: 'Отметить покупку', wardrobeActions: 'Действия с предметом', wardrobeInvalidName: 'Введите название предмета.', wishlistCategory: 'Категория', wishlistAllCategories: 'Все категории', wishlistChooseCategory: 'Выберите категорию', wishlistFurniture: 'Мебель', wishlistClothing: 'Одежда', wishlistOther: 'Другое', wishlistClothingType: 'Тип одежды', wishlistChooseClothingType: 'Выберите тип одежды', wishlistBoots: 'Ботинки', wishlistTshirt: 'Футболка', wishlistJacket: 'Куртка', wishlistHoodie: 'Худи', wishlistBelt: 'Ремень', wishlistZipHoodie: 'Зип худи', wishlistJeans: 'Джинсы', wishlistDesigner: 'Дизайнер', wishlistDesignerOptional: 'Дизайнер (необязательно)', wishlistAllDesigners: 'Все дизайнеры', wishlistPriceOptional: 'Цена, € (необязательно)', wishlistInvalidPrice: 'Введите цену от нуля, не более двух знаков после точки.'
+      });
+      Object.assign(TRANSLATIONS.en, {
+        wardrobeAdd: 'Add item', wardrobeEdit: 'Edit item', wardrobeNamePlaceholder: 'For example: Desk lamp', wardrobeEmpty: 'Add your first item to Wishlist.', wardrobeFilterEmpty: 'No items match these filters.', wardrobeMarkPurchased: 'Mark as purchased', wardrobeActions: 'Item actions', wardrobeInvalidName: 'Enter an item name.', wishlistCategory: 'Category', wishlistAllCategories: 'All categories', wishlistChooseCategory: 'Choose a category', wishlistFurniture: 'Furniture', wishlistClothing: 'Clothing', wishlistOther: 'Other', wishlistClothingType: 'Clothing type', wishlistChooseClothingType: 'Choose a clothing type', wishlistBoots: 'Boots', wishlistTshirt: 'T-shirt', wishlistJacket: 'Jacket', wishlistHoodie: 'Hoodie', wishlistBelt: 'Belt', wishlistZipHoodie: 'Zip hoodie', wishlistJeans: 'Jeans', wishlistDesigner: 'Designer', wishlistDesignerOptional: 'Designer (optional)', wishlistAllDesigners: 'All designers', wishlistPriceOptional: 'Price, € (optional)', wishlistInvalidPrice: 'Enter a non-negative price with up to two decimal places.'
+      });
+      const WISHLIST_CATEGORIES = { furniture: 'wishlistFurniture', clothing: 'wishlistClothing', other: 'wishlistOther' };
+      const WISHLIST_CLOTHING_TYPES = { boots: 'wishlistBoots', tshirt: 'wishlistTshirt', jacket: 'wishlistJacket', hoodie: 'wishlistHoodie', belt: 'wishlistBelt', zipHoodie: 'wishlistZipHoodie', jeans: 'wishlistJeans' };
+      const wishlistCategoryInput = document.getElementById('wishlistCategoryInput');
+      const wishlistClothingTypeInput = document.getElementById('wishlistClothingTypeInput');
+      const wishlistDesignerInput = document.getElementById('wishlistDesignerInput');
+      const wishlistPriceInput = document.getElementById('wishlistPriceInput');
+      const wishlistCategoryFilter = document.getElementById('wishlistCategoryFilter');
+      const wishlistDesignerFilter = document.getElementById('wishlistDesignerFilter');
+      const wardrobeApp = document.getElementById('wardrobeApp');
+      const wardrobeList = document.getElementById('wardrobeList');
+      const wardrobeFormModal = document.getElementById('wardrobeFormModal');
+      const wardrobeForm = document.getElementById('wardrobeForm');
+      const wishlistStepProgress = document.getElementById('wishlistStepProgress');
+      const wishlistStepBackBtn = document.getElementById('wishlistStepBackBtn');
+      const wishlistStepNextBtn = document.getElementById('wishlistStepNextBtn');
+      Object.assign(TRANSLATIONS.ru, { wishlistSkip: 'Пропустить' });
+      Object.assign(TRANSLATIONS.en, { wishlistSkip: 'Skip' });
+      const wardrobeNameInput = document.getElementById('wardrobeNameInput');
+      const wardrobeLinkInput = document.getElementById('wardrobeLinkInput');
+      const wardrobePhotoInput = document.getElementById('wardrobePhotoInput');
+      const wardrobePurchasedInput = document.getElementById('wardrobePurchasedInput');
+      const wardrobeDetailModal = document.getElementById('wardrobeDetailModal');
+      const wardrobeActionsModal = document.getElementById('wardrobeActionsModal');
       const monthlyApp = document.getElementById('monthlyApp');
       const shoppingApp = document.getElementById('shoppingApp');
       const priceBookApp = document.getElementById('priceBookApp');
@@ -229,6 +264,28 @@
       let openedRecipeId = null;
       let currentRecipeStep = 1;
       let recipeDetailCloseTimer = null;
+      let wardrobeFilter = 'all';
+      let wishlistCategory = 'all';
+      let wishlistDesigner = '';
+      let wardrobeItems = new Map();
+      let editingWardrobeId = null;
+      let openedWardrobeId = null;
+      let wardrobePhoto = null;
+      let wardrobePhotoReadVersion = 0;
+      let wishlistPhotoLoading = false;
+      let currentWishlistStep = 'category';
+      let wardrobeBusy = false;
+      let wardrobeRenderVersion = 0;
+      const wardrobeCloseTimers = new Map();
+
+      document.querySelectorAll('.appSwitcherMenu').forEach((menu) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.appTarget = 'wardrobe';
+        button.setAttribute('role', 'menuitem');
+        button.textContent = 'Wishlist';
+        menu.appendChild(button);
+      });
 
       function groupSettingsSections() {
         document.querySelectorAll('.shoppingSettingsFields').forEach((container) => {
@@ -273,6 +330,7 @@
           renderShopping();
           renderTodos();
           renderRecipes();
+          renderWardrobe();
         }
       }
 
@@ -342,7 +400,7 @@
       }
 
       function showApp(appName) {
-        const apps = { salary: salaryApp, monthly: monthlyApp, shopping: shoppingApp, priceBook: priceBookApp, todo: todoApp, recipes: recipesApp };
+        const apps = { salary: salaryApp, monthly: monthlyApp, shopping: shoppingApp, priceBook: priceBookApp, todo: todoApp, recipes: recipesApp, wardrobe: wardrobeApp };
         const nextApp = apps[appName] || salaryApp;
         const currentApp = Object.values(apps).find((app) => !app.classList.contains('is-hidden'));
         if (!nextApp.classList.contains('is-hidden')) {
@@ -359,6 +417,7 @@
         if (appName === 'shopping') renderShopping();
         if (appName === 'todo') renderTodos();
         if (appName === 'recipes') renderRecipes();
+        if (appName === 'wardrobe') renderWardrobe();
         closeAppSwitchers();
       }
 
@@ -418,10 +477,13 @@
             if (!database.objectStoreNames.contains('shoppingDays')) database.createObjectStore('shoppingDays', { keyPath: 'id' });
             if (!database.objectStoreNames.contains('todoTasks')) database.createObjectStore('todoTasks', { keyPath: 'id' });
             if (!database.objectStoreNames.contains('recipes')) database.createObjectStore('recipes', { keyPath: 'id' });
+            if (!database.objectStoreNames.contains('wardrobe')) database.createObjectStore('wardrobe', { keyPath: 'id' });
           };
 
           request.onsuccess = () => {
             db = request.result;
+            const connection = db;
+            connection.onversionchange = () => connection.close();
             resolve(db);
           };
 
@@ -538,7 +600,7 @@
 
       async function refreshDatabaseUsage() {
         if (!db) return;
-        const storeNames = ['entries', 'workOptions', 'stats', 'settings', 'priceBook', 'monthlyPayments', 'shoppingSettings', 'shoppingDays', 'todoTasks'];
+        const storeNames = ['entries', 'workOptions', 'stats', 'settings', 'priceBook', 'monthlyPayments', 'shoppingSettings', 'shoppingDays', 'todoTasks', 'recipes', 'wardrobe'];
         const data = await Promise.all(storeNames.map((storeName) => readAllFromStore(storeName)));
         const bytes = new TextEncoder().encode(JSON.stringify(data)).length;
         const usage = `≈ ${formatDatabaseSize(bytes)}`;
@@ -1993,6 +2055,459 @@
         await renderRecipes();
       }
 
+      function getWishlistCategory(item) {
+        // Existing Wardrobe records were clothing; preserve them without rewriting their photos.
+        return Object.hasOwn(WISHLIST_CATEGORIES, item.category) ? item.category : 'clothing';
+      }
+
+      function normalizeWishlistDesigner(value) {
+        return String(value || '').trim().replace(/\s+/g, ' ').normalize('NFKC').toLocaleLowerCase();
+      }
+
+      function getWishlistDesigners(items) {
+        const designers = new Map();
+        items.filter((item) => getWishlistCategory(item) === 'clothing').forEach((item) => {
+          const name = String(item.designer || '').trim().replace(/\s+/g, ' ');
+          const key = normalizeWishlistDesigner(name);
+          if (key && !designers.has(key)) designers.set(key, name);
+        });
+        return Array.from(designers).sort((a, b) => a[1].localeCompare(b[1]));
+      }
+
+      function updateWishlistClothingFields() {
+        const clothing = wishlistCategoryInput.value === 'clothing';
+        wishlistClothingTypeInput.disabled = !clothing;
+        wishlistClothingTypeInput.required = clothing;
+        wishlistDesignerInput.disabled = !clothing;
+        wishlistCategoryInput.setCustomValidity('');
+        wishlistClothingTypeInput.setCustomValidity('');
+        if (!clothing && currentWishlistStep === 'clothing') showWishlistStep('category');
+        else showWishlistStep(currentWishlistStep);
+      }
+
+      function getWishlistSteps() {
+        return wishlistCategoryInput.value === 'clothing'
+          ? ['category', 'clothing', 'name', 'price', 'photo', 'link']
+          : ['category', 'name', 'price', 'photo', 'link'];
+      }
+
+      function refreshWishlistWizardControls() {
+        const steps = getWishlistSteps();
+        const index = steps.indexOf(currentWishlistStep);
+        wishlistStepBackBtn.hidden = index <= 0;
+        wishlistStepNextBtn.hidden = index === steps.length - 1;
+        const save = document.getElementById('saveWardrobeBtn');
+        save.hidden = index !== steps.length - 1;
+        save.disabled = wardrobeBusy || wishlistPhotoLoading;
+        wishlistStepNextBtn.disabled = wardrobeBusy || (currentWishlistStep === 'photo' && wishlistPhotoLoading);
+        wishlistStepBackBtn.disabled = wardrobeBusy;
+        const canSkip = (currentWishlistStep === 'price' && !wishlistPriceInput.value.trim()) || (currentWishlistStep === 'photo' && !wardrobePhoto);
+        wishlistStepNextBtn.dataset.i18n = canSkip ? 'wishlistSkip' : 'continue';
+        wishlistStepNextBtn.textContent = t(wishlistStepNextBtn.dataset.i18n);
+      }
+
+      function showWishlistStep(step) {
+        const steps = getWishlistSteps();
+        currentWishlistStep = steps.includes(step) ? step : 'category';
+        wardrobeForm.querySelectorAll('[data-wishlist-step]').forEach((section) => {
+          const hidden = section.dataset.wishlistStep !== currentWishlistStep;
+          section.hidden = hidden;
+          section.setAttribute('aria-hidden', String(hidden));
+        });
+        const index = steps.indexOf(currentWishlistStep);
+        wishlistStepProgress.replaceChildren(...steps.map((_, position) => {
+          const segment = document.createElement('span');
+          segment.classList.toggle('is-active', position <= index);
+          return segment;
+        }));
+        wishlistStepProgress.style.setProperty('--wishlist-steps', steps.length);
+        wishlistStepProgress.setAttribute('aria-label', `${index + 1} / ${steps.length}`);
+        wardrobeForm.scrollTop = 0;
+        refreshWishlistWizardControls();
+      }
+
+      function validateWishlistStep(step) {
+        let input;
+        let message = '';
+        if (step === 'category') {
+          input = wishlistCategoryInput;
+          if (!Object.hasOwn(WISHLIST_CATEGORIES, input.value)) message = t('wishlistChooseCategory');
+        } else if (step === 'clothing') {
+          input = wishlistClothingTypeInput;
+          if (!Object.hasOwn(WISHLIST_CLOTHING_TYPES, input.value)) message = t('wishlistChooseClothingType');
+        } else if (step === 'name') {
+          input = wardrobeNameInput;
+          if (!input.value.trim()) message = t('wardrobeInvalidName');
+        } else if (step === 'price') {
+          input = wishlistPriceInput;
+          try { parseWishlistPrice(input.value); } catch (_) { message = t('wishlistInvalidPrice'); }
+        } else if (step === 'link') {
+          input = wardrobeLinkInput;
+          try { normalizeWardrobeLink(input.value); } catch (_) { message = t('wardrobeInvalidLink'); }
+        }
+        if (input) input.setCustomValidity(message);
+        if (!message) return true;
+        showWishlistStep(step);
+        input.reportValidity();
+        return false;
+      }
+
+      function advanceWishlistStep() {
+        if (wardrobeBusy || (currentWishlistStep === 'photo' && wishlistPhotoLoading)) return;
+        if (!validateWishlistStep(currentWishlistStep)) return;
+        const steps = getWishlistSteps();
+        const next = steps[steps.indexOf(currentWishlistStep) + 1];
+        if (next) showWishlistStep(next);
+      }
+
+      function parseWishlistPrice(value) {
+        const text = value.trim().replace(',', '.');
+        if (!text) return null;
+        if (!/^(?:\d+(?:\.\d{0,2})?|\.\d{1,2})$/.test(text)) throw new Error('invalid-price');
+        const number = Number(text);
+        if (!Number.isFinite(number) || number < 0) throw new Error('invalid-price');
+        return Math.round(number * 100) / 100;
+      }
+
+      function formatWishlistPrice(value) {
+        return `${new Intl.NumberFormat(currentLanguage === 'en' ? 'en-IE' : 'ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value))} €`;
+      }
+
+      function wishlistItemMeta(item) {
+        const category = getWishlistCategory(item);
+        const parts = [t(WISHLIST_CATEGORIES[category])];
+        if (category === 'clothing') {
+          if (Object.hasOwn(WISHLIST_CLOTHING_TYPES, item.clothingType)) parts.push(t(WISHLIST_CLOTHING_TYPES[item.clothingType]));
+          if (item.designer) parts.push(item.designer);
+        }
+        return parts.join(' · ');
+      }
+
+      function normalizeWardrobeLink(value) {
+        const text = value.trim();
+        if (!text) return '';
+        if (/^[a-z][a-z\d+.-]*:/i.test(text) && !/^https?:\/\//i.test(text)) throw new Error('invalid-link');
+        const url = new URL(/^https?:\/\//i.test(text) ? text : `https://${text}`);
+        if (!['http:', 'https:'].includes(url.protocol) || !url.hostname.includes('.') || url.username || url.password) throw new Error('invalid-link');
+        return url.href;
+      }
+
+      function writeWardrobeItem(item, remove = false) {
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction('wardrobe', 'readwrite');
+          const store = transaction.objectStore('wardrobe');
+          if (remove) store.delete(item.id);
+          else store.put(item);
+          transaction.oncomplete = () => resolve(item);
+          transaction.onabort = () => reject(transaction.error || new Error('Wardrobe transaction aborted'));
+          transaction.onerror = () => reject(transaction.error);
+        });
+      }
+
+      function openWardrobeScreen(modal) {
+        window.clearTimeout(wardrobeCloseTimers.get(modal));
+        wardrobeCloseTimers.delete(modal);
+        modal.classList.remove('is-closing');
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeWardrobeScreen(modal) {
+        if (!modal.classList.contains('open')) return Promise.resolve();
+        modal.classList.add('is-closing');
+        return new Promise((resolve) => {
+          window.clearTimeout(wardrobeCloseTimers.get(modal));
+          wardrobeCloseTimers.set(modal, window.setTimeout(() => {
+            modal.classList.remove('open', 'is-closing');
+            modal.setAttribute('aria-hidden', 'true');
+            wardrobeCloseTimers.delete(modal);
+            resolve();
+          }, 260));
+        });
+      }
+
+      function wardrobePhotoElement(photo, name) {
+        if (photo) {
+          const image = document.createElement('img');
+          image.src = photo;
+          image.alt = name;
+          image.decoding = 'async';
+          return image;
+        }
+        const placeholder = document.createElement('span');
+        placeholder.className = 'wardrobePlaceholder';
+        placeholder.innerHTML = '<svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M32 52 12 32C-1 18 18 3 32 19 46 3 65 18 52 32L32 52Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
+        return placeholder;
+      }
+
+      async function renderWardrobe(newId = null, animate = false) {
+        if (!db || !db.objectStoreNames.contains('wardrobe')) return;
+        const version = ++wardrobeRenderVersion;
+        const items = await readAllFromStore('wardrobe');
+        if (version !== wardrobeRenderVersion) return;
+        items.sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+        wardrobeItems = new Map(items.map((item) => [item.id, item]));
+        const designers = getWishlistDesigners(items);
+        if (!designers.some(([key]) => key === wishlistDesigner)) wishlistDesigner = '';
+        wishlistCategoryFilter.value = wishlistCategory;
+        const designerField = document.getElementById('wishlistDesignerFilterField');
+        designerField.hidden = wishlistCategory !== 'clothing' || !designers.length;
+        if (designerField.hidden) wishlistDesigner = '';
+        wishlistDesignerFilter.replaceChildren(new Option(t('wishlistAllDesigners'), ''), ...designers.map(([key, name]) => new Option(name, key)));
+        wishlistDesignerFilter.value = wishlistDesigner;
+        document.getElementById('wishlistDesigners').replaceChildren(...designers.map(([, name]) => new Option(name, name)));
+        const filtered = items.filter((item) =>
+          (wardrobeFilter === 'all' || Boolean(item.purchased) === (wardrobeFilter === 'purchased')) &&
+          (wishlistCategory === 'all' || getWishlistCategory(item) === wishlistCategory) &&
+          (!wishlistDesigner || normalizeWishlistDesigner(item.designer) === wishlistDesigner)
+        );
+        wardrobeList.replaceChildren();
+        if (!filtered.length) {
+          const empty = document.createElement('p');
+          empty.className = 'wardrobeEmpty';
+          empty.textContent = t(items.length ? 'wardrobeFilterEmpty' : 'wardrobeEmpty');
+          wardrobeList.appendChild(empty);
+        }
+        filtered.forEach((item) => {
+          const card = document.createElement('button');
+          card.type = 'button';
+          card.className = `wardrobeCard${item.id === newId ? ' is-new' : ''}`;
+          card.dataset.wardrobeId = item.id;
+          const photo = document.createElement('span');
+          photo.className = 'wardrobeCardPhoto';
+          photo.appendChild(wardrobePhotoElement(item.photo, item.name));
+          const name = document.createElement('strong');
+          name.textContent = item.name;
+          const meta = document.createElement('span');
+          meta.className = 'wishlistCardMeta';
+          meta.textContent = getWishlistCategory(item) === 'clothing' ? String(item.designer || '').trim() : '';
+          const badge = document.createElement('span');
+          badge.className = `wardrobeBadge${item.purchased ? ' is-purchased' : ''}`;
+          badge.textContent = t(item.purchased ? 'wardrobePurchased' : 'wardrobeWanted');
+          card.append(photo, name);
+          if (meta.textContent) card.appendChild(meta);
+          if (item.price !== null && item.price !== undefined && Number.isFinite(Number(item.price))) {
+            const price = document.createElement('span');
+            price.className = 'wishlistCardPrice';
+            price.textContent = formatWishlistPrice(item.price);
+            card.appendChild(price);
+          }
+          card.appendChild(badge);
+          wardrobeList.appendChild(card);
+        });
+        wardrobeApp.querySelectorAll('[data-wardrobe-filter]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.wardrobeFilter === wardrobeFilter)));
+        if (openedWardrobeId && wardrobeItems.has(openedWardrobeId)) fillWardrobeDetail(wardrobeItems.get(openedWardrobeId));
+        if (animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          wardrobeList.getAnimations().forEach((animation) => animation.cancel());
+          wardrobeList.animate([{ opacity: .25 }, { opacity: 1 }], { duration: 280, easing: 'ease-out' });
+        }
+      }
+
+      function updateWardrobePhotoPreview() {
+        const image = document.getElementById('wardrobePreviewImage');
+        document.getElementById('wardrobePhotoPreview').hidden = !wardrobePhoto;
+        if (wardrobePhoto) image.src = wardrobePhoto;
+        else image.removeAttribute('src');
+      }
+
+      function openWardrobeForm(item = null) {
+        editingWardrobeId = item?.id || null;
+        wardrobePhotoReadVersion++;
+        wishlistPhotoLoading = false;
+        wardrobePhoto = item?.photo || null;
+        wardrobeForm.reset();
+        wishlistCategoryInput.value = item ? getWishlistCategory(item) : '';
+        wishlistClothingTypeInput.value = item?.clothingType || '';
+        wishlistDesignerInput.value = item?.designer || '';
+        wishlistPriceInput.value = item?.price === null || item?.price === undefined ? '' : String(item.price);
+        wishlistPriceInput.setCustomValidity('');
+        updateWishlistClothingFields();
+        wardrobeNameInput.value = item?.name || '';
+        wardrobeNameInput.setCustomValidity('');
+        wardrobeLinkInput.value = item?.link || '';
+        wardrobeLinkInput.setCustomValidity('');
+        wardrobePurchasedInput.checked = Boolean(item?.purchased);
+        document.getElementById('wardrobeFormTitle').textContent = t(item ? 'wardrobeEdit' : 'wardrobeAdd');
+        document.getElementById('saveWardrobeBtn').disabled = false;
+        updateWardrobePhotoPreview();
+        showWishlistStep('category');
+        openWardrobeScreen(wardrobeFormModal);
+      }
+
+      function fillWardrobeDetail(item) {
+        document.getElementById('wardrobeDetailTitle').textContent = item.name;
+        const photo = document.getElementById('wardrobeDetailPhoto');
+        const currentImage = photo.querySelector('img');
+        if (!currentImage || currentImage.getAttribute('src') !== item.photo) photo.replaceChildren(wardrobePhotoElement(item.photo, item.name));
+        document.getElementById('wardrobeDetailStatus').textContent = t(item.purchased ? 'wardrobePurchased' : 'wardrobeWanted');
+        document.getElementById('wishlistDetailMeta').textContent = wishlistItemMeta(item);
+        const price = document.getElementById('wishlistDetailPrice');
+        price.hidden = item.price === null || item.price === undefined || !Number.isFinite(Number(item.price));
+        price.textContent = price.hidden ? '' : formatWishlistPrice(item.price);
+        document.getElementById('toggleWardrobePurchasedBtn').textContent = t(item.purchased ? 'wardrobeMarkWanted' : 'wardrobeMarkPurchased');
+        const link = document.getElementById('wardrobeDetailLink');
+        link.setAttribute('aria-label', t('wardrobeOpenLink'));
+        link.title = t('wardrobeOpenLink');
+        let safeLink = '';
+        try { safeLink = normalizeWardrobeLink(item.link || ''); } catch (_) { /* Invalid saved links stay hidden. */ }
+        link.hidden = !safeLink;
+        if (safeLink) link.href = safeLink;
+        else link.removeAttribute('href');
+      }
+
+      function openWardrobeDetail(item) {
+        openedWardrobeId = item.id;
+        fillWardrobeDetail(item);
+        openWardrobeScreen(wardrobeDetailModal);
+      }
+
+      async function runWardrobeMutation(action) {
+        if (wardrobeBusy) return;
+        wardrobeBusy = true;
+        const buttons = ['saveWardrobeBtn', 'toggleWardrobePurchasedBtn', 'editWardrobeBtn', 'deleteWardrobeBtn'].map((id) => document.getElementById(id));
+        buttons.forEach((button) => { button.disabled = true; });
+        refreshWishlistWizardControls();
+        try { await action(); }
+        catch (error) { console.error('Wardrobe update failed', error); alert(t('wardrobeError')); }
+        finally { wardrobeBusy = false; buttons.forEach((button) => { button.disabled = false; }); refreshWishlistWizardControls(); }
+      }
+
+      document.getElementById('openWardrobeFormBtn').addEventListener('click', () => openWardrobeForm());
+      document.getElementById('closeWardrobeFormBtn').addEventListener('click', () => {
+        if (!wardrobeBusy) { wardrobePhotoReadVersion++; closeWardrobeScreen(wardrobeFormModal); }
+      });
+      document.getElementById('closeWardrobeDetailBtn').addEventListener('click', () => {
+        if (!wardrobeBusy) { openedWardrobeId = null; closeWardrobeScreen(wardrobeDetailModal); }
+      });
+      wardrobeApp.querySelectorAll('[data-wardrobe-filter]').forEach((button) => button.addEventListener('click', () => {
+        wardrobeFilter = button.dataset.wardrobeFilter;
+        renderWardrobe(null, true);
+      }));
+      wishlistCategoryInput.addEventListener('change', updateWishlistClothingFields);
+      wishlistClothingTypeInput.addEventListener('change', () => wishlistClothingTypeInput.setCustomValidity(''));
+      wardrobeNameInput.addEventListener('input', () => wardrobeNameInput.setCustomValidity(''));
+      wishlistStepNextBtn.addEventListener('click', advanceWishlistStep);
+      wishlistStepBackBtn.addEventListener('click', () => {
+        if (wardrobeBusy) return;
+        const steps = getWishlistSteps();
+        const previous = steps[steps.indexOf(currentWishlistStep) - 1];
+        if (previous) showWishlistStep(previous);
+      });
+      wishlistCategoryFilter.addEventListener('change', () => {
+        wishlistCategory = wishlistCategoryFilter.value;
+        wishlistDesigner = '';
+        renderWardrobe(null, true);
+      });
+      wishlistDesignerFilter.addEventListener('change', () => {
+        wishlistDesigner = wishlistDesignerFilter.value;
+        renderWardrobe(null, true);
+      });
+      wishlistPriceInput.addEventListener('input', () => {
+        wishlistPriceInput.setCustomValidity('');
+        wishlistPriceInput.value = wishlistPriceInput.value.replace(/,/g, '.');
+        refreshWishlistWizardControls();
+      });
+      wardrobeList.addEventListener('click', (event) => {
+        const card = event.target.closest('[data-wardrobe-id]');
+        const item = card ? wardrobeItems.get(card.dataset.wardrobeId) : null;
+        if (item) openWardrobeDetail(item);
+      });
+      wardrobePhotoInput.addEventListener('change', async () => {
+        const file = wardrobePhotoInput.files[0];
+        if (!file) return;
+        if (file.type && !file.type.startsWith('image/')) { alert(t('wardrobeInvalidPhoto')); wardrobePhotoInput.value = ''; return; }
+        const version = ++wardrobePhotoReadVersion;
+        wishlistPhotoLoading = true;
+        refreshWishlistWizardControls();
+        try {
+          const photo = await readFileAsDataUrl(file);
+          if (version !== wardrobePhotoReadVersion) return;
+          wardrobePhoto = photo;
+          updateWardrobePhotoPreview();
+        } catch (error) { if (version === wardrobePhotoReadVersion) alert(t('wardrobePhotoError')); }
+        finally {
+          if (version === wardrobePhotoReadVersion) {
+            wishlistPhotoLoading = false;
+            refreshWishlistWizardControls();
+          }
+        }
+      });
+      document.getElementById('removeWardrobePhotoBtn').addEventListener('click', () => {
+        wardrobePhotoReadVersion++;
+        wishlistPhotoLoading = false;
+        wardrobePhoto = null;
+        wardrobePhotoInput.value = '';
+        updateWardrobePhotoPreview();
+        document.getElementById('saveWardrobeBtn').disabled = false;
+        refreshWishlistWizardControls();
+      });
+      wardrobeLinkInput.addEventListener('input', () => wardrobeLinkInput.setCustomValidity(''));
+      wardrobeForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (document.getElementById('saveWardrobeBtn').disabled) return;
+        if (currentWishlistStep !== 'link') { advanceWishlistStep(); return; }
+        if (!getWishlistSteps().every((step) => validateWishlistStep(step))) return;
+        const name = wardrobeNameInput.value.trim();
+        const category = wishlistCategoryInput.value;
+        const price = parseWishlistPrice(wishlistPriceInput.value);
+        const link = normalizeWardrobeLink(wardrobeLinkInput.value);
+        const existing = editingWardrobeId ? wardrobeItems.get(editingWardrobeId) : null;
+        const now = new Date().toISOString();
+        const item = { id: existing?.id || uid(), name, link, price, category, clothingType: category === 'clothing' ? wishlistClothingTypeInput.value : null, designer: category === 'clothing' ? wishlistDesignerInput.value.trim().replace(/\s+/g, ' ') : '', photo: wardrobePhoto, purchased: wardrobePurchasedInput.checked, createdAt: existing?.createdAt || now, updatedAt: now };
+        runWardrobeMutation(async () => {
+          await writeWardrobeItem(item);
+          wardrobeFilter = 'all';
+          wishlistCategory = 'all';
+          wishlistDesigner = '';
+          await closeWardrobeScreen(wardrobeFormModal);
+          await renderWardrobe(existing ? null : item.id);
+          await refreshDatabaseUsage();
+        });
+      });
+      document.getElementById('toggleWardrobePurchasedBtn').addEventListener('click', () => {
+        const item = wardrobeItems.get(openedWardrobeId);
+        if (!item) return;
+        runWardrobeMutation(async () => {
+          await writeWardrobeItem({ ...item, purchased: !item.purchased, updatedAt: new Date().toISOString() });
+          await renderWardrobe(null, true);
+        });
+      });
+      document.getElementById('openWardrobeActionsBtn').addEventListener('click', () => { if (!wardrobeBusy) openWardrobeScreen(wardrobeActionsModal); });
+      wardrobeActionsModal.addEventListener('click', (event) => { if (event.target === wardrobeActionsModal && !wardrobeBusy) closeWardrobeScreen(wardrobeActionsModal); });
+      document.getElementById('editWardrobeBtn').addEventListener('click', () => {
+        const item = wardrobeItems.get(openedWardrobeId);
+        if (!item) return;
+        runWardrobeMutation(async () => {
+          await closeWardrobeScreen(wardrobeActionsModal);
+          await closeWardrobeScreen(wardrobeDetailModal);
+          openedWardrobeId = null;
+          openWardrobeForm(item);
+        });
+      });
+      document.getElementById('deleteWardrobeBtn').addEventListener('click', () => {
+        const item = wardrobeItems.get(openedWardrobeId);
+        if (!item) return;
+        runWardrobeMutation(async () => {
+          await writeWardrobeItem(item, true);
+          await closeWardrobeScreen(wardrobeActionsModal);
+          await closeWardrobeScreen(wardrobeDetailModal);
+          openedWardrobeId = null;
+          const card = Array.from(wardrobeList.querySelectorAll('[data-wardrobe-id]')).find((element) => element.dataset.wardrobeId === item.id);
+          if (card) {
+            card.classList.add('is-removing');
+            await new Promise((resolve) => window.setTimeout(resolve, 220));
+          }
+          await renderWardrobe();
+          await refreshDatabaseUsage();
+        });
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape' || wardrobeBusy) return;
+        if (wardrobeActionsModal.classList.contains('open')) closeWardrobeScreen(wardrobeActionsModal);
+        else if (wardrobeFormModal.classList.contains('open')) { wardrobePhotoReadVersion++; closeWardrobeScreen(wardrobeFormModal); }
+        else if (wardrobeDetailModal.classList.contains('open')) { openedWardrobeId = null; closeWardrobeScreen(wardrobeDetailModal); }
+      });
+
       document.addEventListener('click', (event) => {
         const autocompleteWrap = document.querySelector('.autocompleteWrap');
         if (autocompleteWrap && !autocompleteWrap.contains(event.target)) {
@@ -2598,6 +3113,7 @@
         await renderTodos();
         await renderRecipes();
         resetForm();
+        await renderWardrobe();
 
         setInterval(async () => {
           await ensureWeeklyReset();
