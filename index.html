@@ -375,6 +375,71 @@
       <section class="panel panelBlock recipesContent"><div class="todoHeader"><h2 data-i18n="recipes">Рецепты</h2><span class="recipeCount" id="recipeCount">0</span></div><div class="recipeList" id="recipeList" aria-live="polite"></div></section>
     </div>
 
+    <div class="app is-hidden" id="wardrobeApp">
+      <header class="topbar">
+        <div class="appSwitcher">
+          <button type="button" class="appSwitcherButton" aria-expanded="false" aria-haspopup="true"><span>Wishlist</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9L12 15L18 9"/></svg></button>
+          <div class="appSwitcherMenu" role="menu">
+            <button type="button" data-app-target="salary" role="menuitem">Salary Tracker</button>
+            <button type="button" data-app-target="monthly" role="menuitem">Mouthly Payments</button>
+            <button type="button" data-app-target="shopping" role="menuitem">Shopping</button>
+            <button type="button" data-app-target="priceBook" role="menuitem">Price Book</button>
+            <button type="button" data-app-target="todo" role="menuitem">Todo List</button>
+            <button type="button" data-app-target="recipes" role="menuitem">Recipes</button>
+          </div>
+        </div>
+        <div class="topbarActions"><button type="button" class="iconButton" id="openWardrobeFormBtn" aria-label="Добавить предмет" title="Добавить предмет"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+      </header>
+      <section class="wardrobeContent">
+        <div class="wardrobeFilters" role="group" aria-label="Статус покупки"><button type="button" data-wardrobe-filter="all" aria-pressed="true" data-i18n="wardrobeAll">Всё</button><button type="button" data-wardrobe-filter="wanted" aria-pressed="false" data-i18n="wardrobeWanted">Хочу купить</button><button type="button" data-wardrobe-filter="purchased" aria-pressed="false" data-i18n="wardrobePurchased">Куплено</button></div>
+        <div class="wishlistFilterFields">
+          <div class="field"><label for="wishlistCategoryFilter" data-i18n="wishlistCategory">Категория</label><select id="wishlistCategoryFilter"><option value="all" data-i18n="wishlistAllCategories">Все категории</option><option value="furniture" data-i18n="wishlistFurniture">Мебель</option><option value="clothing" data-i18n="wishlistClothing">Одежда</option><option value="other" data-i18n="wishlistOther">Другое</option></select></div>
+          <div class="field" id="wishlistDesignerFilterField" hidden><label for="wishlistDesignerFilter" data-i18n="wishlistDesigner">Дизайнер</label><select id="wishlistDesignerFilter"><option value="" data-i18n="wishlistAllDesigners">Все дизайнеры</option></select></div>
+        </div>
+        <div class="wardrobeList" id="wardrobeList" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <div class="modal wardrobeScreen" id="wardrobeFormModal" aria-hidden="true">
+      <div class="modalCard wardrobeScreenCard" role="dialog" aria-modal="true" aria-labelledby="wardrobeFormTitle">
+        <div class="modalHeader"><h3 id="wardrobeFormTitle" data-i18n="wardrobeAdd">Добавить предмет</h3><button type="button" class="iconButton" id="closeWardrobeFormBtn" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+        <form id="wardrobeForm" class="wardrobeForm" novalidate>
+          <div class="stepProgress" id="wishlistStepProgress" aria-label="1 / 5"></div>
+          <section class="formStep" data-wishlist-step="category">
+            <div class="field"><label for="wishlistCategoryInput" data-i18n="wishlistCategory">Категория</label><select id="wishlistCategoryInput" required><option value="" disabled selected data-i18n="wishlistChooseCategory">Выберите категорию</option><option value="furniture" data-i18n="wishlistFurniture">Мебель</option><option value="clothing" data-i18n="wishlistClothing">Одежда</option><option value="other" data-i18n="wishlistOther">Другое</option></select></div>
+          </section>
+          <section class="formStep" id="wishlistClothingFields" data-wishlist-step="clothing" hidden>
+            <div class="field"><label for="wishlistClothingTypeInput" data-i18n="wishlistClothingType">Тип одежды</label><select id="wishlistClothingTypeInput" disabled><option value="" disabled selected data-i18n="wishlistChooseClothingType">Выберите тип одежды</option><option value="boots" data-i18n="wishlistBoots">Ботинки</option><option value="tshirt" data-i18n="wishlistTshirt">Футболка</option><option value="jacket" data-i18n="wishlistJacket">Куртка</option><option value="hoodie" data-i18n="wishlistHoodie">Худи</option><option value="belt" data-i18n="wishlistBelt">Ремень</option><option value="zipHoodie" data-i18n="wishlistZipHoodie">Зип худи</option><option value="jeans" data-i18n="wishlistJeans">Джинсы</option></select></div>
+            <div class="field"><label for="wishlistDesignerInput" data-i18n="wishlistDesignerOptional">Дизайнер (необязательно)</label><input id="wishlistDesignerInput" list="wishlistDesigners" maxlength="100" autocomplete="off" disabled /><datalist id="wishlistDesigners"></datalist></div>
+          </section>
+          <section class="formStep" data-wishlist-step="name" hidden>
+            <div class="field"><label for="wardrobeNameInput" data-i18n="wardrobeName">Название</label><input id="wardrobeNameInput" maxlength="160" autocomplete="off" required data-i18n-placeholder="wardrobeNamePlaceholder" placeholder="Например: Настольная лампа" /></div>
+          </section>
+          <section class="formStep" data-wishlist-step="price" hidden>
+            <div class="field"><label for="wishlistPriceInput" data-i18n="wishlistPriceOptional">Цена, € (необязательно)</label><input id="wishlistPriceInput" type="text" inputmode="decimal" lang="en-US" autocomplete="off" placeholder="0.00" /></div>
+          </section>
+          <section class="formStep" data-wishlist-step="photo" hidden>
+            <div class="field"><label for="wardrobePhotoInput" data-i18n="wardrobePhoto">Фото (необязательно)</label><input id="wardrobePhotoInput" type="file" accept="image/*" /></div>
+            <div class="wardrobePhotoPreview" id="wardrobePhotoPreview" hidden><img id="wardrobePreviewImage" alt="" /><button type="button" class="secondary" id="removeWardrobePhotoBtn" data-i18n="wardrobeRemovePhoto">Убрать фото</button></div>
+          </section>
+          <section class="formStep" data-wishlist-step="link" hidden>
+            <div class="field"><label for="wardrobeLinkInput" data-i18n="wardrobeLink">Ссылка (необязательно)</label><input id="wardrobeLinkInput" type="text" inputmode="url" autocomplete="url" autocapitalize="none" spellcheck="false" placeholder="https://…" /></div>
+            <div class="settingsSwitchRow"><label for="wardrobePurchasedInput" data-i18n="wardrobePurchased">Куплено</label><label class="settingsSwitch"><input type="checkbox" id="wardrobePurchasedInput" aria-label="Куплено" /><span aria-hidden="true"></span></label></div>
+          </section>
+          <div class="formActions wishlistWizardActions"><button type="button" class="secondary" id="wishlistStepBackBtn" data-i18n="back" hidden>Назад</button><button type="button" class="primary" id="wishlistStepNextBtn" data-i18n="continue">Продолжить</button><button type="submit" class="primary" id="saveWardrobeBtn" data-i18n="save" hidden>Сохранить</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal wardrobeScreen" id="wardrobeDetailModal" aria-hidden="true">
+      <article class="modalCard wardrobeScreenCard wardrobeDetailCard" role="dialog" aria-modal="true" aria-labelledby="wardrobeDetailTitle">
+        <div class="modalHeader"><h2 id="wardrobeDetailTitle"></h2><div class="wardrobeDetailActions"><button type="button" class="iconButton" id="openWardrobeActionsBtn" aria-label="Действия"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></button><button type="button" class="iconButton" id="closeWardrobeDetailBtn" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div></div>
+        <div class="wardrobeDetailBody"><div id="wardrobeDetailPhoto" class="wardrobeDetailPhoto"></div><div class="wishlistDetailSummary"><p id="wishlistDetailPrice" class="wishlistDetailPrice" hidden></p><p id="wishlistDetailMeta" class="wishlistDetailMeta"></p><p id="wardrobeDetailStatus" class="wardrobeDetailStatus"></p></div><div class="wishlistDetailButtons"><a id="wardrobeDetailLink" class="wardrobeShopLink" target="_blank" rel="noopener noreferrer" aria-label="Открыть ссылку" title="Открыть ссылку" hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 3H21V10M21 3L10 14M10 3H6C4.343 3 3 4.343 3 6V18C3 19.657 4.343 21 6 21H18C19.657 21 21 19.657 21 18V14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a><button type="button" class="primary" id="toggleWardrobePurchasedBtn"></button></div></div>
+      </article>
+    </div>
+
+    <div class="modal bottomSheetModal" id="wardrobeActionsModal" aria-hidden="true"><div class="bottomSheet" role="dialog" aria-modal="true" aria-labelledby="wardrobeActionsTitle"><div class="bottomSheetHandle" aria-hidden="true"></div><h3 id="wardrobeActionsTitle" data-i18n="wardrobeActions">Действия с вещью</h3><button type="button" class="bottomSheetAction" id="editWardrobeBtn" data-i18n="edit">Редактировать</button><button type="button" class="bottomSheetDanger" id="deleteWardrobeBtn" data-i18n="remove">Удалить</button></div></div>
+
     <div class="modal" id="recipeModal" aria-hidden="true">
       <div class="modalCard recipeModalCard" role="dialog" aria-modal="true" aria-labelledby="recipeModalTitle">
         <div class="modalHeader"><h3 id="recipeModalTitle" data-i18n="addRecipe">Добавить рецепт</h3><button type="button" class="iconButton" id="closeRecipeModalBtn" aria-label="Закрыть" title="Закрыть"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
