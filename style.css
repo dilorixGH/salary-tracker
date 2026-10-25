@@ -2259,4 +2259,83 @@
       body.light-theme .recipeDetailIngredient { border-color: rgba(0,0,0,.08); }
       body.light-theme .recipeTime { background: rgba(255, 191, 0, .24); }
       @media (max-width: 540px) { .recipeIngredientRow { grid-template-columns: minmax(0, 1fr) 76px 30px; } .recipeIngredientLink { grid-column: 1 / span 2; } }
+
+      #wardrobeApp { grid-template-rows: auto minmax(0, 1fr); padding-bottom: 0; }
+      .wardrobeContent { display: grid; grid-template-rows: auto auto minmax(0, 1fr); min-height: 0; min-width: 0; gap: 18px; }
+      .wishlistFilterFields { display: flex; flex-wrap: wrap; gap: 12px; min-width: 0; }
+      .wishlistFilterFields .field { flex: 1 1 140px; min-width: 0; gap: 7px; }
+      .wishlistFilterFields .field[hidden] { display: none; }
+      .wishlistFilterFields label { font-size: 12px; color: var(--muted); }
+      .wishlistFilterFields select { width: 100%; min-width: 0; }
+      .wardrobeFilters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; background: #171717; border-radius: 12px; }
+      .wardrobeFilters button { min-width: 0; min-height: 38px; padding: 7px 4px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font-size: 13px; transition: background .22s ease, color .22s ease; }
+      .wardrobeFilters button[aria-pressed="true"] { background: #303030; color: var(--text); }
+      .wardrobeFilters button:hover { transform: none; }
+      .wardrobeList { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); min-height: 0; gap: 12px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); align-content: start; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+      .wardrobeCard { display: flex; flex-direction: column; align-items: stretch; min-width: 0; padding: 0 0 13px; gap: 10px; border: 0; border-radius: 15px; background: #171717; color: var(--text); text-align: left; overflow: hidden; transition: background .2s ease; }
+      .wardrobeCard:hover { transform: none; background: #202020; }
+      .wardrobeCard.is-new { animation: wardrobe-card-in .38s ease both; }
+      .wardrobeCard.is-removing { animation: wishlist-card-out .22s ease both; pointer-events: none; }
+      .wardrobeCardPhoto { display: block; flex: 0 0 auto; width: 100%; min-height: 0; background: transparent; }
+      .wardrobeCardPhoto img { display: block; width: 100%; height: auto; max-width: 100%; padding: 0; object-fit: contain; }
+      .wardrobeCardPhoto .wardrobePlaceholder { min-height: 160px; }
+      .wardrobePlaceholder { display: grid; width: 100%; height: 100%; min-height: 140px; place-items: center; color: #777; }
+      .wardrobePlaceholder svg { width: 64px; height: 64px; }
+      .wardrobeCard strong { padding: 0 12px; font-size: 15px; line-height: 1.35; overflow-wrap: anywhere; }
+      .wishlistCardMeta { padding: 0 12px; color: var(--muted); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+      .wishlistCardPrice { padding: 0 12px; font-size: 17px; font-variant-numeric: tabular-nums; }
+      .wardrobeBadge { align-self: flex-start; margin: auto 12px 0; padding: 5px 8px; border-radius: 7px; background: rgba(0,122,255,.14); color: #8cc8ff; font-size: 11px; }
+      .wardrobeBadge.is-purchased { background: rgba(52,199,89,.14); color: #78d79a; }
+      .wardrobeEmpty { grid-column: 1 / -1; margin: 0; padding: 40px 18px; color: var(--muted); text-align: center; line-height: 1.5; }
+      .modal.wardrobeScreen { padding: 0; align-items: flex-start; background: #000; }
+      .wardrobeScreen .wardrobeScreenCard { display: grid; grid-template-rows: auto minmax(0, 1fr); width: 100%; max-width: none; height: 100vh; height: 100dvh; min-height: 0; max-height: none; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); border: 0; border-radius: 0; background: #000; overflow: hidden; }
+      .wardrobeScreen .modalHeader { min-width: 0; width: 100%; max-width: 620px; margin: 0 auto 20px; }
+      .wardrobeScreen .modalHeader h2 { min-width: 0; margin: 0; font-size: clamp(24px, 6vw, 34px); overflow-wrap: anywhere; }
+      .wardrobeScreen .iconButton { flex: 0 0 40px; }
+      .wardrobeForm, .wardrobeDetailBody { display: grid; align-content: start; gap: 18px; min-height: 0; min-width: 0; width: 100%; max-width: 620px; margin: 0 auto; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+      .wardrobeForm .field { min-width: 0; }
+      .wardrobeForm input, .wardrobeForm select { min-width: 0; width: 100%; }
+      #wishlistStepProgress { grid-template-columns: repeat(var(--wishlist-steps, 5), minmax(0, 1fr)); margin-bottom: 4px; }
+      .wishlistWizardActions { display: flex; gap: 10px; margin-top: 4px; }
+      .wishlistWizardActions button { flex: 1; min-width: 0; min-height: 48px; }
+      .wishlistWizardActions button[hidden] { display: none; }
+      .wardrobeForm .formStep { min-width: 0; }
+      .wardrobeForm > .primary, .wardrobeDetailBody > .primary { width: 100%; min-height: 48px; margin-top: 2px; }
+      .wardrobePhotoPreview { display: grid; gap: 10px; }
+      .wardrobePhotoPreview[hidden], .wardrobeShopLink[hidden] { display: none; }
+      .wardrobePhotoPreview img { display: block; width: 100%; height: 240px; padding: 10px; object-fit: contain; object-position: center; border-radius: 12px; background: #171717; }
+      .wardrobePhotoPreview .secondary { justify-self: start; }
+      .wardrobeDetailActions { display: flex; flex: 0 0 auto; gap: 8px; }
+      #openWardrobeActionsBtn svg { fill: currentColor; }
+      .wardrobeDetailPhoto { display: block; min-height: 0; background: transparent; border: 0; border-radius: 0; }
+      .wardrobeDetailPhoto img { display: block; width: 100%; height: auto; max-width: 100%; padding: 0; object-fit: contain; }
+      .wardrobeDetailStatus { margin: 0; color: var(--muted); font-size: 14px; }
+      .wishlistDetailSummary { display: grid; gap: 9px; }
+      .wishlistDetailPrice { margin: 0; font-size: 28px; font-variant-numeric: tabular-nums; }
+      .wishlistDetailMeta { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+      .wishlistDetailButtons { display: flex; align-items: stretch; gap: 10px; min-width: 0; }
+      .wishlistDetailButtons .primary { flex: 1; min-width: 0; min-height: 48px; padding: 12px; font-size: 15px; }
+      .wardrobeShopLink { display: flex; align-items: center; justify-content: center; flex: 0 0 52px; min-height: 48px; padding: 12px; border: 0; border-radius: 10px; background: #252525; color: var(--text); text-decoration: none; transition: opacity .2s ease, transform .2s ease; }
+      .wardrobeShopLink svg { display: block; width: 22px; height: 22px; }
+      .wardrobeShopLink:active { transform: scale(.985); opacity: .85; }
+      #wardrobeActionsModal { z-index: 1100; }
+      .wardrobeScreen.open .wardrobeScreenCard { animation: wardrobe-fade-in .26s ease both; }
+      .wardrobeScreen.is-closing { pointer-events: none; animation: wardrobe-fade-out .26s ease both; }
+      #wardrobeActionsModal.is-closing { pointer-events: none; }
+      #wardrobeActionsModal.is-closing .bottomSheet { animation: wardrobe-sheet-out .26s ease both; }
+      @keyframes wardrobe-fade-in { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes wardrobe-fade-out { from { opacity: 1; } to { opacity: 0; } }
+      @keyframes wardrobe-card-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes wishlist-card-out { to { opacity: 0; transform: scale(.96); } }
+      @keyframes wardrobe-sheet-out { to { transform: translateY(100%); opacity: 0; } }
+      body.light-theme .wardrobeFilters { background: #e5e5ea; }
+      body.light-theme .wardrobeFilters button[aria-pressed="true"] { background: #fff; }
+      body.light-theme .wardrobeCard { background: #fff; }
+      body.light-theme .wardrobeCard:hover { background: #f7f7f9; }
+      body.light-theme .wardrobePhotoPreview img { background: #e5e5ea; }
+      body.light-theme .wardrobeBadge { color: #0067d8; }
+      body.light-theme .wardrobeBadge.is-purchased { color: #19783a; }
+      body.light-theme .modal.wardrobeScreen, body.light-theme .wardrobeScreen .wardrobeScreenCard { background: #f2f2f7; }
+      body.light-theme .wardrobeShopLink { background: #e5e5ea; color: #1c1c1e; }
+      @media (prefers-reduced-motion: reduce) { .wardrobeScreen.open .wardrobeScreenCard, .wardrobeCard.is-new, .wardrobeCard.is-removing, .wardrobeForm .formStep { animation: none; } .wardrobeShopLink { transition: none; } }
     
