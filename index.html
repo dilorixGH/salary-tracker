@@ -718,13 +718,21 @@
       <div class="modalCard weekModalCard" role="dialog" aria-modal="true" aria-labelledby="weekModalTitle">
         <div class="modalHeader">
           <h3 id="weekModalTitle">Смены за неделю</h3>
+          <div class="salaryWeekHeaderActions">
+          <button type="button" class="iconButton" id="openWeekActionsBtn" aria-label="Действия с неделей" title="Действия с неделей"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></button>
           <button type="button" class="iconButton" id="closeWeekModalBtn" aria-label="Закрыть список смен" title="Закрыть">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </button>
         </div>
+        </div>
         <div id="weekModalSummary" class="weekModalSummary"></div>
+        <form id="weekTaxForm" class="weekTaxForm" hidden novalidate>
+          <div class="field"><label for="weekTaxInput" data-i18n="weekTaxAmount">Налог, € (необязательно)</label><input id="weekTaxInput" type="text" inputmode="decimal" lang="en-US" autocomplete="off" placeholder="0.00" aria-describedby="weekTaxHint" /><small id="weekTaxHint" class="settingsHint" data-i18n="weekTaxHint">Налог прибавляется к сумме смен. Процент считается от общей суммы с налогом. Очистите поле, чтобы убрать налог.</small></div>
+          <div id="weekTaxPreview" class="weekTaxPreview" aria-live="polite"></div>
+          <div class="weekTaxActions"><button type="submit" class="primary" id="saveWeekTaxBtn" data-i18n="saveWeekTax">Сохранить налог</button><span id="weekTaxSaveStatus" role="status"></span></div>
+        </form>
         <div id="weekEntriesList" class="weekEntriesList"></div>
       </div>
     </div>
@@ -733,7 +741,8 @@
       <div class="bottomSheet" role="dialog" aria-modal="true" aria-labelledby="weekActionsTitle">
         <div class="bottomSheetHandle" aria-hidden="true"></div>
         <h3 id="weekActionsTitle" data-i18n="weekActions">Действия с неделей</h3>
-        <button type="button" class="bottomSheetAction" id="openWeekEditorBtn" data-i18n="editShifts">Редактировать смены</button>
+        <button type="button" class="bottomSheetAction" id="openWeekEditorBtn" data-i18n="editWeek">Редактировать неделю</button>
+        <button type="button" class="bottomSheetDanger" id="deleteWeekBtn">Удалить неделю</button>
       </div>
     </div>
 
