@@ -306,6 +306,16 @@
         margin: -6px 0 16px;
       }
 
+      .weekTaxForm { flex: 0 0 auto; gap: 10px; margin: 0 0 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+      .weekTaxForm[hidden] { display: none; }
+      .weekTaxForm .field { gap: 8px; }
+      .weekTaxForm input { min-width: 0; }
+      .weekTaxPreview { color: var(--muted); font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+      .weekTaxActions { display: flex; align-items: center; gap: 12px; }
+      .weekTaxActions .primary { min-height: 42px; padding: 10px 14px; font-size: 14px; }
+      #weekTaxSaveStatus { color: var(--muted); font-size: 12px; }
+      .weekTaxMeta { margin-top: 7px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+
       .weekEntriesList {
         display: grid;
         gap: 10px;
@@ -1632,6 +1642,22 @@
       }
 
       .weekModalCard { max-width: 480px; }
+      #weekModal { align-items: stretch; padding: 0; background: var(--bg); }
+      #weekModal .weekModalCard {
+        width: 100%; max-width: none; height: 100vh; height: 100dvh; max-height: none;
+        padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+        border: 0; border-radius: 0; background: var(--bg); overflow-y: auto; overflow-x: hidden;
+        overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+      }
+      #weekModal .weekModalCard > * { flex-shrink: 0; }
+      #weekModal .modalHeader { position: sticky; top: -1px; z-index: 1; padding: 0 0 14px; background: inherit; }
+      #weekModal .modalHeader h3 { min-width: 0; overflow-wrap: anywhere; }
+      #weekModal .modalHeader .iconButton { flex-shrink: 0; }
+      #weekModal .weekEntriesList { min-height: 0; overflow: visible; align-content: start; padding-right: 0; }
+      #weekModal.open .weekModalCard { animation: week-screen-in .25s ease-out both; }
+      @keyframes week-screen-in { from { opacity: 0; } to { opacity: 1; } }
+      body.light-theme #weekModal, body.light-theme #weekModal .weekModalCard { background: #f2f2f7; }
+      @media (prefers-reduced-motion: reduce) { #weekModal.open .weekModalCard { animation: none; } }
       .modalHeader h3 { font-size: 22px; }
       .modalHeader .iconButton { background: #222; }
       .field label { font-size: 14px; }
@@ -1756,6 +1782,19 @@
       }
       .statCard .entryMeta { display: none; }
       .statCard .amount { font-size: 16px; }
+      .statCard.salaryWeekCard { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; padding: 0; }
+      .salaryWeekCard .salaryWeekOpen { padding: 15px; border-radius: inherit; }
+      .salaryWeekHeaderActions { display: flex; flex: 0 0 auto; align-items: center; gap: 8px; }
+      #openWeekActionsBtn svg { fill: currentColor; }
+      .salaryWeekOpen { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 7px 12px; min-width: 0; width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--text); text-align: left; }
+      .salaryWeekOpen:hover, .salaryWeekOpen:active { transform: none; background: transparent; }
+      .salaryWeekOpen:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; border-radius: 5px; }
+      .salaryWeekPeriod { font-size: 14px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+      .salaryWeekAmount { font-size: 22px; font-weight: 400; white-space: nowrap; font-variant-numeric: tabular-nums; text-align: right; }
+      .salaryWeekCount, .salaryWeekTotalLabel { color: var(--muted); font-size: 11px; line-height: 1.4; }
+      .salaryWeekTotalLabel { text-align: right; }
+      .salaryWeekBreakdown { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 5px 12px; margin-top: 6px; padding-top: 11px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; line-height: 1.5; }
+      .salaryWeekCard > .statMenuButton { background: transparent; }
 
       .statMenuButton {
         width: 30px;
