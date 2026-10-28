@@ -18,6 +18,12 @@
 
       Object.assign(TRANSLATIONS.ru, { general: 'Общие', application: 'Приложение', developerMode: 'Режим разработчика' });
       Object.assign(TRANSLATIONS.en, { general: 'General', application: 'Application', developerMode: 'Developer mode' });
+      Object.assign(TRANSLATIONS.ru, {
+        editWeek: 'Редактировать неделю', weekTaxAmount: 'Налог, € (необязательно)', weekTaxHint: 'Налог прибавляется к сумме смен. Процент считается от общей суммы с налогом. Очистите поле, чтобы убрать налог.', saveWeekTax: 'Сохранить налог', weekTaxLabel: 'Налог: {amount} · {rate}', weekGrossLabel: 'Итого с налогом: {amount}', weekNetLabel: 'Сумма смен: {amount}', weekTaxInvalid: 'Введите налог от нуля, не более двух знаков после точки.', weekTaxPastOnly: 'Налог можно указать только для прошедшей недели.', weekTaxSaved: 'Сохранено', weekTaxSaveError: 'Не удалось сохранить налог. Попробуйте ещё раз.'
+      });
+      Object.assign(TRANSLATIONS.en, {
+        editWeek: 'Edit week', weekTaxAmount: 'Tax, € (optional)', weekTaxHint: 'Tax is added to shift earnings. Its percentage is calculated from the total including tax. Clear the field to remove tax.', saveWeekTax: 'Save tax', weekTaxLabel: 'Tax: {amount} · {rate}', weekGrossLabel: 'Total including tax: {amount}', weekNetLabel: 'Shift earnings: {amount}', weekTaxInvalid: 'Enter a non-negative tax amount with up to two decimal places.', weekTaxPastOnly: 'Tax can only be entered for a past week.', weekTaxSaved: 'Saved', weekTaxSaveError: 'Could not save the tax. Please try again.'
+      });
 
       Object.assign(TRANSLATIONS.ru, {
         shoppingSetupTitle: 'Сколько можно тратить в день?', saveShoppingLimit: 'Начать', dailyLimit: 'Дневной лимит', availableToday: 'Доступно', spentToday: 'Потрачено сегодня', shoppingInvalidLimit: 'Введите дневной лимит больше нуля.', carryOverLabel: 'Перерасход за вчера: {amount}', shoppingProgressStyle: 'Вид индикатора', shoppingProgressBar: 'Полоса', shoppingProgressCircle: 'Круг', shoppingSettingsSection: 'Shopping', shoppingQuickActions: 'Быстро добавить', shoppingEditTotal: 'Изменить сумму', addShoppingExpense: 'Добавить трату', shoppingExpenseAmount: 'Сумма траты', shoppingSpentDialogDescription: 'Введите итоговую сумму трат за сегодня.', shoppingInvalidSpent: 'Введите сумму больше нуля.', shoppingOverLimit: 'Лимит превышен на {amount}'
@@ -114,6 +120,11 @@
       const weekEntriesList = document.getElementById('weekEntriesList');
       const weekModalTitle = document.getElementById('weekModalTitle');
       const weekModalSummary = document.getElementById('weekModalSummary');
+      const weekTaxForm = document.getElementById('weekTaxForm');
+      const weekTaxInput = document.getElementById('weekTaxInput');
+      const weekTaxPreview = document.getElementById('weekTaxPreview');
+      let weekTaxStat = null;
+      let isSavingWeekTax = false;
       const stepProgress = document.getElementById('stepProgress');
       const salaryApp = document.getElementById('salaryApp');
       Object.assign(TRANSLATIONS.ru, {
@@ -1440,6 +1451,107 @@
         });
       }
 
+      function isPastSalaryWeek(stat, now = new Date()) {
+        const start = new Date(stat.weekStart).getTime();
+        const end = new Date(stat.weekEnd).getTime();
+        return Number.isFinite(start) && Number.isFinite(end) && start < end && end <= getStartOfWeek(now).getTime();
+      }
+
+      function parseWeekTaxAmount(value) {
+        const text = String(value).trim().replace(',', '.');
+        if (!text) return null;
+        if (!/^(?:\d+(?:\.\d{0,2})?|\.\d{1,2})$/.test(text)) throw new Error('Invalid tax amount');
+        const number = Number(text);
+        const cents = Math.round((number + Number.EPSILON) * 100);
+        if (!Number.isSafeInteger(cents) || cents < 0) throw new Error('Invalid tax amount');
+        return cents / 100;
+      }
+
+      function getSalaryWeekTotals(stat) {
+        const net = Math.round((Math.max(0, Number(stat.total) || 0) + Number.EPSILON) * 100) / 100;
+        const storedTax = stat.taxAmount;
+        const hasTax = storedTax !== undefined && storedTax !== null && storedTax !== '' && Number.isFinite(Number(storedTax)) && Number(storedTax) >= 0;
+        const tax = hasTax ? Math.round((Number(storedTax) + Number.EPSILON) * 100) / 100 : 0;
+        const gross = Math.round((net + tax + Number.EPSILON) * 100) / 100;
+        return { net, tax, gross, hasTax, rate: gross > 0 ? tax / gross : 0 };
+      }
+
+      function formatWeekTaxSummary(totals) {
+        const rate = new Intl.NumberFormat(currentLanguage === 'en' ? 'en-IE' : 'ru-RU', { style: 'percent', maximumFractionDigits: 2 }).format(totals.rate);
+        return t('weekTaxLabel').replace('{amount}', formatCurrency(totals.tax)).replace('{rate}', rate);
+      }
+
+      function updateWeekTaxPreview() {
+        if (!weekTaxStat || weekTaxForm.hidden) return;
+        document.getElementById('weekTaxSaveStatus').textContent = '';
+        weekTaxInput.setCustomValidity('');
+        try {
+          const taxAmount = parseWeekTaxAmount(weekTaxInput.value);
+          const totals = getSalaryWeekTotals({ ...weekTaxStat, taxAmount });
+          weekTaxPreview.textContent = totals.hasTax
+            ? `${t('weekGrossLabel').replace('{amount}', formatCurrency(totals.gross))} · ${formatWeekTaxSummary(totals)}`
+            : t('weekNetLabel').replace('{amount}', formatCurrency(totals.net));
+        } catch (_) {
+          weekTaxPreview.textContent = t('weekTaxInvalid');
+          weekTaxInput.setCustomValidity(t('weekTaxInvalid'));
+        }
+      }
+
+      async function saveWeekTax() {
+        if (isSavingWeekTax || !openedStatId || weekTaxForm.hidden) return;
+        let taxAmount;
+        try { taxAmount = parseWeekTaxAmount(weekTaxInput.value); }
+        catch (_) { weekTaxInput.setCustomValidity(t('weekTaxInvalid')); weekTaxInput.reportValidity(); return; }
+        const statId = openedStatId;
+        const saveButton = document.getElementById('saveWeekTaxBtn');
+        isSavingWeekTax = true;
+        saveButton.disabled = true;
+        weekTaxInput.disabled = true;
+        document.getElementById('weekTaxSaveStatus').textContent = '';
+        try {
+          const updated = await new Promise((resolve, reject) => {
+            const transaction = db.transaction('stats', 'readwrite');
+            const store = transaction.objectStore('stats');
+            const request = store.get(statId);
+            let stat;
+            request.onsuccess = () => {
+              stat = request.result;
+              if (!stat || !isPastSalaryWeek(stat)) {
+                transaction.abort();
+                reject(new Error('Week is not in the past'));
+                return;
+              }
+              if (taxAmount === null) delete stat.taxAmount;
+              else stat.taxAmount = taxAmount;
+              stat.updatedAt = new Date().toISOString();
+              store.put(stat);
+            };
+            transaction.oncomplete = () => resolve(stat);
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error || new Error('Tax update aborted'));
+          });
+          await loadStats();
+          if (openedStatId === statId) {
+            renderWeekEntries(updated);
+            document.getElementById('weekTaxSaveStatus').textContent = t('weekTaxSaved');
+          }
+          await refreshDatabaseUsage();
+        } catch (error) {
+          console.error('Failed to save week tax', error);
+          alert(t('weekTaxSaveError'));
+        } finally {
+          isSavingWeekTax = false;
+          saveButton.disabled = false;
+          weekTaxInput.disabled = false;
+        }
+      }
+
+      weekTaxInput.addEventListener('input', () => {
+        weekTaxInput.value = weekTaxInput.value.replace(/,/g, '.');
+        updateWeekTaxPreview();
+      });
+      weekTaxForm.addEventListener('submit', (event) => { event.preventDefault(); saveWeekTax(); });
+
       async function loadStats() {
         const stats = await readAllFromStore('stats');
         stats.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -1451,30 +1563,39 @@
 
         statsListEl.innerHTML = stats.map((item) => {
           const locale = currentLanguage === 'en' ? 'en-GB' : 'ru-RU';
-          const start = new Date(item.weekStart).toLocaleDateString(locale, { day: '2-digit', month: '2-digit' });
-          const end = new Date(item.weekEnd).toLocaleDateString(locale, { day: '2-digit', month: '2-digit' });
+          const startDate = new Date(item.weekStart);
+          const endDate = new Date(new Date(item.weekEnd).getTime() - 1);
+          const start = startDate.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+          const end = endDate.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+          const totals = getSalaryWeekTotals(item);
+          const count = item.entriesCount ?? item.entries?.length ?? 0;
+          const totalLabel = totals.hasTax ? (currentLanguage === 'en' ? 'Including tax' : 'С учётом налога') : (currentLanguage === 'en' ? 'Earned' : 'Заработано');
           return `
-            <div class="statCard">
-              <div class="statCardTop">
-                <div>
-                  <div class="entryTitle">${t('week')} ${start} — ${end} · ${item.entriesCount} ${t('shiftsCount')}</div>
-                </div>
-                <div class="statCardControls">
-                  <div class="amount">${formatCurrency(item.total)}</div>
-                  <button type="button" class="statMenuButton" data-action="toggle-week-menu" data-id="${item.id}" aria-label="${t('editShifts')}" title="${t('editShifts')}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></button>
-                </div>
-              </div>
-            </div>
+            <article class="statCard salaryWeekCard">
+              <button type="button" class="salaryWeekOpen" data-action="open-salary-week" data-id="${escapeHtml(item.id)}">
+                <span class="salaryWeekPeriod">${start} — ${end}</span>
+                <span class="salaryWeekAmount">${formatCurrency(totals.gross)}</span>
+                <span class="salaryWeekCount">${count} ${t('shiftsCount')} · ${startDate.getFullYear()}</span>
+                <span class="salaryWeekTotalLabel">${totalLabel}</span>
+                ${totals.hasTax ? `<span class="salaryWeekBreakdown"><span>${t('weekNetLabel').replace('{amount}', formatCurrency(totals.net))}</span><span>${formatWeekTaxSummary(totals)}</span></span>` : ''}
+              </button>
+            </article>
           `;
         }).join('');
 
-        statsListEl.querySelectorAll('[data-action="toggle-week-menu"]').forEach((button) => {
-          button.addEventListener('click', async (event) => {
-            const stat = await readFromStore('stats', event.currentTarget.dataset.id);
-            if (stat) openWeekActionsModal(stat);
+        statsListEl.querySelectorAll('[data-action="open-salary-week"]').forEach((button) => {
+          button.addEventListener('click', async () => {
+            const stat = await readFromStore('stats', button.dataset.id);
+            if (stat) openWeekModal(stat);
           });
         });
       }
+
+      document.getElementById('openWeekActionsBtn').addEventListener('click', async () => {
+        if (!openedStatId || isSavingWeekTax) return;
+        const stat = await readFromStore('stats', openedStatId);
+        if (stat) openWeekActionsModal(stat);
+      });
 
       function resetForm() {
         editingEntryId = null;
@@ -1616,8 +1737,14 @@
 
       function renderWeekEntries(stat) {
         const entries = stat.entries || [];
+        const totals = getSalaryWeekTotals(stat);
         weekModalTitle.textContent = `${t('weekShifts')} ${formatWeekRange(stat)}`;
-        weekModalSummary.textContent = `${entries.length} ${t('shiftsCount')} • ${formatCurrency(stat.total)}`;
+        weekModalSummary.textContent = `${stat.entriesCount ?? entries.length} ${t('shiftsCount')} • ${formatCurrency(totals.gross)}${totals.hasTax ? ` • ${formatWeekTaxSummary(totals)}` : ''}`;
+        weekTaxStat = stat;
+        weekTaxForm.hidden = !isPastSalaryWeek(stat);
+        weekTaxInput.value = totals.hasTax ? String(totals.tax) : '';
+        weekTaxInput.setCustomValidity('');
+        updateWeekTaxPreview();
 
         if (!entries.length) {
           weekEntriesList.innerHTML = `<div class="emptyState">${t('unavailable')}</div>`;
@@ -1646,11 +1773,15 @@
         openedStatId = stat.id;
         renderWeekEntries(stat);
         weekModal.classList.add('open');
+        weekModal.setAttribute('aria-hidden', 'false');
       }
 
       function closeWeekModal() {
+        if (isSavingWeekTax) return;
         weekModal.classList.remove('open');
+        weekModal.setAttribute('aria-hidden', 'true');
         openedStatId = null;
+        weekTaxStat = null;
       }
 
       function openBottomSheet(modal) {
@@ -1672,11 +1803,16 @@
 
       function openWeekActionsModal(stat) {
         selectedStatId = stat.id;
+        const deleteButton = document.getElementById('deleteWeekBtn');
+        deleteButton.textContent = currentLanguage === 'en' ? 'Delete week' : 'Удалить неделю';
+        deleteButton.hidden = !isPastSalaryWeek(stat);
         openBottomSheet(weekActionsModal);
+        weekActionsModal.setAttribute('aria-hidden', 'false');
       }
 
       async function closeWeekActionsModal() {
         await closeBottomSheet(weekActionsModal);
+        weekActionsModal.setAttribute('aria-hidden', 'true');
         selectedStatId = null;
       }
 
@@ -1721,19 +1857,38 @@
         });
       });
 
+
       function openArchivedEntryEdit(stat, entryId) {
-        const entry = (stat.entries || []).find((item) => item.id === entryId);
+        if (isSavingWeekTax) return;
+        const entry = (stat.entries || []).find(
+          (item) => item.id === entryId
+        );
+
         if (!entry) return;
+
+        // Запоминаем редактируемую смену
         editingArchivedEntryId = entry.id;
         editingEntryId = null;
+
+        // Заполняем форму существующими данными
         workNameInput.value = entry.workName;
         weekdaySelect.value = String(entry.weekday);
         hoursInput.value = String(entry.hours);
         amountInput.value = String(entry.amount);
-        document.getElementById('shiftModalTitle').textContent = t('editShift');
+
+        // Закрываем окно смен выбранной недели
+        closeWeekModal();
+
+        // Открываем редактирование выбранной смены
+        document.getElementById('shiftModalTitle').textContent =
+          t('editShift');
+
         document.getElementById('shiftModal').classList.add('open');
+
+        // Показываем первый шаг редактирования
         showFormStep(1);
       }
+
 
       async function refreshSuggestions() {
         const all = await readAllFromStore('workOptions');
@@ -2704,6 +2859,35 @@
         await closeWeekActionsModal();
         if (stat) openWeekModal(stat);
       });
+      document.getElementById('deleteWeekBtn').addEventListener('click', async () => {
+        if (!selectedStatId || isSavingWeekTax) return;
+        const button = document.getElementById('deleteWeekBtn');
+        if (button.disabled) return;
+        const id = selectedStatId;
+        button.disabled = true;
+        try {
+          const stat = await readFromStore('stats', id);
+          if (!stat || !isPastSalaryWeek(stat)) return;
+          const message = currentLanguage === 'en'
+            ? `Delete week ${formatWeekRange(stat)} with its archived shifts and tax? This cannot be undone.`
+            : `Удалить неделю ${formatWeekRange(stat)} вместе с её сохранёнными сменами и налогом? Отменить удаление нельзя.`;
+          if (!window.confirm(message)) return;
+          await new Promise((resolve, reject) => {
+            const transaction = db.transaction('stats', 'readwrite');
+            transaction.objectStore('stats').delete(id);
+            transaction.oncomplete = resolve;
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error || new Error('Week deletion aborted'));
+          });
+          await closeWeekActionsModal();
+          if (openedStatId === id) closeWeekModal();
+          await loadStats();
+          await refreshDatabaseUsage();
+        } catch (error) {
+          console.error('Failed to delete week', error);
+          alert(currentLanguage === 'en' ? 'Could not delete the week. Please try again.' : 'Не удалось удалить неделю. Попробуйте ещё раз.');
+        } finally { button.disabled = false; }
+      });
       document.getElementById('openEntryEditorBtn').addEventListener('click', async () => {
         if (!selectedEntryId) return;
         const entry = (await loadAllEntries()).find((item) => item.id === selectedEntryId);
@@ -3007,53 +3191,174 @@
         });
       });
 
+      
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
-        if (isCompletingShift) return;
+
+        if (
+          isCompletingShift ||
+          form.dataset.shiftSaving === 'true'
+        ) {
+          return;
+        }
 
         const name = workNameInput.value.trim();
         const weekday = Number(weekdaySelect.value);
         const hours = Number(hoursInput.value);
         const amount = Number(amountInput.value);
 
-        if (!name || !Number.isFinite(hours) || hours <= 0 || !Number.isFinite(amount) || amount <= 0) {
+        if (
+          !name ||
+          !Number.isFinite(hours) ||
+          hours <= 0 ||
+          !Number.isFinite(amount) ||
+          amount <= 0
+        ) {
           alert(t('invalidForm'));
           return;
         }
 
-        const entryPayload = {
-          id: editingEntryId || editingArchivedEntryId || uid(),
-          workName: name,
-          weekday,
-          hours,
-          amount,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
+        form.dataset.shiftSaving = 'true';
 
-        if (editingArchivedEntryId && openedStatId) {
-          const stat = await readFromStore('stats', openedStatId);
-          if (!stat) return;
-          const previousEntry = (stat.entries || []).find((item) => item.id === editingArchivedEntryId);
-          if (previousEntry) entryPayload.createdAt = previousEntry.createdAt;
-          stat.entries = (stat.entries || []).map((item) => item.id === editingArchivedEntryId ? entryPayload : item);
-          stat.entriesCount = stat.entries.length;
-          stat.total = stat.entries.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-          await writeToStore('stats', stat);
-          renderWeekEntries(stat);
-          await loadStats();
-        } else if (editingEntryId) {
-          const existing = await readFromStore('entries', editingEntryId);
-          if (existing) entryPayload.createdAt = existing.createdAt;
-          await writeToStore('entries', entryPayload);
-          await renderEntries();
-        } else {
-          await writeToStore('entries', entryPayload);
-          await renderEntries();
+        const saveButton = form.querySelector('[type="submit"]');
+
+        if (saveButton) {
+          saveButton.disabled = true;
         }
 
-        await completeShiftModal();
+        try {
+          const now = new Date().toISOString();
+          let updatedStat = null;
+
+          // Редактирование смены из статистики за недели
+          if (editingArchivedEntryId !== null) {
+            const allStats = await readAllFromStore('stats');
+
+            // Ищем неделю, в которой находится исходная смена.
+            // Не зависим от openedStatId, поскольку он может
+            // сбрасываться при закрытии окна недели.
+            const stat = allStats.find((week) =>
+              Array.isArray(week.entries) &&
+              week.entries.some(
+                (entry) => entry.id === editingArchivedEntryId
+              )
+            );
+
+            if (!stat) {
+              throw new Error('Archived week not found');
+            }
+
+            const previousEntry = stat.entries.find(
+              (entry) => entry.id === editingArchivedEntryId
+            );
+
+            if (!previousEntry) {
+              throw new Error('Archived shift not found');
+            }
+
+            // Обновляем существующую смену с тем же ID.
+            // Исходная дата создания также сохраняется.
+            const updatedEntry = {
+              ...previousEntry,
+              workName: name,
+              weekday,
+              hours,
+              amount,
+              updatedAt: now
+            };
+
+            stat.entries = stat.entries.map((entry) =>
+              entry.id === editingArchivedEntryId
+                ? updatedEntry
+                : entry
+            );
+
+            // Количество смен не увеличивается.
+            stat.entriesCount = stat.entries.length;
+
+            // Пересчитываем общую сумму недели.
+            stat.total = stat.entries.reduce(
+              (sum, entry) => sum + Number(entry.amount || 0),
+              0
+            );
+
+            stat.updatedAt = now;
+
+            // Сохраняем изменения в существующей неделе.
+            await writeToStore('stats', stat);
+            await loadStats();
+
+            updatedStat = stat;
+
+            if (openedStatId === stat.id) {
+              renderWeekEntries(stat);
+            }
+
+          // Редактирование смены текущей недели
+          } else if (editingEntryId !== null) {
+            const existing = await readFromStore(
+              'entries',
+              editingEntryId
+            );
+
+            if (!existing) {
+              throw new Error('Current shift not found');
+            }
+
+            const updatedEntry = {
+              ...existing,
+              workName: name,
+              weekday,
+              hours,
+              amount,
+              updatedAt: now
+            };
+
+            await writeToStore('entries', updatedEntry);
+            await renderEntries();
+
+          // Добавление совершенно новой смены
+          } else {
+            const newEntry = {
+              id: uid(),
+              workName: name,
+              weekday,
+              hours,
+              amount,
+              createdAt: now,
+              updatedAt: now
+            };
+
+            await writeToStore('entries', newEntry);
+            await renderEntries();
+          }
+
+          await completeShiftModal();
+
+          // После редактирования архивной смены
+          // показываем неделю с обновлёнными данными.
+          if (updatedStat) {
+            openWeekModal(updatedStat);
+          }
+
+        } catch (error) {
+          console.error('Failed to save shift:', error);
+
+          alert(
+            currentLanguage === 'en'
+              ? 'Could not save the shift. Please try again.'
+              : 'Не удалось сохранить смену. Попробуйте ещё раз.'
+          );
+
+        } finally {
+          delete form.dataset.shiftSaving;
+
+          if (saveButton) {
+            saveButton.disabled = false;
+          }
+        }
       });
+
 
       async function ensureWeeklyReset() {
         const now = new Date();
